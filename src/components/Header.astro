@@ -1,0 +1,25 @@
+---
+import { SiteData } from '@/content/SiteData';
+
+// Define the header menu items in the frontmatter
+const headerMenu = [
+  { href: "/", label: "Home" },
+  { href: "/services", label: "Services" },
+  { href: "/projects", label: "Projects" },
+  { href: "/testimonials", label: "Testimonials" },
+];
+---
+<header>
+  <a href="/">
+    <h1>{SiteData.title}</h1>
+  </a>
+  <nav>
+    <ul>
+    {headerMenu.map((item) => (
+      <li>
+      <a href={item.href}>{item.label}</a>
+    </li>
+    ))}
+    </ul>
+  </nav>
+</header>

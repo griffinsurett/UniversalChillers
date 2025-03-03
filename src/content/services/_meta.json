@@ -1,0 +1,18 @@
+{
+  "heading": "Our Services",
+  "description": "Explore our comprehensive list of professional services.",
+  "itemsSections": [
+    {
+      "collection": "projects",
+      "query": "related"
+    },
+    {
+      "collection": "testimonials",
+      "query": "related"
+    },
+    {
+      "collection": "clients",
+      "query": "related"
+    }
+  ]
+}

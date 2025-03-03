@@ -1,0 +1,119 @@
+---
+/**
+ * /[collection]/[slug].astro
+ *
+ * 1) Defines getStaticPaths() to build routes for each item in a collection that should have its own page.
+ * 2) By default, if `_meta.json` sets "itemsHasPage" to true for a collection, any item without an explicit
+ *    `hasPage` frontmatter gets a page. If an item explicitly sets `hasPage: false`, it will NOT get a page
+ *    (overriding the collection default).
+ * 3) Renders the individual item, including a fallback to "itemsSections" from the collection’s _meta.json
+ *    if the item doesn’t define its own "sections" in frontmatter.
+ */
+
+ import { getCollection } from "astro:content";
+import Layout from "@/layouts/Layout.astro";
+import { Image } from "astro:assets";
+import Heading from "@/components/Heading.jsx";
+import Section from "@/components/Section.astro";
+import Card from "@/components/Card.jsx";
+import { collections } from "@/content/config";
+import { getCollectionMeta } from "@/utils/FetchMeta";
+
+// Build all paths for items that end up with `hasPage: true`.
+export async function getStaticPaths() {
+  const collectionNames = Object.keys(collections);
+  let allPaths = [];
+
+  for (const collName of collectionNames) {
+    // 1) Load the collection meta
+    let meta = {};
+    try {
+      meta = await getCollectionMeta(collName);
+    } catch {
+      // If no _meta.json, meta remains empty
+    }
+
+    // The collection-wide default for individual items
+    const { itemsHasPage = true } = meta;
+
+    // 2) Load all items in this collection
+    const entries = await getCollection(collName);
+
+    // 3) Determine `hasPage` for each entry
+    for (const entry of entries) {
+      // If user did NOT specify hasPage in frontmatter, default to itemsHasPage
+      if (typeof entry.data.hasPage === "undefined") {
+        entry.data.hasPage = itemsHasPage;
+      }
+      // If the user explicitly wrote `hasPage: false`, it stays false, overriding the default
+      // If the user explicitly wrote `hasPage: true`, it stays true
+    }
+
+    // 4) Filter only the items that end up with `hasPage: true`
+    const pathsForColl = entries
+      .filter((entry) => entry.data.hasPage === true)
+      .map((entry) => ({
+        params: { collection: collName, slug: entry.slug },
+        props: { collection: collName, entry },
+      }));
+
+    allPaths.push(...pathsForColl);
+  }
+
+  return allPaths;
+}
+
+// Page logic:
+const { collection, entry } = Astro.props;
+const { data, body } = entry;
+
+// Optionally load the collection's meta for fallback data
+let meta = {};
+try {
+  meta = await getCollectionMeta(collection);
+} catch {
+  // If _meta.json is missing, meta remains {}
+}
+
+// If this item has its own "sections" in frontmatter, use them;
+// otherwise, fall back to the collection's "itemsSections".
+const sections = data.sections && data.sections.length > 0
+  ? data.sections
+  : meta.itemsSections || [];
+---
+
+<Layout title={data.title} description={data.description}>
+  <article>
+    <Heading tagName="h1" size="h1">
+      {data.title}
+    </Heading>
+
+    {/* Optional description from frontmatter */}
+    {data.description && <p>{data.description}</p>}
+
+    {/* Optional featured image */}
+    {"featuredImage" in data && data.featuredImage && (
+      <Image
+        src={data.featuredImage}
+        alt={data.title}
+        width={600}
+        height={400}
+        format="avif"
+      />
+    )}
+
+    {/* The MDX body content */}
+    {body && <p>{body}</p>}
+
+    {/* Render each "Section" (or default to meta.itemsSections). */}
+    {sections.map((section, i) => (
+      <Section
+        key={i}
+        collection={section.collection}
+        query={section.query}
+        description={meta.description}
+        component={Card}
+      />
+    ))}
+  </article>
+</Layout>

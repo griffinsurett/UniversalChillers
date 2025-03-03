@@ -1,22 +1,92 @@
-<!doctype html>
-<html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
-	</head>
-	<body>
-		<slot />
-	</body>
-</html>
+---
+import Header from '@/components/Header.astro';
+// import Footer from '../components/Footer.astro';
+import { SiteData } from '@/content/SiteData'; // <— your config file
+// import '../styles/global.css';
 
-<style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
-</style>
+/**
+ * SINGLE universal layout with enhanced SEO.
+ *
+ * Props:
+ *  - title (string)
+ *  - description (string)
+ *  - image (string)
+ *  - ogType (string)
+ *  - canonicalUrl (string)
+ *  - robots (string)
+ *  - siteName (string)
+ *  - crawl (boolean) // New prop to control indexing
+ */
+const {
+  title = SiteData.title,       // fallback if no title passed
+  description = SiteData.description,
+  image = SiteData.logo,        // fallback if not provided
+  ogType = "website",
+  canonicalUrl,          // optional
+  robots,                  // e.g. "index,follow"
+  siteName = SiteData.title,    // e.g. "My Great Site"
+  crawl = true,                   // default to true
+} = Astro.props;
+
+console.log(canonicalUrl);
+
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Basic meta tags -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="generator" content={Astro.generator} />
+  <link rel="icon" type="image/svg+xml" href={image} />
+
+  <!-- Title & Description -->
+  <title>{title}</title>
+  <meta name="description" content={description} />
+
+  <!-- Canonical link (if provided) -->
+  {canonicalUrl && (
+    <link rel="canonical" href={canonicalUrl} />
+  )}
+
+  <!-- Robots Meta Tag -->
+  {robots && (
+    <meta name="robots" content={robots} />
+  )}
+
+  <!-- Conditional Noindex Tag based on crawl flag -->
+  {!crawl && <meta name="robots" content="noindex, nofollow" />}
+
+  <!-- Open Graph -->
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:image" content={image} />
+  <meta property="og:type" content={ogType} />
+  <meta property="og:site_name" content={siteName} />
+
+  <!-- Twitter Cards -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={image} />
+
+  <!-- Optional named slot for additional <head> tags -->
+  <slot name="head" />
+
+  <!-- Optional slot for structured data (JSON-LD, etc.) -->
+  <slot name="structuredData" />
+</head>
+
+<body class="m-0 p-0 w-full h-full font-sans bg-gray-f9 text-gray-333">
+  <!-- Global site header -->
+  <Header />
+
+  <!-- Main content area -->
+  <main class="px-8 py-8 min-h-[80vh]">
+    <slot />
+  </main>
+
+  <!-- Global site footer -->
+  <!-- <Footer /> -->
+</body>
+</html>

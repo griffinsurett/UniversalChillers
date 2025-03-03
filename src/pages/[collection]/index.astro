@@ -1,0 +1,46 @@
+---
+// /[collection]/index.astro
+import Layout from "@/layouts/Layout.astro";
+import Section from "@/components/Section.astro";
+import Card from "@/components/Card.jsx";
+import { collections } from "@/content/config";
+import { getCollectionMeta } from "@/utils/FetchMeta";
+import { capitalize } from "@/utils/ContentUtils";
+
+export async function getStaticPaths() {
+  const collectionNames = Object.keys(collections);
+  const allPaths = [];
+
+  for (const collName of collectionNames) {
+    const meta = await getCollectionMeta(collName);
+    if (meta.hasPage !== false) {
+      allPaths.push({
+        params: { collection: collName },
+      });
+    }
+  }
+  return allPaths;
+}
+
+const { collection } = Astro.params;
+
+// We'll load metadata ourselves
+let meta = {};
+try {
+  meta = await getCollectionMeta(collection);
+  console.log("meta", meta);
+} catch {}
+---
+
+<Layout title={capitalize(collection)} description={meta.description}>
+  {/* 
+    Pass the description from meta to <Section>. 
+    The Section will handle heading from the collectionName automatically. 
+  */}
+  <Section
+    collection={collection}
+    query="getAll"
+    component={Card}
+    description={meta.description}
+  />
+</Layout>
