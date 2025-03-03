@@ -8,11 +8,11 @@ export default function Heading({ tagName, size, children, ...props }) {
   return <Tag {...props}>{children}</Tag>;
 }
 
-// Heading.propTypes = {
-//   tagName: PropTypes.oneOf(['h1', 'h2', 'h3', 'h4', 'h5', 'h6']).isRequired,
-//   size: PropTypes.oneOf(['h1', 'h2', 'h3', 'h4', 'h5', 'h6']),
-//   children: PropTypes.node,
-// };
+Heading.propTypes = {
+  tagName: PropTypes.oneOf(['h1', 'h2', 'h3', 'h4', 'h5', 'h6']).isRequired,
+  size: PropTypes.oneOf(['h1', 'h2', 'h3', 'h4', 'h5', 'h6']),
+  children: PropTypes.node,
+};
 
 Heading.defaultProps = {
   size: 'h3',
