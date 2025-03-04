@@ -1,0 +1,41 @@
+---
+// src/components/ItemsTemplate.astro
+
+import Card from "./Card.jsx";
+import { queryItems } from "@/utils/QueryUtils";
+
+// Props:
+// - collection: (optional) if provided, we will use it (with the query) to fetch items
+// - query: (optional) the query type (e.g., "getAll", "related")
+// - items: (optional) a static array of items (if not provided, dynamic fetching will be attempted)
+// - ItemComponent: (optional) component to render each item (defaults to Card)
+// - itemClass: (optional) classes for the <ul> container
+// - ...props: any additional props to be applied to the <ul>
+const {
+  collection,
+  query,
+  items: initialItems,
+  ItemComponent,
+  itemClass,
+  ...props
+} = Astro.props;
+
+let items = initialItems || [];
+if (!initialItems && collection && query) {
+  items = await queryItems(query, collection, Astro.url.pathname);
+}
+
+// Determine which component to use for each item.
+const RenderComponent = ItemComponent || Card;
+---
+{items && items.length > 0 ? (
+  <ul class={itemClass} {...props}>
+    {items.map((item) => (
+      <li>
+        <RenderComponent item={item} collectionName={collection} />
+      </li>
+    ))}
+  </ul>
+) : (
+  <p>No items found.</p>
+)}

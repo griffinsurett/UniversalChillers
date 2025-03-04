@@ -1,18 +1,15 @@
 ---
+// src/components/Section.astro
 /**
  * src/components/Section.astro
  *
- * This version retains dynamic querying and an optional “View All” button:
- *   - Accepts `collection + query` => loads items from that collection (`queryItems`).
- *   - If “ifButton” is true (or if not provided and a collection exists then meta.hasPage is used),
- *     displays a "View All" button (unless we’re already on /collectionName).
- *   - If no collection+query is provided, simply renders a static <section>.
- *   - The items are rendered inside a <ul> (with class set via itemClass), with each item in a <li>.
+ * This version retains dynamic querying and an optional “View All” button.
+ * Instead of handling the item looping directly, it delegates that work to ItemsTemplate.
  *
  * Props:
- *  - collection: (string) E.g., "services", "projects", ...
- *  - query: (string) E.g., "getAll", "related", ...
- *  - component: (React component) Optional custom item component
+ *  - collection: (string) E.g., "services", "projects", ... (optional)
+ *  - query: (string) E.g., "getAll", "related", ... (optional)
+ *  - component: (React component) Optional custom item component for ItemsTemplate
  *  - heading: (string) If provided, overrides the default heading
  *  - description: (string) If provided, overrides the meta description
  *  - ifButton: (boolean) Manually control if the "View All" button is present.
@@ -20,13 +17,13 @@
  *              Otherwise, defaults to false.
  *  - buttonLink: (string) Custom link for the button (defaults to `/${collectionName}`)
  *  - sectionClass: (string) Additional classes for the <section> wrapper
- *  - itemClass: (string) Classes for the <ul> that wraps the <li> items
+ *  - itemClass: (string) Classes for the <ul> that wraps the <li> items (passed to ItemsTemplate)
  */
 
  import Heading from "./Heading.jsx";
 import Card from "./Card.jsx";
 import Button from "./Button.jsx";
-import { queryItems } from "@/utils/QueryUtils";
+import ItemsTemplate from "./ItemsTemplate.jsx"; // New import for modular item looping
 import { getCollectionMeta } from "@/utils/FetchMeta";
 import { capitalize } from "@/utils/ContentUtils";
 
@@ -46,25 +43,17 @@ const {
 // Use the custom buttonLink if provided, otherwise default to `/${collectionName}`
 const finalButtonLink = buttonLink || `/${collectionName}`;
 
-// Detect dynamic mode
+// Detect dynamic mode based on whether a collection and query are provided.
 const isDynamic = Boolean(collectionName && queryType);
 
-// Initialize items & meta
-let items = [];
+// Initialize meta (we only need meta in dynamic mode)
 let meta = { description: "", hasPage: false };
-
 if (isDynamic) {
-  // 1) Get collection-level meta
   const { description: desc = "", hasPage = false, ...restMeta } = await getCollectionMeta(collectionName);
   meta = { description: desc, hasPage, ...restMeta };
-
-  // 2) Query items for this section
-  items = await queryItems(queryType, collectionName, Astro.url.pathname);
 }
 
-// Decide if we show “View All” button.
-// If ifButton is explicitly provided, use that.
-// Otherwise, if collectionName exists, fallback to meta.hasPage; if not, default to false.
+// Decide if we show the “View All” button.
 const showButton =
   typeof ifButton === "boolean"
     ? ifButton
@@ -76,46 +65,35 @@ const isCollectionRootPage =
 const finalShowButton = showButton && !isCollectionRootPage;
 ---
 {isDynamic ? (
-  items.length > 0 && (
-    <section class={sectionClass} data-collection={collectionName} {...props}>
-      <Heading tagName="h2" size="h2">
-        {heading ?? capitalize(collectionName)}
-      </Heading>
+  <section class={sectionClass} data-collection={collectionName} {...props}>
+    <Heading tagName="h2" size="h2">
+      {heading ?? capitalize(collectionName)}
+    </Heading>
 
-      {/* If a "description" prop or meta.description is present, display it */}
-      {(description || meta.description) && (
-        <p>{description ?? meta.description}</p>
-      )}
+    {/* If a description prop or meta.description is present, display it */}
+    {(description || meta.description) && (
+      <p>{description ?? meta.description}</p>
+    )}
 
-      {/* Render items inside a <ul> with class={itemClass} */}
-      <ul class={itemClass}>
-        {items.map((item) => {
-          return (
-            <li>
-              {ItemComponent ? (
-                <ItemComponent item={item} collectionName={collectionName} />
-              ) : (
-                <Card item={item} collectionName={collectionName} />
-              )}
-            </li>
-          );
-        })}
-      </ul>
+    {/* Render items using the ItemsTemplate component */}
+    <ItemsTemplate 
+      collection={collectionName}
+      query={queryType}
+      itemClass={itemClass}
+      ItemComponent={ItemComponent}
+    />
 
-      {/* Conditionally show a “View All” button if finalShowButton is true */}
-      {finalShowButton && (
-        <div style="margin-top: 1rem;">
-          <Button href={finalButtonLink} classname="some-classes">
-            View All {capitalize(collectionName)}
-          </Button>
-        </div>
-      )}
+    {/* Conditionally show a “View All” button if finalShowButton is true */}
+    {finalShowButton && (
+        <Button href={finalButtonLink} classname="some-classes">
+          View All {capitalize(collectionName)}
+        </Button>
+    )}
 
-      <slot />
-    </section>
-  )
+    <slot />
+  </section>
 ) : (
-  // No dynamic data? Just render a static <section>.
+  // If no dynamic data is provided, render a static <section>.
   <section class={sectionClass} {...props}>
     {heading && (
       <Heading tagName="h2" size="h2">
@@ -126,13 +104,11 @@ const finalShowButton = showButton && !isCollectionRootPage;
 
     <slot />
 
-      {/* Conditionally show a “View All” button if finalShowButton is true */}
-      {finalShowButton && (
-        <div style="margin-top: 1rem;">
-          <Button href={buttonLink} classname="some-classes">
-            Learn More
-          </Button>
-        </div>
-      )}
+    {/* Conditionally show a “View All” button if finalShowButton is true */}
+    {finalShowButton && (
+        <Button href={buttonLink} classname="some-classes">
+          Learn More
+        </Button>
+    )}
   </section>
 )}
