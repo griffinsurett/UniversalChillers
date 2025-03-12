@@ -1,6 +1,6 @@
 ---
 import Header from '@/components/Header.astro';
-// import Footer from '../components/Footer.astro';
+import Footer from '../components/Footer.astro';
 import { SiteData } from '@/content/SiteData'; // <— your config file
 // import '../styles/global.css';
 
@@ -28,7 +28,7 @@ const {
   crawl = true,                   // default to true
 } = Astro.props;
 
-console.log(canonicalUrl);
+// console.log(canonicalUrl);
 
 ---
 <!DOCTYPE html>
@@ -87,6 +87,6 @@ console.log(canonicalUrl);
   </main>
 
   <!-- Global site footer -->
-  <!-- <Footer /> -->
+  <Footer />
 </body>
 </html>

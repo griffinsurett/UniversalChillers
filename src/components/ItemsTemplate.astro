@@ -1,40 +1,55 @@
 ---
 // src/components/ItemsTemplate.astro
-
-import Card from "./Card.jsx";
+import Card from "./LoopComponents/Card.jsx";
 import { queryItems } from "@/utils/QueryUtils";
 
-// Props:
-// - collection: (optional) if provided, we will use it (with the query) to fetch items
-// - query: (optional) the query type (e.g., "getAll", "related")
-// - items: (optional) a static array of items (if not provided, dynamic fetching will be attempted)
-// - ItemComponent: (optional) component to render each item (defaults to Card)
-// - itemClass: (optional) classes for the <ul> container
-// - ...props: any additional props to be applied to the <ul>
+// Destructure props from Astro.props
 const {
   collection,
   query,
   items: initialItems,
-  ItemComponent,
+  ItemComponent, // This can be a component or an object { component, props }
+  itemsClass,
   itemClass,
+  pathname = "",
   ...props
 } = Astro.props;
 
+// Fetch items if they were not provided via props and if collection & query are available
 let items = initialItems || [];
 if (!initialItems && collection && query) {
-  items = await queryItems(query, collection, Astro.url.pathname);
+  items = await queryItems(query, collection, pathname);
 }
 
-// Determine which component to use for each item.
-const RenderComponent = ItemComponent || Card;
+// Determine if ItemComponent is an object with extra settings
+const isObjectComponent =
+  typeof ItemComponent === "object" && ItemComponent !== null;
+const RenderComponent = isObjectComponent
+  ? ItemComponent.component
+  : ItemComponent || Card; // Fallback to Card if none provided
 ---
+
 {items && items.length > 0 ? (
-  <ul class={itemClass} {...props}>
-    {items.map((item) => (
-      <li>
-        <RenderComponent item={item} collectionName={collection} />
-      </li>
-    ))}
+  <ul class={itemsClass} aria-label="Items List" {...props}>
+    {items.map((item) => {
+      let componentProps = {};
+      if (isObjectComponent) {
+        // If props is a function, call it with the current item
+        componentProps =
+          typeof ItemComponent.props === "function"
+            ? ItemComponent.props(item)
+            : ItemComponent.props || {};
+      }
+      return (
+        <RenderComponent
+          key={item.slug}
+          item={item}
+          itemClass={itemClass}
+          collectionName={collection}
+          {...componentProps}
+        />
+      );
+    })}
   </ul>
 ) : (
   <p>No items found.</p>

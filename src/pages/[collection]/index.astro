@@ -2,7 +2,7 @@
 // /[collection]/index.astro
 import Layout from "@/layouts/Layout.astro";
 import Section from "@/components/Section.astro";
-import Card from "@/components/Card.jsx";
+import Card from "@/components/LoopComponents/Card";
 import { collections } from "@/content/config";
 import { getCollectionMeta } from "@/utils/FetchMeta";
 import { capitalize } from "@/utils/ContentUtils";
@@ -28,7 +28,7 @@ const { collection } = Astro.params;
 let meta = {};
 try {
   meta = await getCollectionMeta(collection);
-  console.log("meta", meta);
+  // console.log("meta", meta);
 } catch {}
 ---
 

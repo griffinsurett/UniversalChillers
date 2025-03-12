@@ -1,5 +1,4 @@
 ---
-// src/components/Section.astro
 /**
  * src/components/Section.astro
  *
@@ -18,12 +17,12 @@
  *  - buttonLink: (string) Custom link for the button (defaults to `/${collectionName}`)
  *  - sectionClass: (string) Additional classes for the <section> wrapper
  *  - itemClass: (string) Classes for the <ul> that wraps the <li> items (passed to ItemsTemplate)
+ *  - contentClass: (string) Additional classes for a wrapping <div> inside the section for content styling.
  */
-
- import Heading from "./Heading.jsx";
-import Card from "./Card.jsx";
+// src/components/Section.astro
+import Heading from "./Heading.jsx";
 import Button from "./Button.jsx";
-import ItemsTemplate from "./ItemsTemplate.jsx"; // New import for modular item looping
+import ItemsTemplate from "./ItemsTemplate.astro";
 import { getCollectionMeta } from "@/utils/FetchMeta";
 import { capitalize } from "@/utils/ContentUtils";
 
@@ -36,79 +35,112 @@ const {
   ifButton,
   buttonLink,
   sectionClass,
+  headingClass,
+  descriptionClass,
+  buttonClass,
+  itemsClass,
   itemClass,
+  contentClass,
   ...props
 } = Astro.props;
 
-// Use the custom buttonLink if provided, otherwise default to `/${collectionName}`
-const finalButtonLink = buttonLink || `/${collectionName}`;
+// Generate a unique heading id if a heading exists
+const headingId = heading
+  ? collectionName
+    ? `section-heading-${collectionName}`
+    : "section-heading"
+  : null;
 
-// Detect dynamic mode based on whether a collection and query are provided.
+const finalButtonLink = buttonLink || `/${collectionName}`;
 const isDynamic = Boolean(collectionName && queryType);
 
-// Initialize meta (we only need meta in dynamic mode)
 let meta = { description: "", hasPage: false };
 if (isDynamic) {
-  const { description: desc = "", hasPage = false, ...restMeta } = await getCollectionMeta(collectionName);
+  const { description: desc = "", hasPage = false, ...restMeta } =
+    await getCollectionMeta(collectionName);
   meta = { description: desc, hasPage, ...restMeta };
 }
 
-// Decide if we show the “View All” button.
 const showButton =
   typeof ifButton === "boolean"
     ? ifButton
-    : (collectionName ? meta.hasPage : false);
+    : collectionName
+    ? meta.hasPage
+    : false;
 
 const isCollectionRootPage =
   Astro.url.pathname === `/${collectionName}` ||
   Astro.url.pathname === `/${collectionName}/`;
+
 const finalShowButton = showButton && !isCollectionRootPage;
 ---
 {isDynamic ? (
-  <section class={sectionClass} data-collection={collectionName} {...props}>
-    <Heading tagName="h2" size="h2">
-      {heading ?? capitalize(collectionName)}
-    </Heading>
+  <section
+    class={`${sectionClass} w-full flex justify-center items-center lg:px-15`}
+    data-collection={collectionName}
+    aria-labelledby={headingId}
+    {...props}
+  >
+    <div class={`${contentClass} w-3/4`}>
+      <div class={headingClass}>
+        <Heading tagName="h2" id={headingId}>
+          {heading ?? capitalize(collectionName)}
+        </Heading>
+        {(description || meta.description) && (
+          <p class={descriptionClass}>{description ?? meta.description}</p>
+        )}
+      </div>
 
-    {/* If a description prop or meta.description is present, display it */}
-    {(description || meta.description) && (
-      <p>{description ?? meta.description}</p>
-    )}
+      <!-- Inject custom content above items -->
+      <slot name="aboveItemsInjection" />
 
-    {/* Render items using the ItemsTemplate component */}
-    <ItemsTemplate 
-      collection={collectionName}
-      query={queryType}
-      itemClass={itemClass}
-      ItemComponent={ItemComponent}
-    />
+      <ItemsTemplate
+        collection={collectionName}
+        query={queryType}
+        itemsClass={itemsClass}
+        itemClass={itemClass}
+        ItemComponent={ItemComponent}
+        pathname={Astro.url.pathname}
+      />
 
-    {/* Conditionally show a “View All” button if finalShowButton is true */}
-    {finalShowButton && (
-        <Button href={finalButtonLink} classname="some-classes">
+      <!-- Inject custom content below items -->
+      <slot name="belowItemsInjection" />
+
+      {finalShowButton && (
+        <Button
+          href={finalButtonLink}
+          classname="some-classes"
+          ariaLabel={`View all ${capitalize(collectionName)}`}
+        >
           View All {capitalize(collectionName)}
         </Button>
-    )}
-
-    <slot />
+      )}
+      <slot />
+    </div>
   </section>
 ) : (
-  // If no dynamic data is provided, render a static <section>.
-  <section class={sectionClass} {...props}>
-    {heading && (
-      <Heading tagName="h2" size="h2">
-        {heading}
-      </Heading>
-    )}
-    {description && <p>{description}</p>}
-
-    <slot />
-
-    {/* Conditionally show a “View All” button if finalShowButton is true */}
-    {finalShowButton && (
-        <Button href={buttonLink} classname="some-classes">
+  <section
+    class={`${sectionClass} w-full lg:px-15`}
+    aria-labelledby={headingId}
+    {...props}
+  >
+    <div class={`${contentClass} w-3/4`}>
+      {heading && (
+        <Heading tagName="h2" className={headingClass} id={headingId}>
+          {heading}
+        </Heading>
+      )}
+      {description && <p class={descriptionClass}>{description}</p>}
+      <slot />
+      {finalShowButton && (
+        <Button
+          href={buttonLink}
+          classname={`${buttonClass} mt-10`}
+          ariaLabel="Learn More"
+        >
           Learn More
         </Button>
-    )}
+      )}
+    </div>
   </section>
 )}
