@@ -5,6 +5,7 @@ import { getCollection } from "astro:content";
 import { QueryItemSchema, type QueryItem, collections } from "@/content/config";
 
 export interface QueryItemTree extends QueryItem {
+  slug: any;
   children?: QueryItemTree[];
 }
 
@@ -149,30 +150,41 @@ export async function gatherDynamicQueries(): Promise<{ [key: string]: QueryItem
   const dynamicQueries: { [key: string]: QueryItem[] } = {};
   const collectionsList = Object.keys(collections);
   for (const collName of collectionsList) {
-    // Process collection root meta
+    // Try to load meta from MDX, then MD, then JSON
+    let meta = {};
     try {
-      const metaModule = await import(`../content/${collName}/_meta.json`);
-      const meta = metaModule.default;
-      if (meta && meta.addToQuery) {
-        meta.addToQuery.forEach((item: QueryItem) => {
-          if (!item.slug) {
-            item.slug = `/${collName}`;
-          }
-          if (!item.label) {
-            item.label = capitalize(normalizeSlug(item.slug));
-          }
-          const queryId = item.id;
-          if (!dynamicQueries[queryId]) dynamicQueries[queryId] = [];
-          dynamicQueries[queryId].push(item);
-        });
+      const mdxModule = await import(`../content/${collName}/_meta.mdx`);
+      meta = mdxModule.frontmatter ?? {};
+    } catch (e1) {
+      try {
+        const mdModule = await import(`../content/${collName}/_meta.md`);
+        meta = mdModule.frontmatter ?? {};
+      } catch (e2) {
+        try {
+          const jsonModule = await import(`../content/${collName}/_meta.json`);
+          meta = jsonModule.default ?? {};
+        } catch (e3) {
+          meta = {};
+        }
       }
-    } catch (err) {
-      // skip if no meta
     }
-    // Process each MDX item
+    if (meta && meta.addToQuery) {
+      meta.addToQuery.forEach((item: QueryItem) => {
+        if (!item.slug) {
+          item.slug = `/${collName}`;
+        }
+        if (!item.label) {
+          item.label = capitalize(normalizeSlug(item.slug));
+        }
+        const queryId = item.id;
+        if (!dynamicQueries[queryId]) dynamicQueries[queryId] = [];
+        dynamicQueries[queryId].push(item);
+      });
+    }
+    // Process each content entry's addToQuery
     const items = await getCollection(collName);
     items.forEach((item) => {
-      if (item.data.addToQuery) {
+      if ('addToQuery' in item.data && item.data.addToQuery) {
         item.data.addToQuery.forEach((q: QueryItem) => {
           const queryId = q.id;
           if (!dynamicQueries[queryId]) dynamicQueries[queryId] = [];
@@ -180,7 +192,6 @@ export async function gatherDynamicQueries(): Promise<{ [key: string]: QueryItem
             q.slug = `/${collName}/${item.slug}`;
           }
           if (!q.label) {
-            // If slug starts with e.g. "/services/", remove that portion
             const prefix = `/${collName}/`;
             if (q.slug.startsWith(prefix)) {
               q.label = capitalize(q.slug.slice(prefix.length));
@@ -195,3 +206,4 @@ export async function gatherDynamicQueries(): Promise<{ [key: string]: QueryItem
   }
   return dynamicQueries;
 }
+
