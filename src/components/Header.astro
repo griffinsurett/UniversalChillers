@@ -1,13 +1,16 @@
 ---
+// src/components/Header.astro
 import { SiteData } from '@/content/SiteData';
+import { buildContentQueries } from '@/utils/ContentQueries';
 
-// Define the header menu items in the frontmatter
-const headerMenu = [
-  { href: "/", label: "Home" },
-  { href: "/services", label: "Services" },
-  { href: "/projects", label: "Projects" },
-  { href: "/testimonials", label: "Testimonials" },
+// Define a static base query for the MainNavMenu.
+const baseMainNavMenu = [
+  { id: "home", label: "Home", slug: "/" }
 ];
+
+// Merge dynamic queries into the base.
+const finalQueries = await buildContentQueries({ MainNavMenu: baseMainNavMenu });
+const headerMenu = finalQueries.MainNavMenu || [];
 ---
 <header>
   <a href="/">
@@ -15,11 +18,20 @@ const headerMenu = [
   </a>
   <nav>
     <ul>
-    {headerMenu.map((item) => (
-      <li>
-      <a href={item.href}>{item.label}</a>
-    </li>
-    ))}
+      {headerMenu.map((item) => (
+        <li>
+          <a href={item.slug}>{item.label}</a>
+          {item.children && item.children.length > 0 && (
+            <ul>
+              {item.children.map((child) => (
+                <li>
+                  <a href={child.slug}>{child.label}</a>
+                </li>
+              ))}
+            </ul>
+          )}
+        </li>
+      ))}
     </ul>
   </nav>
 </header>

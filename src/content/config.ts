@@ -7,15 +7,24 @@ const sectionSchema = z.object({
   component: z.function().optional(),
 });
 
-export const metaSchema = z.object({
-  description: z.string().optional(),
-  hasPage: z.boolean().default(true),      
-  itemsHasPage: z.boolean().default(true), 
-  sections: z.array(sectionSchema).optional(),
-  itemsSections: z.array(sectionSchema).optional(),
+export const QueryItemSchema = z.object({
+  id: z.string(),
+  label: z.string().optional(),
+  slug: z.string().optional(),
+  position: z.enum(["prepend", "append"]).optional(),
+  parent: z.string().nullable().optional(),
+  weight: z.number().optional(),
 });
 
-// Base schema for each item (MDX)
+export const metaSchema = z.object({
+  description: z.string().optional(),
+  hasPage: z.boolean().default(true),
+  itemsHasPage: z.boolean().default(true),
+  sections: z.array(sectionSchema).optional(),
+  itemsSections: z.array(sectionSchema).optional(),
+  addToQuery: z.array(QueryItemSchema).optional(),
+});
+
 const baseSchema = ({ image }: { image: Function }) =>
   z.object({
     title: z.string(),
@@ -23,6 +32,7 @@ const baseSchema = ({ image }: { image: Function }) =>
     description: z.string().optional(),
     hasPage: z.boolean().optional(),
     sections: z.array(sectionSchema).optional(),
+    addToQuery: z.array(QueryItemSchema).optional(),
   });
 
 export const collections = {
@@ -30,6 +40,8 @@ export const collections = {
     schema: ({ image }) =>
       baseSchema({ image }).extend({
         icon: z.string().optional(),
+        // Self-reference field: services may have a parent (or parents)
+        parent: z.union([reference("services"), z.array(reference("services"))]).optional(),
       }),
   }),
   projects: defineCollection({

@@ -13,6 +13,23 @@
     {
       "collection": "clients",
       "query": "related"
+    },
+    {
+      "collection": "services",
+      "query": "parent"
+    },
+    {
+      "collection": "services",
+      "query": "children"
+    },
+    {
+      "collection": "services",
+      "query": "sibling"
+    }
+  ],
+  "addToQuery": [
+    {
+      "id": "MainNavMenu"
     }
   ]
 }
