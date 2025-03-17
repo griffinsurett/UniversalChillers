@@ -162,6 +162,7 @@ export async function buildContentQueries(
 export async function gatherDynamicQueries(): Promise<{ [key: string]: QueryItem[] }> {
   const dynamicQueries: { [key: string]: QueryItem[] } = {};
   const collectionsList = Object.keys(collections);
+  
   for (const collName of collectionsList) {
     // Try to load meta from MDX, then MD, then JSON
     let meta = {};
@@ -181,6 +182,8 @@ export async function gatherDynamicQueries(): Promise<{ [key: string]: QueryItem
         }
       }
     }
+    
+    // Process existing addToQuery entries from meta
     if (meta && meta.addToQuery) {
       meta.addToQuery.forEach((item: QueryItem) => {
         if (!item.slug) {
@@ -194,6 +197,7 @@ export async function gatherDynamicQueries(): Promise<{ [key: string]: QueryItem
         dynamicQueries[queryId].push(item);
       });
     }
+    
     // Process each content entry's addToQuery
     const items = await getCollection(collName);
     items.forEach((item) => {
@@ -216,7 +220,26 @@ export async function gatherDynamicQueries(): Promise<{ [key: string]: QueryItem
         });
       }
     });
+    
+    // New: Process addItemsToQuery array if it exists in meta.
+    if (meta && meta.addItemsToQuery) {
+      meta.addItemsToQuery.forEach((item: QueryItem) => {
+        const queryId = item.id;
+        if (!dynamicQueries[queryId]) dynamicQueries[queryId] = [];
+        // For every content item in the collection, add an entry to the query.
+        items.forEach((contentItem) => {
+          const newQuery: QueryItem = {
+            ...item,
+            // Build a unique slug for the item.
+            slug: `/${collName}/${contentItem.slug}`,
+            // Use the item's title (or slug as fallback) as the label.
+            label: contentItem.data.title || contentItem.slug || "Item",
+          };
+          dynamicQueries[queryId].push(newQuery);
+        });
+      });
+    }
   }
+  
   return dynamicQueries;
 }
-
