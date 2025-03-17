@@ -1,7 +1,6 @@
 import { getCollection, getEntry, getEntries } from "astro:content";
 import { normalizeRef, toArray } from "./ContentUtils";
 import { collections } from "@/content/config"; 
-
 /**
  * getParentItem(collectionName, currentSlug)
  * Retrieves the parent item (if any) for the current item.
@@ -86,13 +85,84 @@ export async function queryItems(
   }
 
   if (queryType === "related" || queryType === `related${collectionName}`) {
+    // Check if we're on a collection root (e.g. "/services")
+    const segments = pathname.split("/").filter(Boolean);
+    if (segments.length === 1) {
+      const parentCollectionName = segments[0];
+
+      // 1. Gather direct references from each parent's frontmatter:
+      const parentItems = await getCollection(parentCollectionName);
+      let directRefs: any[] = [];
+      parentItems.forEach((item) => {
+        // For a given target collection (e.g. "testimonials"), 
+        // try to read a field with that key from the parent.
+        const refs = toArray(item.data[collectionName] || []);
+        directRefs.push(...refs);
+      });
+      const resolvedDirect = directRefs.length > 0 ? await getEntries(directRefs) : [];
+
+      // 2. Gather reverse relationships from the target collection:
+      const targetItems = await getCollection(collectionName);
+      const parentSlugs = parentItems.map(item => normalizeRef(item.slug));
+      const reverseMatches = targetItems.filter(item => {
+        // Assume reverse relation field uses the parent's collection name.
+        const field = toArray(item.data[parentCollectionName] || []);
+        return field.some(ref => parentSlugs.includes(normalizeRef(ref)));
+      });
+
+      // 3. Combine direct and reverse results:
+      let combined = [...resolvedDirect, ...reverseMatches];
+      
+      // 4. If no results yet, perform an indirect lookup across intermediate collections:
+      if (combined.length === 0) {
+        let indirectRelated: any[] = [];
+        // Loop through all collections except the parent and target collections.
+        const intermediateCollectionNames = Object.keys(collections).filter(
+          (c) => c !== parentCollectionName && c !== collectionName
+        );
+        for (const interColl of intermediateCollectionNames) {
+          const intermediateItems = await getCollection(interColl);
+          // Find intermediate items that reference any parent item
+          const relatedIntermediate = intermediateItems.filter(item => {
+            for (const key in item.data) {
+              const value = toArray(item.data[key]);
+              if (value.map(normalizeRef).some(ref => parentSlugs.includes(ref))) {
+                return true;
+              }
+            }
+            return false;
+          });
+          // For each intermediate item, if it has a field for the target collection, resolve it.
+          for (const intermediate of relatedIntermediate) {
+            if (intermediate.data && intermediate.data[collectionName]) {
+              const potentialIndirectRefs = toArray(intermediate.data[collectionName]);
+              const resolvedIndirect = await getEntries(potentialIndirectRefs);
+              if (resolvedIndirect.length > 0) {
+                indirectRelated.push(...resolvedIndirect);
+              }
+            }
+          }
+        }
+        combined = [...combined, ...indirectRelated];
+      }
+
+      // Deduplicate the combined array based on a unique key (e.g., slug)
+      const unique = combined.reduce((acc, item) => {
+        if (!acc.some(existing => existing.slug === item.slug)) {
+          acc.push(item);
+        }
+        return acc;
+      }, []);
+      return unique;
+    }
+
+    // Fallback for individual (non-root) pages remains unchanged:
     let parentEntry = null;
     try {
       parentEntry = await getEntry(routeCollectionName, slug);
     } catch (e) {
       // fallback to reverse lookup if needed
     }
-    // First, try to use an explicit direct relationship defined on the current entry.
     if (parentEntry) {
       const potentialRefs = parentEntry.data[collectionName];
       const refArray = toArray(potentialRefs);
@@ -101,31 +171,25 @@ export async function queryItems(
         if (resolved.length > 0) return resolved;
       }
     }
-    // Next, try the current direct lookup method.
     const directRelated = await relatedItems(collectionName, slug);
     if (directRelated.length > 0) {
       return directRelated;
     }
-    // If no direct relationships are found, try an indirect (chain) lookup.
+    // Indirect lookup for individual pages:
     let indirectRelated: any[] = [];
     if (parentEntry) {
-      // Iterate over all intermediate collections (exclude the current route and target collection)
       const intermediateCollectionNames = Object.keys(collections).filter(
         (c) => c !== routeCollectionName && c !== collectionName
       );
       for (const interColl of intermediateCollectionNames) {
-        // Fetch all items in the intermediate collection.
         const intermediateItems = await getCollection(interColl);
-        // Find items that are related to the current item (i.e. at least one field references our slug).
         const relatedIntermediate = intermediateItems.filter(item => {
           for (const key in item.data) {
-            const value = item.data[key];
-            const arr = toArray(value);
-            if (arr.map(normalizeRef).includes(slug)) return true;
+            const value = toArray(item.data[key]);
+            if (value.map(normalizeRef).includes(slug)) return true;
           }
           return false;
         });
-        // For each such intermediate item, check if it has a direct relationship with the target collection.
         for (const intermediate of relatedIntermediate) {
           if (intermediate.data && intermediate.data[collectionName]) {
             const potentialIndirectRefs = toArray(intermediate.data[collectionName]);
@@ -137,7 +201,6 @@ export async function queryItems(
         }
       }
     }
-    // Remove duplicates based on a unique field (e.g., slug).
     const uniqueIndirect = indirectRelated.reduce((acc, item) => {
       if (!acc.some(existing => existing.slug === item.slug)) {
         acc.push(item);
@@ -145,7 +208,7 @@ export async function queryItems(
       return acc;
     }, []);
     return uniqueIndirect;
-  }  
+  }
 
   if (queryType === "parent" || queryType === `parent${collectionName}`) {
     const parent = await getParentItem(collectionName, slug);
@@ -163,10 +226,7 @@ export async function queryItems(
   return [];
 }
 
-/**
- * parseRouteCollection(pathname)
- * Parses the pathname to extract the collection and slug.
- */
+// Helper: parseRouteCollection
 function parseRouteCollection(pathname: string) {
   const segments = pathname.split("/").filter(Boolean);
   return {
@@ -175,17 +235,13 @@ function parseRouteCollection(pathname: string) {
   };
 }
 
-/**
- * getAllItems(collectionName)
- * Fetches all items in a collection.
- */
 export async function getAllItems(collectionName: string) {
   return await getCollection(collectionName);
 }
 
 /**
  * relatedItems(collectionName, currentEntryId)
- * - Finds items that reference the given currentEntryId in their frontmatter.
+ * Finds items that reference the given currentEntryId in their frontmatter.
  */
 export async function relatedItems(
   collectionName: string,

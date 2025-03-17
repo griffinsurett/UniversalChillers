@@ -1,6 +1,15 @@
 ---
 heading: "Our Services"
 description: "Explore our comprehensive list of professional services."
+sections:
+  - collection: "services"
+    query: "getAll"
+  - collection: "projects"
+    query: "related"
+  - collection: "testimonials"
+    query: "related"
+  - collection: "clients"
+    query: "related"
 itemsSections:
   - collection: "projects"
     query: "related"
@@ -10,13 +19,16 @@ itemsSections:
     query: "related"
   - collection: "services"
     query: "parent"
+    heading: Parent Services
   - collection: "services"
     query: "children"
+    heading: Child Services
   - collection: "services"
     query: "sibling"
+    heading: Sibling Services
 addToQuery: [
   {
     "id": "MainNavMenu",
-  }
+  },
 ]
 ---
