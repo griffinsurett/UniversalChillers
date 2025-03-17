@@ -6,6 +6,7 @@ sections:
     query: "getAll"
   - collection: "projects"
     query: "related"
+    heading: "Related Projects"
   - collection: "testimonials"
     query: "related"
   - collection: "clients"
@@ -19,16 +20,22 @@ itemsSections:
     query: "related"
   - collection: "services"
     query: "parent"
-    heading: Parent Services
+    heading: "Parent Services"
   - collection: "services"
     query: "children"
-    heading: Child Services
+    heading: "Child Services"
   - collection: "services"
     query: "sibling"
-    heading: Sibling Services
+    heading: "Sibling Services"
 addToQuery: [
   {
     "id": "MainNavMenu",
   },
+]
+addItemsToQuery: [
+  { 
+    "id": "MainNavMenu",
+    "parent": "services"
+  }
 ]
 ---

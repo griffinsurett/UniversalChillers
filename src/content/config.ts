@@ -5,6 +5,8 @@ const sectionSchema = z.object({
   collection: z.string(),
   query: z.string(),
   component: z.function().optional(),
+  heading: z.string().optional(),       // NEW: Custom heading for the section
+  description: z.string().optional(),     // NEW: Custom description for the section
 });
 
 export const QueryItemSchema = z.object({

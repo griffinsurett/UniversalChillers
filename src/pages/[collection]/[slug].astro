@@ -111,9 +111,11 @@ const sections = data.sections && data.sections.length > 0
         key={i}
         collection={section.collection}
         query={section.query}
-        description={meta.description}
+        heading={section.heading}                         
+        description={section.description ?? meta.description}  
         component={Card}
       />
     ))}
+    
   </article>
 </Layout>

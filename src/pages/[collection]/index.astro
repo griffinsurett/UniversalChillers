@@ -32,7 +32,8 @@ try {
         key={i}
         collection={section.collection}
         query={section.query}
-        description={meta.description}
+        heading={section.heading}                         
+        description={section.description ?? meta.description}
         component={Card}
       />
     ))
@@ -44,4 +45,5 @@ try {
       description={meta.description}
     />
   )}
+  
 </Layout>
