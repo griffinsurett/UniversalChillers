@@ -1,6 +1,6 @@
 import { getCollection, getEntry, getEntries } from "astro:content";
 import { normalizeRef, toArray } from "./ContentUtils";
-import { collections } from "../content/config";
+import { collections } from "@/content/config"; 
 
 /**
  * getParentItem(collectionName, currentSlug)
