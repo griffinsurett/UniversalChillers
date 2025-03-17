@@ -1,7 +1,7 @@
 ---
-// src/components/Header.astro
 import { SiteData } from '@/content/SiteData';
 import { buildContentQueries } from '@/utils/ContentQueries';
+import Menu from '../components/Menu/Menu.astro';
 
 // Define a static base query for the MainNavMenu.
 const baseMainNavMenu = [
@@ -17,21 +17,11 @@ const headerMenu = finalQueries.MainNavMenu || [];
     <h1>{SiteData.title}</h1>
   </a>
   <nav>
-    <ul>
-      {headerMenu.map((item) => (
-        <li>
-          <a href={item.slug}>{item.label}</a>
-          {item.children && item.children.length > 0 && (
-            <ul>
-              {item.children.map((child) => (
-                <li>
-                  <a href={child.slug}>{child.label}</a>
-                </li>
-              ))}
-            </ul>
-          )}
-        </li>
-      ))}
-    </ul>
+    <Menu 
+      items={headerMenu} 
+      listClass="header-menu" 
+      itemClass="header-menu-item" 
+      maxDepth={Infinity}  {/* Unlimited levels for header menu */}
+    />
   </nav>
 </header>

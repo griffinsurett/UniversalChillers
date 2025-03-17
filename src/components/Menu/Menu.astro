@@ -1,0 +1,22 @@
+---
+// src/components/Menu.astro
+import MenuItem from './MenuItem.jsx';
+
+const { 
+  items = [], 
+  listClass = "menu-list", 
+  itemClass = "menu-item",
+  maxDepth = 1   // default to 1-level menu
+} = Astro.props;
+---
+<ul class={listClass}>
+  {items.map((item) => (
+    <MenuItem 
+      key={item.id} 
+      item={item} 
+      itemClass={itemClass} 
+      listClass={listClass} 
+      maxDepth={maxDepth}
+    />
+  ))}
+</ul>

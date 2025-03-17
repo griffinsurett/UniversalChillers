@@ -88,28 +88,41 @@ function tryInsertItem(tree: QueryItemTree[], item: QueryItemTree): boolean {
  * Items that can't be inserted because their parent hasn't been processed yet are retried.
  */
 function buildDynamicTree(flatItems: QueryItem[]): QueryItemTree[] {
-  // First, parse items and assign default label if missing.
-  const items = flatItems.map((rawItem) => {
+  // First, parse items and assign default labels plus an empty children array.
+  const items: QueryItemTree[] = flatItems.map((rawItem) => {
     const item = QueryItemSchema.parse(rawItem);
     const finalLabel =
       item.label || (item.slug ? capitalize(normalizeSlug(item.slug)) : capitalize(item.id));
-    return { ...item, label: finalLabel } as QueryItemTree;
+    return { ...item, label: finalLabel, children: [] };
   });
 
-  // Sort items by the number of segments in the slug (shorter first)
-  items.sort((a, b) => {
-    const depthA = a.slug ? normalizeSlug(a.slug).split("/").length : 0;
-    const depthB = b.slug ? normalizeSlug(b.slug).split("/").length : 0;
-    return depthA - depthB;
+  // Build a lookup table keyed by item.id (or use item.slug if preferable)
+  const lookup: Record<string, QueryItemTree> = {};
+  items.forEach((item) => {
+    lookup[item.id] = item;
   });
 
+  // Initialize the tree array.
   const tree: QueryItemTree[] = [];
-  // Now process items (they are now ordered so parents come first)
-  for (const item of items) {
-    // Attempt to insert each item into the tree.
-    // Since parents come first, if a child fails to find its parent, that indicates a misconfiguration.
-    tryInsertItem(tree, item);
-  }
+
+  // Iterate over all items.
+  items.forEach((item) => {
+    if (item.parent) {
+      // Try to find the parent from our lookup (or via slug matching).
+      const parentItem = lookup[item.parent] || findQueryItemBySlug(tree, item.parent);
+      if (parentItem) {
+        parentItem.children.push(item);
+      } else {
+        // If a parent is explicitly set but not found, optionally log a warning.
+        // For now, insert it as a root so it doesn't get dropped.
+        tree.push(item);
+      }
+    } else {
+      // If no parent is specified, insert as root.
+      tree.push(item);
+    }
+  });
+
   return tree;
 }
 
