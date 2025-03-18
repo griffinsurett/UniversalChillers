@@ -5,8 +5,8 @@ const sectionSchema = z.object({
   collection: z.string(),
   query: z.string(),
   component: z.function().optional(),
-  heading: z.string().optional(),       // NEW: Custom heading for the section
-  description: z.string().optional(),     // NEW: Custom description for the section
+  heading: z.string().optional(),      
+  description: z.string().optional(),    
 });
 
 export const QueryItemSchema = z.object({
@@ -25,6 +25,7 @@ export const metaSchema = z.object({
   sections: z.array(sectionSchema).optional(),
   itemsSections: z.array(sectionSchema).optional(),
   addToQuery: z.array(QueryItemSchema).optional(),
+  addItemsToQuery: z.array(QueryItemSchema).optional(),
 });
 
 const baseSchema = ({ image }: { image: Function }) =>
@@ -35,6 +36,7 @@ const baseSchema = ({ image }: { image: Function }) =>
     hasPage: z.boolean().optional(),
     sections: z.array(sectionSchema).optional(),
     addToQuery: z.array(QueryItemSchema).optional(),
+    tags: z.array(z.string()).optional(), // <-- Added tags array for taxonomy terms
   });
 
 export const collections = {
@@ -42,7 +44,6 @@ export const collections = {
     schema: ({ image }) =>
       baseSchema({ image }).extend({
         icon: z.string().optional(),
-        // Self-reference field: services may have a parent (or parents)
         parent: z.union([reference("services"), z.array(reference("services"))]).optional(),
       }),
   }),

@@ -201,7 +201,7 @@ export async function gatherDynamicQueries(): Promise<{ [key: string]: QueryItem
     // Process each content entry's addToQuery
     const items = await getCollection(collName);
     items.forEach((item) => {
-      if ('addToQuery' in item.data && item.data.addToQuery) {
+      if ("addToQuery" in item.data && item.data.addToQuery) {
         item.data.addToQuery.forEach((q: QueryItem) => {
           const queryId = q.id;
           if (!dynamicQueries[queryId]) dynamicQueries[queryId] = [];
@@ -221,18 +221,16 @@ export async function gatherDynamicQueries(): Promise<{ [key: string]: QueryItem
       }
     });
     
-    // New: Process addItemsToQuery array if it exists in meta.
+    // Process addItemsToQuery: for each defined entry, iterate over all collection items
     if (meta && meta.addItemsToQuery) {
       meta.addItemsToQuery.forEach((item: QueryItem) => {
         const queryId = item.id;
         if (!dynamicQueries[queryId]) dynamicQueries[queryId] = [];
-        // For every content item in the collection, add an entry to the query.
+        // For every content item in the collection, add a new query entry
         items.forEach((contentItem) => {
           const newQuery: QueryItem = {
             ...item,
-            // Build a unique slug for the item.
             slug: `/${collName}/${contentItem.slug}`,
-            // Use the item's title (or slug as fallback) as the label.
             label: contentItem.data.title || contentItem.slug || "Item",
           };
           dynamicQueries[queryId].push(newQuery);

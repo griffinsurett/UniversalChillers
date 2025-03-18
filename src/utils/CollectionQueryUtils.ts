@@ -1,6 +1,6 @@
 import { getCollection, getEntry, getEntries } from "astro:content";
 import { normalizeRef, toArray } from "./ContentUtils";
-import { collections } from "@/content/config"; 
+import { collections } from "@/content/config";
 /**
  * getParentItem(collectionName, currentSlug)
  * Retrieves the parent item (if any) for the current item.
@@ -80,10 +80,12 @@ export async function queryItems(
 ): Promise<any[]> {
   const { routeCollectionName, slug } = parseRouteCollection(pathname);
 
+  // Standard "getAll" query.
   if (queryType === "getAll" || queryType === `getAll${collectionName}`) {
     return await getAllItems(collectionName);
   }
 
+  // "related" query handling.
   if (queryType === "related" || queryType === `related${collectionName}`) {
     // Check if we're on a collection root (e.g. "/services")
     const segments = pathname.split("/").filter(Boolean);
@@ -94,45 +96,40 @@ export async function queryItems(
       const parentItems = await getCollection(parentCollectionName);
       let directRefs: any[] = [];
       parentItems.forEach((item) => {
-        // For a given target collection (e.g. "testimonials"), 
-        // try to read a field with that key from the parent.
         const refs = toArray(item.data[collectionName] || []);
         directRefs.push(...refs);
       });
-      const resolvedDirect = directRefs.length > 0 ? await getEntries(directRefs) : [];
+      const resolvedDirect =
+        directRefs.length > 0 ? await getEntries(directRefs) : [];
 
       // 2. Gather reverse relationships from the target collection:
       const targetItems = await getCollection(collectionName);
-      const parentSlugs = parentItems.map(item => normalizeRef(item.slug));
-      const reverseMatches = targetItems.filter(item => {
-        // Assume reverse relation field uses the parent's collection name.
+      const parentSlugs = parentItems.map((item) => normalizeRef(item.slug));
+      const reverseMatches = targetItems.filter((item) => {
         const field = toArray(item.data[parentCollectionName] || []);
-        return field.some(ref => parentSlugs.includes(normalizeRef(ref)));
+        return field.some((ref) => parentSlugs.includes(normalizeRef(ref)));
       });
 
       // 3. Combine direct and reverse results:
       let combined = [...resolvedDirect, ...reverseMatches];
-      
-      // 4. If no results yet, perform an indirect lookup across intermediate collections:
+
+      // 4. If no results yet, perform an indirect lookup:
       if (combined.length === 0) {
         let indirectRelated: any[] = [];
-        // Loop through all collections except the parent and target collections.
         const intermediateCollectionNames = Object.keys(collections).filter(
           (c) => c !== parentCollectionName && c !== collectionName
         );
         for (const interColl of intermediateCollectionNames) {
           const intermediateItems = await getCollection(interColl);
-          // Find intermediate items that reference any parent item
-          const relatedIntermediate = intermediateItems.filter(item => {
+          const relatedIntermediate = intermediateItems.filter((item) => {
             for (const key in item.data) {
               const value = toArray(item.data[key]);
-              if (value.map(normalizeRef).some(ref => parentSlugs.includes(ref))) {
+              if (value.map(normalizeRef).some((ref) => parentSlugs.includes(ref))) {
                 return true;
               }
             }
             return false;
           });
-          // For each intermediate item, if it has a field for the target collection, resolve it.
           for (const intermediate of relatedIntermediate) {
             if (intermediate.data && intermediate.data[collectionName]) {
               const potentialIndirectRefs = toArray(intermediate.data[collectionName]);
@@ -146,9 +143,9 @@ export async function queryItems(
         combined = [...combined, ...indirectRelated];
       }
 
-      // Deduplicate the combined array based on a unique key (e.g., slug)
+      // Deduplicate results.
       const unique = combined.reduce((acc, item) => {
-        if (!acc.some(existing => existing.slug === item.slug)) {
+        if (!acc.some((existing) => existing.slug === item.slug)) {
           acc.push(item);
         }
         return acc;
@@ -156,7 +153,7 @@ export async function queryItems(
       return unique;
     }
 
-    // Fallback for individual (non-root) pages remains unchanged:
+    // Fallback for individual pages.
     let parentEntry = null;
     try {
       parentEntry = await getEntry(routeCollectionName, slug);
@@ -175,7 +172,6 @@ export async function queryItems(
     if (directRelated.length > 0) {
       return directRelated;
     }
-    // Indirect lookup for individual pages:
     let indirectRelated: any[] = [];
     if (parentEntry) {
       const intermediateCollectionNames = Object.keys(collections).filter(
@@ -183,7 +179,7 @@ export async function queryItems(
       );
       for (const interColl of intermediateCollectionNames) {
         const intermediateItems = await getCollection(interColl);
-        const relatedIntermediate = intermediateItems.filter(item => {
+        const relatedIntermediate = intermediateItems.filter((item) => {
           for (const key in item.data) {
             const value = toArray(item.data[key]);
             if (value.map(normalizeRef).includes(slug)) return true;
@@ -202,7 +198,7 @@ export async function queryItems(
       }
     }
     const uniqueIndirect = indirectRelated.reduce((acc, item) => {
-      if (!acc.some(existing => existing.slug === item.slug)) {
+      if (!acc.some((existing) => existing.slug === item.slug)) {
         acc.push(item);
       }
       return acc;
@@ -223,7 +219,17 @@ export async function queryItems(
     return await getSiblingItems(collectionName, slug);
   }
 
-  return [];
+  // Tag query branch:
+  // If none of the above keywords match, treat queryType as a tag.
+  const items = await getCollection(collectionName);
+  const filteredItems = items.filter((item) => {
+    const tags = item.data.tags || [];
+    return (
+      Array.isArray(tags) &&
+      tags.map((t: string) => t.toLowerCase()).includes(queryType.toLowerCase())
+    );
+  });
+  return filteredItems;
 }
 
 // Helper: parseRouteCollection
