@@ -2,11 +2,20 @@
 import { defineCollection, reference, z } from "astro:content";
 
 const sectionSchema = z.object({
-  collection: z.string(),
-  query: z.string(),
+  collection: z.string().optional(), // optional if not dynamic
+  query: z.string().optional(),
   component: z.function().optional(),
-  heading: z.string().optional(),      
-  description: z.string().optional(),    
+  heading: z.string().optional(),
+  description: z.string().optional(),
+  ifButton: z.boolean().optional(),
+  buttonLink: z.string().optional(),
+  sectionClass: z.string().optional(),
+  headingClass: z.string().optional(),
+  descriptionClass: z.string().optional(),
+  buttonClass: z.string().optional(),
+  itemsClass: z.string().optional(),
+  itemClass: z.string().optional(),
+  contentClass: z.string().optional(),
 });
 
 export const QueryItemSchema = z.object({

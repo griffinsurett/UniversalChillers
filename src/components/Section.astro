@@ -122,12 +122,13 @@ const finalShowButton = showButton && !isCollectionRootPage;
       {finalShowButton && (
         <Button
           href={finalButtonLink}
-          classname="some-classes"
+          classname={buttonClass}
           ariaLabel={`View all ${capitalize(collectionName)}`}
-        >
-          View All {capitalize(collectionName)}
-        </Button>
-      )}
+            >
+            View All {capitalize(collectionName)}
+    </Button>
+)}
+
       <slot />
     </div>
   </section>
