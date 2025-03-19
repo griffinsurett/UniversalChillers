@@ -19,13 +19,12 @@
  *  - itemClass: (string) Classes for the <ul> that wraps the <li> items (passed to ItemsTemplate)
  *  - contentClass: (string) Additional classes for a wrapping <div> inside the section for content styling.
  */
-// src/components/Section.astro
 import Heading from "./Heading.jsx";
 import Button from "./Button.jsx";
 import ItemsTemplate from "./ItemsTemplate.astro";
 import { getCollectionMeta } from "@/utils/FetchMeta";
 import { capitalize } from "@/utils/ContentUtils";
-import { queryItems } from "@/utils/CollectionQueryUtils.js"; // new import
+import { queryItems } from "@/utils/CollectionQueryUtils.js";
 
 const {
   collection: collectionName,
@@ -87,12 +86,12 @@ const finalShowButton = showButton && !isCollectionRootPage;
 ---
 {isDynamic ? (
   <section
-    class={`${sectionClass} w-full flex justify-center items-center lg:px-15`}
+    class={`${sectionClass} w-full py-6 lg:px-15`}
     data-collection={collectionName}
     aria-labelledby={headingId}
     {...props}
   >
-    <div class={`${contentClass} w-3/4`}>
+    <div class={`${contentClass} w-3/4 my-6`}>
       <div class={headingClass}>
         <Heading tagName="h2" id={headingId}>
           {heading ?? capitalize(collectionName)}
@@ -122,7 +121,7 @@ const finalShowButton = showButton && !isCollectionRootPage;
       {finalShowButton && (
         <Button
           href={finalButtonLink}
-          classname={buttonClass}
+          classname={`${buttonClass}`}
           ariaLabel={`View all ${capitalize(collectionName)}`}
             >
             View All {capitalize(collectionName)}
@@ -149,7 +148,7 @@ const finalShowButton = showButton && !isCollectionRootPage;
       {finalShowButton && (
         <Button
           href={buttonLink}
-          classname={`${buttonClass} mt-10`}
+          classname={`${buttonClass}`}
           ariaLabel="Learn More"
         >
           Learn More
