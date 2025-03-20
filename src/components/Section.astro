@@ -19,6 +19,22 @@
  *  - itemClass: (string) Classes for the <ul> that wraps the <li> items (passed to ItemsTemplate)
  *  - contentClass: (string) Additional classes for a wrapping <div> inside the section for content styling.
  */
+/**
+ * src/components/Section.astro
+ *
+ * This version retains dynamic querying and an optional “View All” button.
+ * Instead of handling the item looping directly, it delegates that work to ItemsTemplate.
+ *
+ * Props:
+ *  - collection: (string) E.g., "services", "projects", ... (optional)
+ *  - query: (string) E.g., "getAll", "related", ... (optional)
+ *  - component: (React component) Optional custom item component for ItemsTemplate
+ *  - heading: string | { text: string, class?: string, ... }
+ *  - description: string | { text: string, class?: string, ... }
+ *  - button: { text?: string, link?: string, ifButton?: boolean, class?: string }
+ *    (When a string is provided for heading/description, it auto-converts to an object.)
+ *  - sectionClass, itemsClass, itemClass, contentClass: additional CSS classes.
+ */
 import Heading from "./Heading.jsx";
 import Button from "./Button.jsx";
 import ItemsTemplate from "./ItemsTemplate.astro";
@@ -30,30 +46,25 @@ const {
   collection: collectionName,
   query: queryType,
   component: ItemComponent,
+  // New unified props
   heading,
   description,
-  ifButton,
-  buttonLink,
+  button,
   sectionClass,
-  headingClass,
-  descriptionClass,
-  buttonClass,
   itemsClass,
   itemClass,
   contentClass,
   ...props
 } = Astro.props;
 
-// Generate a unique heading id if a heading exists
-const headingId = heading
-  ? collectionName
-    ? `section-heading-${collectionName}`
-    : "section-heading"
-  : null;
+// Convert heading & description to objects if they are strings.
+const headingObj =
+  typeof heading === 'string' ? { text: heading } : heading || {};
+const descriptionObj =
+  typeof description === 'string' ? { text: description } : description || {};
 
-const finalButtonLink = buttonLink || `/${collectionName}`;
+// Fetch meta if dynamic.
 const isDynamic = Boolean(collectionName && queryType);
-
 let meta = { description: "", hasPage: false };
 if (isDynamic) {
   const { description: desc = "", hasPage = false, ...restMeta } =
@@ -61,28 +72,38 @@ if (isDynamic) {
   meta = { description: desc, hasPage, ...restMeta };
 }
 
-// If dynamic, fetch items upfront
+// Fetch items if dynamic.
 let items = [];
 if (isDynamic) {
   items = await queryItems(queryType, collectionName, Astro.url.pathname);
   if (items.length === 0) {
-    // Do not render the section if no items are found.
     return;
   }
 }
 
-const showButton =
-  typeof ifButton === "boolean"
-    ? ifButton
-    : collectionName
-    ? meta.hasPage
-    : false;
+// Compute default button object using legacy defaults.
+const defaultButton = {
+  text: `View All ${capitalize(collectionName)}`,
+  link: `/${collectionName}`,
+  ifButton: collectionName ? meta.hasPage : false,
+  class: ''
+};
 
+// Merge button object overrides (if provided).
+const buttonObj = button ? { ...defaultButton, ...button } : defaultButton;
+
+// Determine if the button should be shown.
+// If a manual button prop is provided, use its value directly;
+// otherwise, apply auto-detection (hide on collection root pages).
 const isCollectionRootPage =
   Astro.url.pathname === `/${collectionName}` ||
   Astro.url.pathname === `/${collectionName}/`;
+const finalShowButton = button ? buttonObj.ifButton : (buttonObj.ifButton && !isCollectionRootPage);
 
-const finalShowButton = showButton && !isCollectionRootPage;
+// Generate a unique heading id if a heading exists.
+const headingId = headingObj.text
+  ? (collectionName ? `section-heading-${collectionName}` : "section-heading")
+  : null;
 ---
 {isDynamic ? (
   <section
@@ -92,19 +113,21 @@ const finalShowButton = showButton && !isCollectionRootPage;
     {...props}
   >
     <div class={`${contentClass} w-3/4 my-6`}>
-      <div class={headingClass}>
+      <div>
         <Heading tagName="h2" id={headingId}>
-          {heading ?? capitalize(collectionName)}
+          {headingObj.text ?? capitalize(collectionName)}
         </Heading>
-        {(description || meta.description) && (
-          <p class={descriptionClass}>{description ?? meta.description}</p>
+        {(descriptionObj.text || meta.description) && (
+          <p class={descriptionObj.class}>
+            {descriptionObj.text ?? meta.description}
+          </p>
         )}
       </div>
 
-      <!-- Inject custom content above items -->
+      <!-- Optional slot for custom content above items -->
       <slot name="aboveItemsInjection" />
 
-      <!-- Pass the fetched items to ItemsTemplate -->
+      <!-- Render items -->
       <ItemsTemplate
         items={items}
         collection={collectionName}
@@ -115,18 +138,18 @@ const finalShowButton = showButton && !isCollectionRootPage;
         pathname={Astro.url.pathname}
       />
 
-      <!-- Inject custom content below items -->
+      <!-- Optional slot for custom content below items -->
       <slot name="belowItemsInjection" />
 
       {finalShowButton && (
         <Button
-          href={finalButtonLink}
-          classname={`${buttonClass}`}
-          ariaLabel={`View all ${capitalize(collectionName)}`}
-            >
-            View All {capitalize(collectionName)}
-    </Button>
-)}
+          href={buttonObj.link}
+          classname={buttonObj.class}
+          ariaLabel={buttonObj.text}
+        >
+          {buttonObj.text}
+        </Button>
+      )}
 
       <slot />
     </div>
@@ -138,20 +161,24 @@ const finalShowButton = showButton && !isCollectionRootPage;
     {...props}
   >
     <div class={`${contentClass} w-3/4`}>
-      {heading && (
-        <Heading tagName="h2" className={headingClass} id={headingId}>
-          {heading}
+      {headingObj.text && (
+        <Heading tagName="h2" className={headingObj.class} id={headingId}>
+          {headingObj.text}
         </Heading>
       )}
-      {description && <p class={descriptionClass}>{description}</p>}
+      {descriptionObj.text && (
+        <p class={descriptionObj.class}>
+          {descriptionObj.text}
+        </p>
+      )}
       <slot />
       {finalShowButton && (
         <Button
-          href={buttonLink}
-          classname={`${buttonClass}`}
-          ariaLabel="Learn More"
+          href={buttonObj.link}
+          classname={buttonObj.class}
+          ariaLabel={buttonObj.text}
         >
-          Learn More
+          {buttonObj.text}
         </Button>
       )}
     </div>

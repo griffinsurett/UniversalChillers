@@ -5,14 +5,30 @@ const sectionSchema = z.object({
   collection: z.string().optional(), // optional if not dynamic
   query: z.string().optional(),
   component: z.function().optional(),
-  heading: z.string().optional(),
-  description: z.string().optional(),
-  ifButton: z.boolean().optional(),
-  buttonLink: z.string().optional(),
+  heading: z.union([
+    z.string(),
+    z.object({
+      text: z.string(),
+      class: z.string().optional(),
+      // Additional heading options can go here
+    })
+  ]).optional(),
+  description: z.union([
+    z.string(),
+    z.object({
+      text: z.string(),
+      class: z.string().optional(),
+      // Additional description options can go here
+    })
+  ]).optional(),
+  button: z.object({
+    text: z.string().optional(),
+    class: z.string().optional(),
+    link: z.string().optional(),
+    ifButton: z.boolean().optional(), // determines if the button is rendered
+    // You can add further override options as needed
+  }).optional(),
   sectionClass: z.string().optional(),
-  headingClass: z.string().optional(),
-  descriptionClass: z.string().optional(),
-  buttonClass: z.string().optional(),
   itemsClass: z.string().optional(),
   itemClass: z.string().optional(),
   contentClass: z.string().optional(),
@@ -45,7 +61,7 @@ const baseSchema = ({ image }: { image: Function }) =>
     hasPage: z.boolean().optional(),
     sections: z.array(sectionSchema).optional(),
     addToQuery: z.array(QueryItemSchema).optional(),
-    tags: z.array(z.string()).optional(), // <-- Added tags array for taxonomy terms
+    tags: z.array(z.string()).optional(),
   });
 
 export const collections = {
