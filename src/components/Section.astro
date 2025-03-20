@@ -72,6 +72,17 @@ if (isDynamic) {
   meta = { description: desc, hasPage, ...restMeta };
 }
 
+// Compute an effective heading object:
+// Use the heading prop if provided; otherwise, if meta.heading exists, use it (converting string to object).
+const effectiveHeadingObj = Object.keys(headingObj).length > 0
+  ? headingObj
+  : meta.heading
+    ? (typeof meta.heading === 'string' ? { text: meta.heading } : meta.heading)
+    : {};
+    
+// Determine the heading text; if not found, default to the capitalized collection name.
+const effectiveHeadingText = effectiveHeadingObj.text || capitalize(collectionName);
+
 // Fetch items if dynamic.
 let items = [];
 if (isDynamic) {
@@ -93,15 +104,14 @@ const defaultButton = {
 const buttonObj = button ? { ...defaultButton, ...button } : defaultButton;
 
 // Determine if the button should be shown.
-// If a manual button prop is provided, use its value directly;
-// otherwise, apply auto-detection (hide on collection root pages).
+// If a manual button prop is provided, its ifButton value is used directly; otherwise, auto-detection hides the button on collection root pages.
 const isCollectionRootPage =
   Astro.url.pathname === `/${collectionName}` ||
   Astro.url.pathname === `/${collectionName}/`;
 const finalShowButton = button ? buttonObj.ifButton : (buttonObj.ifButton && !isCollectionRootPage);
 
 // Generate a unique heading id if a heading exists.
-const headingId = headingObj.text
+const headingId = effectiveHeadingText
   ? (collectionName ? `section-heading-${collectionName}` : "section-heading")
   : null;
 ---
@@ -114,8 +124,8 @@ const headingId = headingObj.text
   >
     <div class={`${contentClass} w-3/4 my-6`}>
       <div>
-        <Heading tagName="h2" id={headingId}>
-          {headingObj.text ?? capitalize(collectionName)}
+        <Heading tagName="h2" id={headingId} className={effectiveHeadingObj.class || ''}>
+          {effectiveHeadingText}
         </Heading>
         {(descriptionObj.text || meta.description) && (
           <p class={descriptionObj.class}>
@@ -161,9 +171,9 @@ const headingId = headingObj.text
     {...props}
   >
     <div class={`${contentClass} w-3/4`}>
-      {headingObj.text && (
-        <Heading tagName="h2" className={headingObj.class} id={headingId}>
-          {headingObj.text}
+      {effectiveHeadingText && (
+        <Heading tagName="h2" className={effectiveHeadingObj.class || ''} id={headingId}>
+          {effectiveHeadingText}
         </Heading>
       )}
       {descriptionObj.text && (
