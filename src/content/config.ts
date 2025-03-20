@@ -1,32 +1,26 @@
 // src/content/config.ts
 import { defineCollection, reference, z } from "astro:content";
 
+// Reusable schema for text content (heading or description)
+export const textContentSchema = z.union([
+  z.string(),
+  z.object({
+    text: z.string(),
+    class: z.string().optional(),
+  })
+]);
+
 const sectionSchema = z.object({
   collection: z.string().optional(), // optional if not dynamic
   query: z.string().optional(),
   component: z.function().optional(),
-  heading: z.union([
-    z.string(),
-    z.object({
-      text: z.string(),
-      class: z.string().optional(),
-      // Additional heading options can go here
-    })
-  ]).optional(),
-  description: z.union([
-    z.string(),
-    z.object({
-      text: z.string(),
-      class: z.string().optional(),
-      // Additional description options can go here
-    })
-  ]).optional(),
+  heading: textContentSchema.optional(),
+  description: textContentSchema.optional(),
   button: z.object({
     text: z.string().optional(),
     class: z.string().optional(),
     link: z.string().optional(),
     ifButton: z.boolean().optional(), // determines if the button is rendered
-    // You can add further override options as needed
   }).optional(),
   sectionClass: z.string().optional(),
   itemsClass: z.string().optional(),
@@ -44,7 +38,8 @@ export const QueryItemSchema = z.object({
 });
 
 export const metaSchema = z.object({
-  description: z.string().optional(),
+  heading: textContentSchema.optional(),
+  description: textContentSchema.optional(),
   hasPage: z.boolean().default(true),
   itemsHasPage: z.boolean().default(true),
   sections: z.array(sectionSchema).optional(),
@@ -57,7 +52,8 @@ const baseSchema = ({ image }: { image: Function }) =>
   z.object({
     title: z.string(),
     featuredImage: image().optional(),
-    description: z.string().optional(),
+    heading: textContentSchema.optional(),
+    description: textContentSchema.optional(),
     hasPage: z.boolean().optional(),
     sections: z.array(sectionSchema).optional(),
     addToQuery: z.array(QueryItemSchema).optional(),
@@ -87,7 +83,7 @@ export const collections = {
   clients: defineCollection({
     schema: z.object({
       title: z.string(),
-      description: z.string().optional(),
+      description: textContentSchema.optional(),
       projects: z.union([reference("projects"), z.array(reference("projects"))]).optional(),
     }),
   }),
