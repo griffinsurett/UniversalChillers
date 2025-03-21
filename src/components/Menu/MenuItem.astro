@@ -5,8 +5,9 @@
     - slug: the link URL
     - label: the text to display
     - children: (optional) an array of submenu items
+  It also accepts a "depth" prop (number) to indicate the nesting level.
 */
-const { item } = Astro.props;
+const { item, depth = 0 } = Astro.props;
 import SubMenu from './SubMenu.astro';
 ---
 <li class="relative group">
@@ -17,6 +18,6 @@ import SubMenu from './SubMenu.astro';
     )}
   </a>
   {item.children && item.children.length > 0 && (
-    <SubMenu items={item.children} />
+    <SubMenu items={item.children} depth={depth + 1} />
   )}
 </li>

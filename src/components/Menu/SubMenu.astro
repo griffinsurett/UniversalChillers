@@ -2,12 +2,17 @@
 /*
   This component renders a submenu for a menu item.
   It expects an "items" prop that is an array of submenu items.
+  It also accepts a "depth" prop to adjust positioning based on nesting level.
 */
-const { items = [] } = Astro.props;
+const { items = [], depth = 1 } = Astro.props;
 import MenuItem from './MenuItem.astro';
 ---
-<ul class="absolute top-full left-0 bg-white shadow-lg z-50 list-none min-w-max w-auto invisible opacity-0 transition duration-200 group-hover:visible group-hover:opacity-100">
+{/*
+  For depth=1 (first-level submenu), position below the parent item.
+  For depth>1, position to the right of the parent item.
+*/}
+<ul class={`absolute ${depth === 1 ? 'top-full left-0' : 'top-0 left-full'} bg-white shadow-lg z-50 list-none min-w-max w-auto invisible opacity-0 transition duration-200 group-hover:visible group-hover:opacity-100`}>
   {items.map((item) => (
-    <MenuItem item={item} />
+    <MenuItem item={item} depth={depth} />
   ))}
 </ul>
