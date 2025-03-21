@@ -1,27 +1,17 @@
 ---
 import { SiteData } from '@/content/SiteData';
 import { buildContentQueries } from '@/utils/ContentQueries';
-import Menu from '../components/Menu/Menu.astro';
+import NavMenu from '../components/Menu/NavMenu.astro';
 
-// Define a static base query for the MainNavMenu.
-const baseMainNavMenu = [
-  { id: "home", label: "Home", slug: "/" }
-];
-
-// Merge dynamic queries into the base.
+const baseMainNavMenu = [{ id: "home", label: "Home", slug: "/" }];
 const finalQueries = await buildContentQueries({ MainNavMenu: baseMainNavMenu });
 const headerMenu = finalQueries.MainNavMenu || [];
 ---
-<header>
+<header class="flex justify-between items-center">
   <a href="/">
     <h1>{SiteData.title}</h1>
   </a>
   <nav>
-    <Menu 
-      items={headerMenu} 
-      listClass="header-menu" 
-      itemClass="header-menu-item" 
-      maxDepth={Infinity}  {/* Unlimited levels for header menu */}
-    />
+    <NavMenu items={headerMenu} />
   </nav>
 </header>

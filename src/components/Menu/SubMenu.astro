@@ -1,0 +1,13 @@
+---
+/*
+  This component renders a submenu for a menu item.
+  It expects an "items" prop that is an array of submenu items.
+*/
+const { items = [] } = Astro.props;
+import MenuItem from './MenuItem.astro';
+---
+<ul class="absolute top-full left-0 bg-white shadow-lg z-50 list-none min-w-max w-auto invisible opacity-0 transition duration-200 group-hover:visible group-hover:opacity-100">
+  {items.map((item) => (
+    <MenuItem item={item} />
+  ))}
+</ul>

@@ -1,37 +1,22 @@
 ---
-// This Astro component represents a single menu item.
-// It expects the following props:
-//  - item: the menu item data (with id, label, slug, and optionally children)
-//  - itemClass: CSS class for the <li>
-//  - listClass: CSS class for the submenu <ul>
-//  - maxDepth: maximum nesting level for submenus
-//  - currentDepth: the current nesting level (default 0)
-import Modal from '../Modal.jsx';
-import SubMenu from './SubMenu.jsx';
-
-const { item, itemClass, listClass, maxDepth, currentDepth = 0 } = Astro.props;
-
-// Generate a unique id for the anchor element to serve as the modal trigger.
-const menuItemId = `menu-item-${item.id}`;
+/*
+  This component renders a single menu item.
+  It expects an "item" prop with:
+    - slug: the link URL
+    - label: the text to display
+    - children: (optional) an array of submenu items
+*/
+const { item } = Astro.props;
+import SubMenu from './SubMenu.astro';
 ---
-<li class={itemClass} style={`padding-left: ${currentDepth}rem;`}>
-  <a id={menuItemId} href={item.slug}>
+<li class="relative group">
+  <a href={item.slug} class="block text-gray-800 hover:text-blue-600 flex items-center">
     {item.label}
-    {item.children && item.children.length > 0 && currentDepth < maxDepth && (
-      <span class="submenu-arrow" style="margin-left: 0.5rem;">➤</span>
+    {item.children && item.children.length > 0 && (
+      <span class="ml-2 transition-transform duration-200 group-hover:rotate-180">▼</span>
     )}
   </a>
-  {item.children && item.children.length > 0 && currentDepth < maxDepth && (
-    // The Modal is loaded on the client.
-    // It uses the menu item's id as the trigger and opens on hover.
-    <Modal client:load triggerId={menuItemId} openTrigger="hover" closeButton={false}>
-      <SubMenu
-        items={item.children}
-        itemClass={itemClass}
-        listClass={listClass}
-        maxDepth={maxDepth}
-        currentDepth={currentDepth + 1}
-      />
-    </Modal>
+  {item.children && item.children.length > 0 && (
+    <SubMenu items={item.children} />
   )}
 </li>
