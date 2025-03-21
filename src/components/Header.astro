@@ -23,14 +23,16 @@ const headerMenu = finalQueries.MainNavMenu || [];
     <!-- Hidden checkbox used as the trigger -->
     <input type="checkbox" id="mobile-nav-toggle" class="hidden" />
     
-    <!-- Hamburger icon -->
+    <!-- Hamburger icon as an inline SVG -->
     <label for="mobile-nav-toggle" class="cursor-pointer">
-      <div class="w-8 h-1 bg-gray-800 mb-1"></div>
-      <div class="w-8 h-1 bg-gray-800 mb-1"></div>
-      <div class="w-8 h-1 bg-gray-800"></div>
+      <svg id="hamburger-icon" class="w-8 h-8" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <line class="hamburger-line top-line" x1="4" y1="8" x2="28" y2="8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+        <line class="hamburger-line middle-line" x1="4" y1="16" x2="28" y2="16" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+        <line class="hamburger-line bottom-line" x1="4" y1="24" x2="28" y2="24" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+      </svg>
     </label>
   </div>
 
   <!-- Mobile Navigation Menu: client loaded -->
-  <MobileNavMenu items={headerMenu} hamburgerTransform={true} client:idle />
+  <MobileNavMenu items={headerMenu} client:idle />
 </header>
