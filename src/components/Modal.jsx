@@ -1,14 +1,15 @@
-// Modak.jsx
 import React, { useState, useEffect, useRef } from 'react';
 
 export default function Modal({
   triggerId,             // id of the external element that triggers the modal
-  openTrigger = 'click', // 'click' (default) or 'hover'
+  openTrigger = 'click', // 'click' (default), 'hover', or 'change'
   children,
   onOpen,
   onClose,
-  width = "75%",
   closeButton = true,
+  overlayClass,          // Optional overlay class; if not provided, defaults to black overlay
+  className = "bg-white shadow-xl p-6", // Modal container styling
+  allowScroll = false,   // If false, prevent scrolling of the page behind the modal
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const modalRef = useRef(null);
@@ -21,6 +22,11 @@ export default function Modal({
   const handleClose = () => {
     setIsOpen(false);
     if (onClose) onClose();
+    // Uncheck the trigger if it's a checkbox to allow reopening
+    const triggerElement = document.getElementById(triggerId);
+    if (triggerElement && triggerElement.type === "checkbox") {
+      triggerElement.checked = false;
+    }
   };
 
   useEffect(() => {
@@ -30,14 +36,26 @@ export default function Modal({
       return;
     }
 
-    if (openTrigger === 'click') {
+    if (openTrigger === 'change') {
+      // Listen for the 'change' event on the trigger (checkbox)
+      const changeHandler = (e) => {
+        if (e.target.checked) {
+          handleOpen();
+        } else {
+          handleClose();
+        }
+      };
+      triggerElement.addEventListener('change', changeHandler);
+      return () => {
+        triggerElement.removeEventListener('change', changeHandler);
+      };
+    } else if (openTrigger === 'click') {
       const clickHandler = handleOpen;
       triggerElement.addEventListener('click', clickHandler);
       return () => {
         triggerElement.removeEventListener('click', clickHandler);
       };
     } else if (openTrigger === 'hover') {
-      // For hover mode, open modal on mouseenter and close it on mouseleave of the trigger.
       const mouseEnterHandler = handleOpen;
       const mouseLeaveHandler = handleClose;
       triggerElement.addEventListener('mouseenter', mouseEnterHandler);
@@ -49,7 +67,18 @@ export default function Modal({
     }
   }, [triggerId, openTrigger]);
 
-  // In hover mode, if the user moves into the modal container, immediately close it.
+  // Prevent scrolling on the background when the modal is open and allowScroll is false.
+  useEffect(() => {
+    if (isOpen && !allowScroll) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
+  }, [isOpen, allowScroll]);
+
+  // For hover mode, immediately close if mouse enters the modal container.
   const modalHoverHandler = openTrigger === 'hover' ? handleClose : undefined;
 
   return (
@@ -57,13 +86,12 @@ export default function Modal({
       {isOpen && (
         // Backdrop: clicking it always closes the modal.
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+          className={`fixed inset-0 z-50 flex items-center justify-center ${overlayClass || 'bg-black bg-opacity-50'}`}
           onClick={handleClose}
         >
           <div
             ref={modalRef}
-            className="relative bg-white shadow-xl p-6"
-            style={{ width }}
+            className={`relative ${className}`}
             onClick={(e) => e.stopPropagation()}
             {...(openTrigger === 'hover' ? { onMouseEnter: modalHoverHandler } : {})}
           >

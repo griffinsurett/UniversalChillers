@@ -2,6 +2,7 @@
 import { SiteData } from '@/content/SiteData';
 import { buildContentQueries } from '@/utils/ContentQueries';
 import NavMenu from '../components/Menu/NavMenu.astro';
+import MobileNavMenu from '../components/Menu/MobileNavMenu.jsx';
 
 const baseMainNavMenu = [{ id: "home", label: "Home", slug: "/" }];
 const finalQueries = await buildContentQueries({ MainNavMenu: baseMainNavMenu });
@@ -11,7 +12,25 @@ const headerMenu = finalQueries.MainNavMenu || [];
   <a href="/">
     <h1>{SiteData.title}</h1>
   </a>
-  <nav>
+  
+  <!-- Desktop Navigation (hidden on mobile) -->
+  <nav class="hidden md:block">
     <NavMenu items={headerMenu} />
   </nav>
+
+  <!-- Mobile Navigation Trigger (static HTML) -->
+  <div class="md:hidden flex items-center">
+    <!-- Hidden checkbox used as the trigger -->
+    <input type="checkbox" id="mobile-nav-toggle" class="hidden" />
+    
+    <!-- Hamburger icon -->
+    <label for="mobile-nav-toggle" class="cursor-pointer">
+      <div class="w-8 h-1 bg-gray-800 mb-1"></div>
+      <div class="w-8 h-1 bg-gray-800 mb-1"></div>
+      <div class="w-8 h-1 bg-gray-800"></div>
+    </label>
+  </div>
+
+  <!-- Mobile Navigation Menu: client loaded -->
+  <MobileNavMenu items={headerMenu} hamburgerTransform={true} client:idle />
 </header>
