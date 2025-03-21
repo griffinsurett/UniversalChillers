@@ -8,7 +8,7 @@ export default function Modal({
   onClose,
   closeButton = true,
   overlayClass,          // Optional overlay class; if not provided, defaults to black overlay
-  className = "bg-white shadow-xl p-6", // Modal container styling
+  className = "bg-white shadow-xl", // Modal container styling
   allowScroll = false,   // If false, prevent scrolling of the page behind the modal
 }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -98,10 +98,13 @@ export default function Modal({
             {closeButton && (
               <button
                 onClick={handleClose}
-                className="absolute top-4 right-4 text-xl"
+                className="absolute top-0 right-0"
                 aria-label="Close modal"
               >
-                &times;
+                <svg className="w-8 h-8" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <line x1="8" y1="8" x2="24" y2="24" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                  <line x1="24" y1="8" x2="8" y2="24" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                </svg>
               </button>
             )}
             {children}

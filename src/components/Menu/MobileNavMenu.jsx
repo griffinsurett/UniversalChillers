@@ -1,70 +1,63 @@
-import React, { useEffect } from 'react';
+import React, { useState } from 'react';
 import Modal from '../Modal.jsx';
 
-const MobileNavMenu = ({ items = [], closeButton = true, hamburgerTransform = false }) => {
-  const toggleId = "mobile-nav-toggle";
+// Component for each mobile menu item with optional submenu toggling.
+const MobileMenuItem = ({ item, toggleId }) => {
+  const [isOpen, setIsOpen] = useState(false);
 
-  // Attach hamburger transform behavior if enabled.
-  useEffect(() => {
-    if (!hamburgerTransform) return;
-    const toggle = document.getElementById(toggleId);
-    const label = document.querySelector(`label[for="${toggleId}"]`);
-    if (!toggle || !label) return;
-    
-    // Target the SVG lines using their classes.
-    const topLine = label.querySelector('.top-line');
-    const middleLine = label.querySelector('.middle-line');
-    const bottomLine = label.querySelector('.bottom-line');
+  // Toggle submenu open/closed.
+  const handleToggle = (e) => {
+    e.preventDefault(); // Prevent the link navigation.
+    setIsOpen(!isOpen);
+  };
 
-    const transformHamburger = (isOpen) => {
-      if (isOpen) {
-        topLine && topLine.classList.add('transform', 'rotate-45', 'translate-y-2');
-        middleLine && middleLine.classList.add('opacity-0');
-        bottomLine && bottomLine.classList.add('transform', '-rotate-45', '-translate-y-2');
-      } else {
-        topLine && topLine.classList.remove('rotate-45', 'translate-y-2');
-        middleLine && middleLine.classList.remove('opacity-0');
-        bottomLine && bottomLine.classList.remove('-rotate-45', '-translate-y-2');
-      }
-    };
-
-    // Ensure initial state is the default hamburger.
-    transformHamburger(false);
-
-    const changeHandler = (e) => {
-      transformHamburger(e.target.checked);
-    };
-
-    toggle.addEventListener('change', changeHandler);
-    return () => {
-      toggle.removeEventListener('change', changeHandler);
-    };
-  }, [hamburgerTransform, toggleId]);
-
-  // Render a simple nested list of links for the mobile menu.
-  const renderMenuItems = (menuItems) => (
-    <ul className="flex flex-col gap-4">
-      {menuItems.map((item, index) => (
-        <li key={`${item.id || item.slug}-${index}`}>
-          <a
-            href={item.slug}
-            className="text-gray-800 hover:text-blue-600"
-            onClick={() => {
+  return (
+    <li>
+      <div className="flex items-center justify-between">
+        <a
+          href={item.slug}
+          className="text-gray-800 hover:text-blue-600"
+          onClick={(e) => {
+            // If the item has a submenu, prevent navigation.
+            if (item.children && item.children.length > 0) {
+              e.preventDefault();
+            } else {
+              // Close the modal for items without children.
               const toggle = document.getElementById(toggleId);
               if (toggle) {
                 toggle.checked = false;
                 toggle.dispatchEvent(new Event('change', { bubbles: true }));
               }
-            }}
-          >
-            {item.label}
-          </a>
-          {item.children && item.children.length > 0 && (
-            <ul className="ml-4 flex flex-col gap-2">
-              {renderMenuItems(item.children)}
-            </ul>
-          )}
-        </li>
+            }
+          }}
+        >
+          {item.label}
+        </a>
+        {item.children && item.children.length > 0 && (
+          <button onClick={handleToggle} className="text-gray-800 ml-2">
+            {isOpen ? "▲" : "▼"}
+          </button>
+        )}
+      </div>
+      {item.children && item.children.length > 0 && isOpen && (
+        <ul className="ml-4 flex flex-col gap-2">
+          {item.children.map((child, index) => (
+            <MobileMenuItem key={`${child.id || child.slug}-${index}`} item={child} toggleId={toggleId} />
+          ))}
+        </ul>
+      )}
+    </li>
+  );
+};
+
+const MobileNavMenu = ({ items = [], closeButton = true }) => {
+  const toggleId = "mobile-nav-toggle";
+
+  // Render the menu recursively using MobileMenuItem.
+  const renderMenuItems = (menuItems) => (
+    <ul className="flex flex-col gap-4">
+      {menuItems.map((item, index) => (
+        <MobileMenuItem key={`${item.id || item.slug}-${index}`} item={item} toggleId={toggleId} />
       ))}
     </ul>
   );
@@ -74,7 +67,7 @@ const MobileNavMenu = ({ items = [], closeButton = true, hamburgerTransform = fa
       triggerId={toggleId}
       openTrigger="change"
       closeButton={closeButton}
-      className="w-full h-1/2 bg-white"
+      className="w-full h-full bg-white"
       overlayClass="bg-transparent"
     >
       <nav>
@@ -85,4 +78,3 @@ const MobileNavMenu = ({ items = [], closeButton = true, hamburgerTransform = fa
 };
 
 export default MobileNavMenu;
-
