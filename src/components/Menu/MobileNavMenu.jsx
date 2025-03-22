@@ -1,6 +1,5 @@
 // src/components/Menu/MobileNavMenu.jsx
 import React from 'react';
-import Modal from '../Modal.jsx';
 
 function MobileMenuItem({ item, depth = 0, onClose }) {
   const [open, setOpen] = React.useState(false);
@@ -48,81 +47,68 @@ function MobileMenuItem({ item, depth = 0, onClose }) {
   );
 }
 
-export default function MobileNavMenu({ items }) {
-  const modalTriggerId = 'mobile-menu-toggle';
+export default function MobileNavMenu({ items, hamburgerTransform = true }) {
+  const [menuOpen, setMenuOpen] = React.useState(false);
 
-  // Function to close the modal by unchecking the checkbox.
-  const closeModal = () => {
-    const checkbox = document.getElementById(modalTriggerId);
-    if (checkbox) {
-      checkbox.checked = false;
-    }
-  };
+  const toggleMenu = () => setMenuOpen((prev) => !prev);
+  const closeMenu = () => setMenuOpen(false);
+
+  // Determine classes based on hamburgerTransform prop and menuOpen state.
+  const topLineClasses = hamburgerTransform
+    ? menuOpen
+      ? 'rotate-45 translate-y-2'
+      : '-translate-y-2'
+    : '-translate-y-2';
+
+  const middleLineClasses = hamburgerTransform
+    ? menuOpen
+      ? 'opacity-0'
+      : 'opacity-100'
+    : 'opacity-100';
+
+  const bottomLineClasses = hamburgerTransform
+    ? menuOpen
+      ? '-rotate-45 -translate-y-2'
+      : 'translate-y-2'
+    : 'translate-y-2';
 
   return (
     <>
-      {/* Hidden checkbox trigger with peer class */}
-      <input type="checkbox" id={modalTriggerId} className="hidden peer" />
-      
-      {/* Hamburger icon transforms to X when checkbox is checked */}
-      <label
-        htmlFor={modalTriggerId}
-        className="block md:hidden p-4 cursor-pointer relative z-[9999]"
+      {/* Hamburger button */}
+      <button
+        onClick={toggleMenu}
+        className="md:hidden relative w-8 h-8 flex flex-col justify-center items-center z-[99999]"
+        aria-label="Toggle mobile menu"
       >
-        <svg
-          className="w-8 h-8"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <line
-            className="transition-transform duration-300 origin-center peer-checked:translate-y-3 peer-checked:rotate-45"
-            x1="4"
-            y1="6"
-            x2="20"
-            y2="6"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-          />
-          <line
-            className="transition-opacity duration-300 peer-checked:opacity-0"
-            x1="4"
-            y1="12"
-            x2="20"
-            y2="12"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-          />
-          <line
-            className="transition-transform duration-300 origin-center peer-checked:-translate-y-3 peer-checked:-rotate-45"
-            x1="4"
-            y1="18"
-            x2="20"
-            y2="18"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-          />
-        </svg>
-      </label>
+        <span
+          className={`block absolute h-0.5 w-8 bg-current transform transition duration-300 ease-in-out ${topLineClasses}`}
+        ></span>
+        <span
+          className={`block absolute h-0.5 w-8 bg-current transform transition duration-300 ease-in-out ${middleLineClasses}`}
+        ></span>
+        <span
+          className={`block absolute h-0.5 w-8 bg-current transform transition duration-300 ease-in-out ${bottomLineClasses}`}
+        ></span>
+      </button>
 
-      {/* Modal now takes up the entire screen without an overlay */}
-      <Modal
-        triggerId={modalTriggerId}
-        openTrigger="change"
-        closeButton={false}
-        overlayClass="bg-transparent"
-        className="w-full h-full"
-      >
-        <nav className="bg-white rounded shadow-lg p-4 h-full overflow-auto">
-          <ul className="space-y-2">
-            {items.map((item) => (
-              <MobileMenuItem key={item.id} item={item} onClose={closeModal} />
-            ))}
-          </ul>
-        </nav>
-      </Modal>
+      {/* Fullscreen overlay for the mobile menu */}
+      {menuOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+          onClick={closeMenu}
+        >
+          <nav
+            className="bg-white rounded shadow-lg p-4 w-full h-full overflow-auto"
+            onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside the menu
+          >
+            <ul className="space-y-2">
+              {items.map((item) => (
+                <MobileMenuItem key={item.id} item={item} onClose={closeMenu} />
+              ))}
+            </ul>
+          </nav>
+        </div>
+      )}
     </>
   );
 }
