@@ -91,12 +91,18 @@ function buildDynamicTree(flatItems: QueryItem[]): QueryItemTree[] {
   // First, parse items and assign default labels plus an empty children array.
   const items: QueryItemTree[] = flatItems.map((rawItem) => {
     const item = QueryItemSchema.parse(rawItem);
+    // If the id is the default value, generate one from the slug's last segment.
+    let id = item.id;
+    if (id === "MainNavMenu" && item.slug) {
+      const segments = item.slug.split("/").filter(Boolean);
+      id = segments[segments.length - 1]; // e.g. "web-design" or "seo"
+    }
     const finalLabel =
       item.label || (item.slug ? capitalize(normalizeSlug(item.slug)) : capitalize(item.id));
-    return { ...item, label: finalLabel, children: [] };
+    return { ...item, id, label: finalLabel, children: [] };
   });
 
-  // Build a lookup table keyed by item.id (or use item.slug if preferable)
+  // Build a lookup table keyed by each item's id.
   const lookup: Record<string, QueryItemTree> = {};
   items.forEach((item) => {
     lookup[item.id] = item;
@@ -108,23 +114,24 @@ function buildDynamicTree(flatItems: QueryItem[]): QueryItemTree[] {
   // Iterate over all items.
   items.forEach((item) => {
     if (item.parent) {
-      // Try to find the parent from our lookup (or via slug matching).
+      // Try to find the parent either directly from the lookup
+      // or by recursively searching using the parent's value.
       const parentItem = lookup[item.parent] || findQueryItemBySlug(tree, item.parent);
       if (parentItem) {
         parentItem.children.push(item);
       } else {
-        // If a parent is explicitly set but not found, optionally log a warning.
-        // For now, insert it as a root so it doesn't get dropped.
+        // If a parent is explicitly set but not found, insert it as a root.
         tree.push(item);
       }
     } else {
-      // If no parent is specified, insert as root.
+      // No parent specified, so insert as a root.
       tree.push(item);
     }
   });
 
   return tree;
 }
+
 
 /**
  * addToQuery
