@@ -1,8 +1,7 @@
 ---
 import { SiteData } from '@/content/SiteData';
 import { buildContentQueries } from '@/utils/ContentQueries';
-import NavMenu from '../components/Menu/NavMenu.astro';
-import MobileNavMenu from '../components/Menu/MobileNavMenu.jsx';
+import Menu from '../components/Menu/Menu.astro';
 
 const baseMainNavMenu = [{ id: "home", label: "Home", slug: "/" }];
 const finalQueries = await buildContentQueries({ MainNavMenu: baseMainNavMenu });
@@ -13,13 +12,6 @@ const headerMenu = finalQueries.MainNavMenu || [];
     <h1>{SiteData.title}</h1>
   </a>
   
-  <!-- Desktop Navigation: Visible on md and up -->
-  <nav class="hidden md:block">
-    <NavMenu items={headerMenu} />
-  </nav>
-  
-  <!-- Mobile Navigation: Visible on small screens only -->
-  <div class="block md:hidden">
-    <MobileNavMenu items={headerMenu} client:load />
-  </div>
+  <!-- Render Menu component with hamburgerOnly enabled -->
+  <Menu items={headerMenu} hamburgerOnly={false} />
 </header>
