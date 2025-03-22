@@ -1,5 +1,6 @@
 // src/components/Menu/MobileNavMenu.jsx
 import React from 'react';
+import Modal from '../Modal.jsx';
 
 function MobileMenuItem({ item, depth = 0, onClose }) {
   const [open, setOpen] = React.useState(false);
@@ -53,62 +54,60 @@ export default function MobileNavMenu({ items, hamburgerTransform = true }) {
   const toggleMenu = () => setMenuOpen((prev) => !prev);
   const closeMenu = () => setMenuOpen(false);
 
-  // Determine classes based on hamburgerTransform prop and menuOpen state.
-  const topLineClasses = hamburgerTransform
-    ? menuOpen
-      ? 'rotate-45 translate-y-2'
-      : '-translate-y-2'
-    : '-translate-y-2';
-
-  const middleLineClasses = hamburgerTransform
-    ? menuOpen
-      ? 'opacity-0'
-      : 'opacity-100'
-    : 'opacity-100';
-
-  const bottomLineClasses = hamburgerTransform
-    ? menuOpen
-      ? '-rotate-45 -translate-y-2'
-      : 'translate-y-2'
-    : 'translate-y-2';
-
   return (
     <>
       {/* Hamburger button */}
       <button
         onClick={toggleMenu}
-        className="md:hidden relative w-8 h-8 flex flex-col justify-center items-center z-[99999]"
+        className="md:hidden relative w-8 h-8 z-[99999]"
         aria-label="Toggle mobile menu"
       >
-        <span
-          className={`block absolute h-0.5 w-8 bg-current transform transition duration-300 ease-in-out ${topLineClasses}`}
-        ></span>
-        <span
-          className={`block absolute h-0.5 w-8 bg-current transform transition duration-300 ease-in-out ${middleLineClasses}`}
-        ></span>
-        <span
-          className={`block absolute h-0.5 w-8 bg-current transform transition duration-300 ease-in-out ${bottomLineClasses}`}
-        ></span>
+        {hamburgerTransform ? (
+          <>
+            {/* Top line: Positioned at 25% when closed, moves to center & rotates 45° when open */}
+            <span
+              className={`absolute block h-0.5 w-6 bg-current transition-all duration-300 ease-in-out ${
+                menuOpen ? 'top-1/2 rotate-45' : 'top-1/4'
+              }`}
+            ></span>
+            {/* Middle line: Always centered but fades out when open */}
+            <span
+              className={`absolute block h-0.5 w-6 bg-current transition-all duration-300 ease-in-out ${
+                menuOpen ? 'opacity-0' : 'top-1/2'
+              }`}
+            ></span>
+            {/* Bottom line: Positioned at 75% when closed, moves to center & rotates -45° when open */}
+            <span
+              className={`absolute block h-0.5 w-6 bg-current transition-all duration-300 ease-in-out ${
+                menuOpen ? 'top-1/2 -rotate-45' : 'top-3/4'
+              }`}
+            ></span>
+          </>
+        ) : (
+          <>
+            <span className="absolute block h-0.5 w-6 bg-current top-1/4"></span>
+            <span className="absolute block h-0.5 w-6 bg-current top-1/2"></span>
+            <span className="absolute block h-0.5 w-6 bg-current top-3/4"></span>
+          </>
+        )}
       </button>
 
-      {/* Fullscreen overlay for the mobile menu */}
-      {menuOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
-          onClick={closeMenu}
-        >
-          <nav
-            className="bg-white rounded shadow-lg p-4 w-full h-full overflow-auto"
-            onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside the menu
-          >
-            <ul className="space-y-2">
-              {items.map((item) => (
-                <MobileMenuItem key={item.id} item={item} onClose={closeMenu} />
-              ))}
-            </ul>
-          </nav>
-        </div>
-      )}
+      {/* Mobile menu rendered via the Modal component */}
+      <Modal
+        isOpen={menuOpen}
+        onClose={closeMenu}
+        overlayClass="bg-black bg-opacity-50"
+        className="bg-white rounded shadow-lg p-4 w-full h-full overflow-auto"
+        closeButton={false}
+      >
+        <nav onClick={(e) => e.stopPropagation()}>
+          <ul className="space-y-2">
+            {items.map((item) => (
+              <MobileMenuItem key={item.id} item={item} onClose={closeMenu} />
+            ))}
+          </ul>
+        </nav>
+      </Modal>
     </>
   );
 }
