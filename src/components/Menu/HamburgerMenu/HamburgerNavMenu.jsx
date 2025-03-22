@@ -5,6 +5,7 @@ import MobileMenuContainer from "./HamburgerMenuContainer.jsx";
 export default function MobileNavMenu({ items, hamburgerTransform = true }) {
   const [menuOpen, setMenuOpen] = React.useState(false);
 
+  // Toggle the state when the checkbox changes
   const toggleMenu = () => setMenuOpen((prev) => !prev);
   const closeMenu = () => {
     setMenuOpen(false);
@@ -17,7 +18,7 @@ export default function MobileNavMenu({ items, hamburgerTransform = true }) {
     <>
       <HamburgerButton
         isOpen={menuOpen}
-        onClick={toggleMenu}
+        onChange={toggleMenu}
         hamburgerTransform={hamburgerTransform}
       />
       <MobileMenuContainer items={items} isOpen={menuOpen} onClose={closeMenu} />
