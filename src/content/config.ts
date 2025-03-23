@@ -35,6 +35,7 @@ export const QueryItemSchema = z.object({
   position: z.enum(["prepend", "append"]).optional(),
   parent: z.string().nullable().optional(),
   weight: z.number().optional(),
+  respectHierarchy: z.boolean().default(false),
 });
 
 export const metaSchema = z.object({

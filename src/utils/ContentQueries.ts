@@ -1,6 +1,6 @@
 // src/utils/ContentQueries.ts
 import { z } from "zod";
-import { capitalize } from "./ContentUtils";
+import { capitalize, normalizeRef } from "./ContentUtils";
 import { getCollection } from "astro:content";
 import { QueryItemSchema, type QueryItem, collections } from "@/content/config";
 
@@ -233,6 +233,8 @@ export async function gatherDynamicQueries(): Promise<{ [key: string]: QueryItem
       meta.addItemsToQuery.forEach((item: QueryItem) => {
         const queryId = item.id;
         if (!dynamicQueries[queryId]) dynamicQueries[queryId] = [];
+        // Extract the respectHierarchy flag (defaults to false if not provided)
+        const respectHierarchy = item.respectHierarchy;
         // For every content item in the collection, add a new query entry
         items.forEach((contentItem) => {
           const newQuery: QueryItem = {
@@ -240,10 +242,15 @@ export async function gatherDynamicQueries(): Promise<{ [key: string]: QueryItem
             slug: `/${collName}/${contentItem.slug}`,
             label: contentItem.data.title || contentItem.slug || "Item",
           };
+          // If respectHierarchy is true and the content item has a parent,
+          // then set the query item's parent (you might want to normalize it)
+          if (respectHierarchy && contentItem.data.parent) {
+            newQuery.parent = normalizeRef(contentItem.data.parent);
+          }
           dynamicQueries[queryId].push(newQuery);
         });
       });
-    }
+    }    
   }
   
   return dynamicQueries;
