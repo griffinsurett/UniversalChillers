@@ -1,5 +1,5 @@
 import React from "react";
-import HamburgerButton from "./HamburgerButton.jsx";
+import HamburgerButton from "./HamburgerIcon.jsx";
 import MobileMenuContainer from "./HamburgerMenuContainer.jsx";
 
 export default function MobileNavMenu({ items, hamburgerTransform = true }) {
