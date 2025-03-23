@@ -88,7 +88,6 @@ function tryInsertItem(tree: QueryItemTree[], item: QueryItemTree): boolean {
  * Items that can't be inserted because their parent hasn't been processed yet are retried.
  */
 function buildDynamicTree(flatItems: QueryItem[]): QueryItemTree[] {
-  // First, parse items and assign default labels plus an empty children array.
   const items: QueryItemTree[] = flatItems.map((rawItem) => {
     const item = QueryItemSchema.parse(rawItem);
     // If the id is the default value, generate one from the slug's last segment.
@@ -102,6 +101,18 @@ function buildDynamicTree(flatItems: QueryItem[]): QueryItemTree[] {
     return { ...item, id, label: finalLabel, children: [] };
   });
 
+  // Optionally sort items based on position and weight.
+  items.sort((a, b) => {
+    // If one item is marked "prepend" and the other isn't, put it first.
+    if (a.position === "prepend" && b.position !== "prepend") return -1;
+    if (b.position === "prepend" && a.position !== "prepend") return 1;
+    // If one is marked "append" and the other isn't, put it later.
+    if (a.position === "append" && b.position !== "append") return 1;
+    if (b.position === "append" && a.position !== "append") return -1;
+    // Otherwise, compare weight (default to 0 if not provided)
+    return (a.weight || 0) - (b.weight || 0);
+  });
+
   // Build a lookup table keyed by each item's id.
   const lookup: Record<string, QueryItemTree> = {};
   items.forEach((item) => {
@@ -111,20 +122,16 @@ function buildDynamicTree(flatItems: QueryItem[]): QueryItemTree[] {
   // Initialize the tree array.
   const tree: QueryItemTree[] = [];
 
-  // Iterate over all items.
+  // Insert items into the tree.
   items.forEach((item) => {
     if (item.parent) {
-      // Try to find the parent either directly from the lookup
-      // or by recursively searching using the parent's value.
       const parentItem = lookup[item.parent] || findQueryItemBySlug(tree, item.parent);
       if (parentItem) {
         parentItem.children.push(item);
       } else {
-        // If a parent is explicitly set but not found, insert it as a root.
         tree.push(item);
       }
     } else {
-      // No parent specified, so insert as a root.
       tree.push(item);
     }
   });
