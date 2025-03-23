@@ -1,7 +1,32 @@
 ---
 // Footer.astro
----
+import { buildContentQueries } from '@/utils/ContentQueries';
 
-<footer>
-    <p>&copy; {new Date().getFullYear()} Your Company. All rights reserved.</p>
+// Static items for Privacy Policy and Cookie Policy
+const baseFooterMenu = [
+  { id: "privacy", label: "Privacy Policy", slug: "/privacy-policy", weight: 10 },
+  { id: "cookie", label: "Cookie Policy", slug: "/cookie-policy", weight: 20 },
+  { id: "contact", label: "Contact Us", slug: "/contact-us", weight: 30 },
+];
+
+// When merging dynamic items (e.g. from frontmatter),
+// dynamic items like "Contact Us" might come with their own weight.
+// In this example, we assume that the dynamic "Contact Us" page is added via frontmatter
+// with id "FooterMenu" (see below for a sample frontmatter).
+const finalQueries = await buildContentQueries({ FooterMenu: baseFooterMenu });
+const footerMenu = finalQueries.FooterMenu || [];
+---
+<footer class="p-6">
+  <nav>
+    <ul class="flex gap-4">
+      {footerMenu.map(item => (
+        <li key={item.id}>
+          <a href={item.slug} class="text-sm">
+            {item.label}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+  <p class="mt-4 text-xs">&copy; {new Date().getFullYear()} Your Company. All rights reserved.</p>
 </footer>
