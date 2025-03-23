@@ -3,7 +3,10 @@ import { SiteData } from '@/content/SiteData';
 import { buildContentQueries } from '@/utils/ContentQueries';
 import Menu from '../components/Menu/Menu.astro';
 
-const baseMainNavMenu = [{ id: "home", label: "Home", slug: "/" }];
+const baseMainNavMenu = [
+  { id: "home", label: "Home", slug: "/" },
+  { id: "contact", label: "Contact", slug: "/contact-us" },
+];
 const finalQueries = await buildContentQueries({ MainNavMenu: baseMainNavMenu });
 const headerMenu = finalQueries.MainNavMenu || [];
 ---
