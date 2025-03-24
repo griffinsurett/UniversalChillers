@@ -41,6 +41,7 @@ import ItemsTemplate from "./ItemsTemplate.astro";
 import { getCollectionMeta } from "@/utils/FetchMeta";
 import { capitalize } from "@/utils/ContentUtils";
 import { queryItems } from "@/utils/CollectionQueryUtils.js";
+import { shouldShowSectionButton, getDefaultButtonText } from "@/utils/ButtonVisibilityUtils";
 
 const {
   collection: collectionName,
@@ -65,22 +66,21 @@ const descriptionObj =
 
 // Fetch meta if dynamic.
 const isDynamic = Boolean(collectionName && queryType);
-let meta = { description: "", hasPage: false };
+let meta = { description: "", hasPage: false, itemsHasPage: true };
 if (isDynamic) {
-  const { description: desc = "", hasPage = false, ...restMeta } =
+  const { description: desc = "", hasPage = false, itemsHasPage = true, ...restMeta } =
     await getCollectionMeta(collectionName);
-  meta = { description: desc, hasPage, ...restMeta };
+  meta = { description: desc, hasPage, itemsHasPage, ...restMeta };
 }
 
-// Compute an effective heading object:
-// Use the heading prop if provided; otherwise, if meta.heading exists, use it (converting string to object).
+// Compute an effective heading object.
 const effectiveHeadingObj = Object.keys(headingObj).length > 0
   ? headingObj
   : meta.heading
     ? (typeof meta.heading === 'string' ? { text: meta.heading } : meta.heading)
     : {};
-    
-// Determine the heading text; if not found, default to the capitalized collection name.
+
+// Determine the heading text; default to the capitalized collection name.
 const effectiveHeadingText = effectiveHeadingObj.text || capitalize(collectionName);
 
 // Fetch items if dynamic.
@@ -92,25 +92,29 @@ if (isDynamic) {
   }
 }
 
-// Compute default button object using legacy defaults.
+// Compute default button object using our util for default text.
 const defaultButton = {
-  text: `View All ${capitalize(collectionName)}`,
+  text: getDefaultButtonText(collectionName),
   link: `/${collectionName}`,
   ifButton: collectionName ? meta.hasPage : false,
   class: ''
 };
 
-// Merge button object overrides (if provided).
+// Merge button overrides.
 const buttonObj = button ? { ...defaultButton, ...button } : defaultButton;
 
-// Determine if the button should be shown.
-// If a manual button prop is provided, its ifButton value is used directly; otherwise, auto-detection hides the button on collection root pages.
-const isCollectionRootPage =
-  Astro.url.pathname === `/${collectionName}` ||
-  Astro.url.pathname === `/${collectionName}/`;
-const finalShowButton = button ? buttonObj.ifButton : (buttonObj.ifButton && !isCollectionRootPage);
+// Determine if the section button should be shown.
+const finalShowButton = shouldShowSectionButton(
+  collectionName,
+  meta.hasPage,
+  Astro.url.pathname,
+  button ? { ifButton: buttonObj.ifButton } : undefined
+);
 
-// Generate a unique heading id if a heading exists.
+// Compute the default for individual items (from the collection meta).
+const itemsDefaultHasPage = meta.itemsHasPage ?? false;
+
+// Generate a unique heading id if applicable.
 const headingId = effectiveHeadingText
   ? (collectionName ? `section-heading-${collectionName}` : "section-heading")
   : null;
@@ -137,7 +141,7 @@ const headingId = effectiveHeadingText
       <!-- Optional slot for custom content above items -->
       <slot name="aboveItemsInjection" />
 
-      <!-- Render items -->
+      <!-- Render items and pass the default hasPage for items -->
       <ItemsTemplate
         items={items}
         collection={collectionName}
@@ -145,6 +149,7 @@ const headingId = effectiveHeadingText
         itemsClass={itemsClass}
         itemClass={itemClass}
         ItemComponent={ItemComponent}
+        defaultHasPage={itemsDefaultHasPage}
         pathname={Astro.url.pathname}
       />
 

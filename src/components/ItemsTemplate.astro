@@ -1,40 +1,35 @@
 ---
-// src/components/ItemsTemplate.astro
 import Card from "./LoopComponents/Card.jsx";
 import { queryItems } from "@/utils/CollectionQueryUtils.js";
 
-// Destructure props from Astro.props
 const {
   collection,
   query,
   items: initialItems,
-  ItemComponent, // This can be a component or an object { component, props }
+  ItemComponent, // Can be a component or an object { component, props }
   itemsClass,
   itemClass,
+  defaultHasPage, // New prop from Section.astro
   pathname = "",
   ...props
 } = Astro.props;
 
-// Fetch items if they were not provided via props and if collection & query are available
 let items = initialItems || [];
 if (!initialItems && collection && query) {
   items = await queryItems(query, collection, pathname);
 }
 
-// Determine if ItemComponent is an object with extra settings
 const isObjectComponent =
   typeof ItemComponent === "object" && ItemComponent !== null;
 const RenderComponent = isObjectComponent
   ? ItemComponent.component
-  : ItemComponent || Card; // Fallback to Card if none provided
+  : ItemComponent || Card;
 ---
-
 {items && items.length > 0 ? (
   <ul class={itemsClass} aria-label="Items List" {...props}>
     {items.map((item) => {
       let componentProps = {};
       if (isObjectComponent) {
-        // If props is a function, call it with the current item
         componentProps =
           typeof ItemComponent.props === "function"
             ? ItemComponent.props(item)
@@ -46,6 +41,7 @@ const RenderComponent = isObjectComponent
           item={item}
           itemClass={itemClass}
           collectionName={collection}
+          defaultHasPage={defaultHasPage}
           {...componentProps}
         />
       );
