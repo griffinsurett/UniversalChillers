@@ -1,21 +1,42 @@
 // src/content/config.ts
 import { defineCollection, reference, z } from "astro:content";
 
-// Reusable schema for text content (heading or description)
-export const textContentSchema = z.union([
+// Isolated Heading Schema – allows a string, an object, or an array of these.
+export const headingSchema = z.union([
   z.string(),
   z.object({
     text: z.string(),
     class: z.string().optional(),
-  })
+    tagName: z.string().optional(), // e.g. "h2", "h3"
+  }),
+  z.array(
+    z.union([
+      z.string(),
+      z.object({
+        text: z.string(),
+        class: z.string().optional(),
+        tagName: z.string().optional(),
+      }),
+    ])
+  ),
 ]);
 
+// Isolated Description Schema – allows either a string or an object (no arrays)
+export const descriptionSchema = z.union([
+  z.string(),
+  z.object({
+    text: z.string(),
+    class: z.string().optional(),
+  }),
+]);
+
+// Updated sectionSchema using the isolated heading and description schemas.
 const sectionSchema = z.object({
   collection: z.string().optional(), // optional if not dynamic
   query: z.string().optional(),
   component: z.function().optional(),
-  heading: textContentSchema.optional(),
-  description: textContentSchema.optional(),
+  heading: headingSchema.optional(),
+  description: descriptionSchema.optional(),
   button: z.object({
     text: z.string().optional(),
     class: z.string().optional(),
@@ -39,8 +60,8 @@ export const QueryItemSchema = z.object({
 });
 
 export const metaSchema = z.object({
-  heading: textContentSchema.optional(),
-  description: textContentSchema.optional(),
+  heading: headingSchema.optional(),
+  description: descriptionSchema.optional(),
   hasPage: z.boolean().default(true),
   itemsHasPage: z.boolean().default(true),
   sections: z.array(sectionSchema).optional(),
@@ -53,8 +74,8 @@ const baseSchema = ({ image }: { image: Function }) =>
   z.object({
     title: z.string(),
     featuredImage: image().optional(),
-    heading: textContentSchema.optional(),
-    description: textContentSchema.optional(),
+    heading: headingSchema.optional(),
+    description: descriptionSchema.optional(),
     hasPage: z.boolean().optional(),
     sections: z.array(sectionSchema).optional(),
     addToQuery: z.array(QueryItemSchema).optional(),
@@ -82,10 +103,9 @@ export const collections = {
     schema: ({ image }) => baseSchema({ image }),
   }),
   clients: defineCollection({
-    schema: z.object({
-      title: z.string(),
-      description: textContentSchema.optional(),
-      projects: z.union([reference("projects"), z.array(reference("projects"))]).optional(),
-    }),
-  }),
+    schema: ({ image }) =>
+      baseSchema({ image }).extend({
+        projects: z.union([reference("projects"), z.array(reference("projects"))]).optional(),
+      }),
+  }),  
 };
