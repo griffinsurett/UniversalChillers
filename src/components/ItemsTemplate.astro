@@ -9,7 +9,7 @@ const {
   ItemComponent, // Can be a component or an object { component, props }
   itemsClass,
   itemClass,
-  defaultHasPage, // New prop from Section.astro
+  HasPage, // New prop from Section.astro
   pathname = "",
   ...props
 } = Astro.props;
@@ -41,7 +41,7 @@ const RenderComponent = isObjectComponent
           item={item}
           itemClass={itemClass}
           collectionName={collection}
-          defaultHasPage={defaultHasPage}
+          HasPage={HasPage}
           {...componentProps}
         />
       );
