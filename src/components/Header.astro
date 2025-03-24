@@ -1,6 +1,6 @@
 ---
 import { SiteData } from "@/content/SiteData";
-import { buildContentQueries } from "@/utils/ContentQueries";
+import { buildContentQueries } from "@/utils/ArrayQueryUtils";
 import Menu from "../components/Menu/Menu.astro";
 import { Image } from "astro:assets";
 
@@ -26,9 +26,10 @@ const headerMenu = finalQueries.MainNavMenu || [];
       src={SiteData.logo.src}
       alt=`${SiteData.title} logo`
       class="h-12"
-      format='webp'
-      loading="eager" 
-      fetchpriority="high"     />
+      format="webp"
+      loading="eager"
+      fetchpriority="high"
+    />
     <h1>{SiteData.title}</h1>
   </a>
 
