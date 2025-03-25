@@ -30,6 +30,12 @@ export const descriptionSchema = z.union([
   }),
 ]);
 
+const buttonSchema = z.object({
+  text: z.string().optional(),
+  class: z.string().optional(),
+  link: z.string().optional(),
+});
+
 // Updated sectionSchema using the isolated heading and description schemas.
 const sectionSchema = z.object({
   collection: z.string().optional(), // optional if not dynamic
@@ -37,12 +43,8 @@ const sectionSchema = z.object({
   component: z.function().optional(),
   heading: headingSchema.optional(),
   description: descriptionSchema.optional(),
-  button: z.object({
-    text: z.string().optional(),
-    class: z.string().optional(),
-    link: z.string().optional(),
-    ifButton: z.boolean().optional(), // determines if the button is rendered
-  }).optional(),
+  buttons: z.array(buttonSchema).optional(),
+  buttonsSectionClass: z.string().optional(), // now a plain string
   sectionClass: z.string().optional(),
   itemsClass: z.string().optional(),
   itemClass: z.string().optional(),

@@ -1,4 +1,21 @@
 ---
+/**
+ * Section Component – Order of Importance for Heading and Description Values:
+ *
+ * 1. **Section Override:** 
+ *    - Use the values passed directly via the Section props (i.e. the "heading" and "description" props).
+ *
+ * 2. **Meta Values:**
+ *    - If no direct override is provided, load the collection meta file (_meta.mdx, _meta.md, or _meta.json)
+ *      and use the "heading" and "description" defined there.
+ *
+ * 3. **Auto-Fallback:**
+ *    - If neither the Section props nor the meta file provide a value, automatically generate a default.
+ *      For the heading, this fallback is the collection slug capitalized (e.g., "services" becomes "Services").
+ *
+ * This hierarchy ensures that the highest priority values are used where explicitly provided, 
+ * while sensible defaults are always available.
+ */
 import Heading from "./Heading.jsx";
 import Button from "./Button.jsx";
 import ItemsTemplate from "./ItemsTemplate.astro";
@@ -8,12 +25,13 @@ import { queryItems } from "@/utils/CollectionQueryUtils.js";
 import { shouldShowSectionButton, getDefaultButtonText } from "@/utils/ButtonVisibilityUtils";
 
 const {
-  collection: collectionName, // This is assumed to be the collection slug.
+  collection: collectionName,
   query: queryType,
   component: ItemComponent,
-  heading,       // Passed directly to Section
-  description,   // Passed directly to Section
-  button,
+  heading,
+  description,
+  buttons,
+  buttonsSectionClass,
   sectionClass,
   itemsClass,
   itemClass,
@@ -21,18 +39,15 @@ const {
   ...props
 } = Astro.props;
 
-// Normalize description prop (string -> object)
 const descriptionObj =
-  typeof description === 'string' ? { text: description } : description || {};
+  typeof description === "string" ? { text: description } : description || {};
 
-// Normalize a direct heading value into an array (if provided)
 const directHeadingArray = heading
   ? (Array.isArray(heading) ? heading : [heading])
   : [];
 
-// Define a helper to load meta values (which come from your _meta file)
 async function loadMeta() {
-  let meta = { heading: null, description: "" , hasPage: false, itemsHasPage: true };
+  let meta = { heading: null, description: "", hasPage: false, itemsHasPage: true };
   if (collectionName && queryType) {
     const { heading: metaHeading, description: metaDesc = "", hasPage = false, itemsHasPage = true, ...restMeta } =
       await getCollectionMeta(collectionName);
@@ -41,10 +56,6 @@ async function loadMeta() {
   return meta;
 }
 
-// Determine final heading array based on the order of importance:
-// 1. Section override (directHeadingArray)
-// 2. Meta heading value
-// 3. Auto-fallback: collection slug (capitalized)
 let finalHeadingArray = [];
 const meta = await loadMeta();
 if (directHeadingArray.length > 0) {
@@ -55,7 +66,6 @@ if (directHeadingArray.length > 0) {
   finalHeadingArray = [{ text: capitalize(collectionName), tagName: "h2" }];
 }
 
-// Fetch items (if dynamic)
 const isDynamic = Boolean(collectionName && queryType);
 let items = [];
 if (isDynamic) {
@@ -65,25 +75,31 @@ if (isDynamic) {
   }
 }
 
-// Compute default button object.
 const defaultButton = {
   text: getDefaultButtonText(collectionName),
   link: `/${collectionName}`,
   ifButton: collectionName ? meta.hasPage : false,
-  class: ''
+  class: ""
 };
-const buttonObj = button ? { ...defaultButton, ...button } : defaultButton;
 
-// Determine if the section button should be shown.
 const finalShowButton = shouldShowSectionButton(
   collectionName,
   meta.hasPage,
-  Astro.url.pathname,
-  button ? { ifButton: buttonObj.ifButton } : undefined
+  Astro.url.pathname
 );
 
-// Default for individual items.
+const buttonsArray =
+  buttons && Array.isArray(buttons)
+    ? buttons
+    : finalShowButton
+      ? [defaultButton]
+      : [];
+
 const itemsDefaultHasPage = meta.itemsHasPage ?? false;
+
+// Allow buttonsSectionClass to be either a string or an object with a "class" property.
+const containerClasses =
+buttonsSectionClass !== undefined ? buttonsSectionClass : "mt-4 space-x-2";
 ---
 {isDynamic ? (
   <section
@@ -94,11 +110,10 @@ const itemsDefaultHasPage = meta.itemsHasPage ?? false;
     <div class={`${contentClass} w-3/4 my-6`}>
       <div>
         {finalHeadingArray.map((head, i) => {
-          // Convert a string to an object if necessary.
-          const headObj = typeof head === 'string' ? { text: head } : head;
+          const headObj = typeof head === "string" ? { text: head } : head;
           const tagName = headObj.tagName || "h2";
           return (
-            <Heading key={i} tagName={tagName} className={headObj.class || ''}>
+            <Heading key={i} tagName={tagName} className={headObj.class || ""}>
               {headObj.text}
             </Heading>
           );
@@ -109,11 +124,7 @@ const itemsDefaultHasPage = meta.itemsHasPage ?? false;
           </p>
         )}
       </div>
-
-      <!-- Optional slot for custom content above items -->
       <slot name="aboveItemsInjection" />
-
-      <!-- Render items -->
       <ItemsTemplate
         items={items}
         collection={collectionName}
@@ -124,20 +135,28 @@ const itemsDefaultHasPage = meta.itemsHasPage ?? false;
         HasPage={itemsDefaultHasPage}
         pathname={Astro.url.pathname}
       />
-
-      <!-- Optional slot for custom content below items -->
       <slot name="belowItemsInjection" />
-
-      {finalShowButton && (
-        <Button
-          href={buttonObj.link}
-          classname={buttonObj.class}
-          ariaLabel={buttonObj.text}
-        >
-          {buttonObj.text}
-        </Button>
-      )}
-
+      <div class={containerClasses}>
+        {buttonsArray.length > 0 &&
+          buttonsArray.map((btn, index) => {
+            const btnDefaults = {
+              text: getDefaultButtonText(collectionName),
+              link: `/${collectionName}`,
+              class: ""
+            };
+            const finalButtonProps = { ...btnDefaults, ...btn };
+            return (
+              <Button
+                key={index}
+                href={finalButtonProps.link}
+                classname={finalButtonProps.class}
+                ariaLabel={finalButtonProps.text}
+              >
+                {finalButtonProps.text}
+              </Button>
+            );
+          })}
+      </div>
       <slot />
     </div>
   </section>
@@ -145,29 +164,39 @@ const itemsDefaultHasPage = meta.itemsHasPage ?? false;
   <section class={`${sectionClass} w-full lg:px-15`} {...props}>
     <div class={`${contentClass} w-3/4`}>
       {finalHeadingArray.map((head, i) => {
-        const headObj = typeof head === 'string' ? { text: head } : head;
+        const headObj = typeof head === "string" ? { text: head } : head;
         const tagName = headObj.tagName || "h2";
         return (
-          <Heading key={i} tagName={tagName} className={headObj.class || ''}>
+          <Heading key={i} tagName={tagName} className={headObj.class || ""}>
             {headObj.text}
           </Heading>
         );
       })}
       {descriptionObj.text && (
-        <p class={descriptionObj.class}>
-          {descriptionObj.text}
-        </p>
+        <p class={descriptionObj.class}>{descriptionObj.text}</p>
       )}
       <slot />
-      {finalShowButton && (
-        <Button
-          href={buttonObj.link}
-          classname={buttonObj.class}
-          ariaLabel={buttonObj.text}
-        >
-          {buttonObj.text}
-        </Button>
-      )}
+      <div class={containerClasses}>
+        {buttonsArray.length > 0 &&
+          buttonsArray.map((btn, index) => {
+            const btnDefaults = {
+              text: getDefaultButtonText(collectionName),
+              link: `/${collectionName}`,
+              class: ""
+            };
+            const finalButtonProps = { ...btnDefaults, ...btn };
+            return (
+              <Button
+                key={index}
+                href={finalButtonProps.link}
+                classname={finalButtonProps.class}
+                ariaLabel={finalButtonProps.text}
+              >
+                {finalButtonProps.text}
+              </Button>
+            );
+          })}
+      </div>
     </div>
   </section>
 )}

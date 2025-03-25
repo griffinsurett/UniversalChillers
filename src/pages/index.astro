@@ -6,19 +6,27 @@ import Modal from "@/components/Modal";
 ---
 
 <Layout>
-  <Section heading="Homepage" description="Welcome to Astro!" button={
-    { text: "See Our CTA", link: "/contact-us", ifButton: true }
-  } />
+  <!-- Hero Section with two buttons -->
+  <Section 
+  heading="Homepage" 
+  description="Welcome to Astro!" 
+  buttons={[
+    { text: "See Our CTA", link: "/contact-us" },
+    { text: "Learn More", link: "/about-us" }
+  ]}
+/>
+
 
   {/* Services */}
   <Section
     collection="services"
     query="getAll"
     component={Card}
+    buttonsSectionClass="hidden"
   />
 
-    {/* Clients */}
-    <Section
+  {/* Clients */}
+  <Section
     collection="clients"
     query="getAll"
     component={Card}
@@ -39,3 +47,4 @@ import Modal from "@/components/Modal";
   />
 
 </Layout>
+
