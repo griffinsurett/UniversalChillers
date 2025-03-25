@@ -19,10 +19,15 @@
 import Heading from "./Heading.jsx";
 import Button from "./Button.jsx";
 import ItemsTemplate from "./ItemsTemplate.astro";
-import { getCollectionMeta } from "@/utils/FetchMeta";
+import {
+  resolveMetaProps,
+  resolveHeading,
+  resolveDescription,
+  resolveContainerClasses,
+  resolveButtonsArray,
+  getSectionItems,
+} from "@/utils/SectionUtils";
 import { capitalize } from "@/utils/ContentUtils";
-import { queryItems } from "@/utils/CollectionQueryUtils.js";
-import { shouldShowSectionButton, getDefaultButtonText } from "@/utils/ButtonVisibilityUtils";
 
 const {
   collection: collectionName,
@@ -39,67 +44,35 @@ const {
   ...props
 } = Astro.props;
 
-const descriptionObj =
-  typeof description === "string" ? { text: description } : description || {};
+// Load meta (e.g. from _meta.mdx) for the collection.
+const meta = await resolveMetaProps(collectionName, queryType);
 
-const directHeadingArray = heading
-  ? (Array.isArray(heading) ? heading : [heading])
-  : [];
+// Resolve heading and description using the provided props and meta.
+const finalHeadingArray = resolveHeading(heading, meta.heading, collectionName);
+const finalDescription = resolveDescription(description, meta.description);
 
-async function loadMeta() {
-  let meta = { heading: null, description: "", hasPage: false, itemsHasPage: true };
-  if (collectionName && queryType) {
-    const { heading: metaHeading, description: metaDesc = "", hasPage = false, itemsHasPage = true, ...restMeta } =
-      await getCollectionMeta(collectionName);
-    meta = { heading: metaHeading, description: metaDesc, hasPage, itemsHasPage, ...restMeta };
-  }
-  return meta;
-}
+// Determine container classes from the manual override (or default).
+const containerClasses = resolveContainerClasses(buttonsSectionClass);
 
-let finalHeadingArray = [];
-const meta = await loadMeta();
-if (directHeadingArray.length > 0) {
-  finalHeadingArray = directHeadingArray;
-} else if (meta.heading) {
-  finalHeadingArray = Array.isArray(meta.heading) ? meta.heading : [meta.heading];
-} else {
-  finalHeadingArray = [{ text: capitalize(collectionName), tagName: "h2" }];
-}
-
-const isDynamic = Boolean(collectionName && queryType);
+// Get items if the section is dynamic.
 let items = [];
+const isDynamic = Boolean(collectionName && queryType);
 if (isDynamic) {
-  items = await queryItems(queryType, collectionName, Astro.url.pathname);
+  items = await getSectionItems(queryType, collectionName, Astro.url.pathname);
   if (items.length === 0) {
     return;
   }
 }
 
-const defaultButton = {
-  text: getDefaultButtonText(collectionName),
-  link: `/${collectionName}`,
-  ifButton: collectionName ? meta.hasPage : false,
-  class: ""
-};
-
-const finalShowButton = shouldShowSectionButton(
-  collectionName,
+// Build the buttons array.
+const buttonsArray = resolveButtonsArray(
+  buttons,
   meta.hasPage,
+  collectionName,
   Astro.url.pathname
 );
 
-const buttonsArray =
-  buttons && Array.isArray(buttons)
-    ? buttons
-    : finalShowButton
-      ? [defaultButton]
-      : [];
-
 const itemsDefaultHasPage = meta.itemsHasPage ?? false;
-
-// Allow buttonsSectionClass to be either a string or an object with a "class" property.
-const containerClasses =
-buttonsSectionClass !== undefined ? buttonsSectionClass : "mt-4 space-x-2";
 ---
 {isDynamic ? (
   <section
@@ -118,10 +91,8 @@ buttonsSectionClass !== undefined ? buttonsSectionClass : "mt-4 space-x-2";
             </Heading>
           );
         })}
-        {(descriptionObj.text || meta.description) && (
-          <p class={descriptionObj.class}>
-            {descriptionObj.text ?? meta.description}
-          </p>
+        {finalDescription && (
+          <p class={description?.class}>{finalDescription}</p>
         )}
       </div>
       <slot name="aboveItemsInjection" />
@@ -140,7 +111,7 @@ buttonsSectionClass !== undefined ? buttonsSectionClass : "mt-4 space-x-2";
         {buttonsArray.length > 0 &&
           buttonsArray.map((btn, index) => {
             const btnDefaults = {
-              text: getDefaultButtonText(collectionName),
+              text: capitalize(collectionName),
               link: `/${collectionName}`,
               class: ""
             };
@@ -172,15 +143,15 @@ buttonsSectionClass !== undefined ? buttonsSectionClass : "mt-4 space-x-2";
           </Heading>
         );
       })}
-      {descriptionObj.text && (
-        <p class={descriptionObj.class}>{descriptionObj.text}</p>
+      {finalDescription && (
+        <p class={description?.class}>{finalDescription}</p>
       )}
       <slot />
       <div class={containerClasses}>
         {buttonsArray.length > 0 &&
           buttonsArray.map((btn, index) => {
             const btnDefaults = {
-              text: getDefaultButtonText(collectionName),
+              text: capitalize(collectionName),
               link: `/${collectionName}`,
               class: ""
             };
