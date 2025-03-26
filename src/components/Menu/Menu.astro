@@ -2,14 +2,20 @@
 // Menu.astro
 import NavMenu from "./BarMenu/NavMenu.astro";
 import MobileNavMenu from "./HamburgerMenu/HamburgerNavMenu.jsx";
+// Import Tailwind's default theme to access the breakpoint values.
+import defaultTheme from 'tailwindcss/defaultTheme';
 
-// Destructure the items prop and the new hamburgerOnly prop
 const { items, hamburgerOnly = false } = Astro.props;
+
+// Extract the native 'md' breakpoint (default is "768px")
+const mdBreakpoint = defaultTheme.screens.md || '768px';
+// Create a media query that targets viewports below md
+const mobileMediaQuery = `(max-width: ${mdBreakpoint})`;
 ---
 {hamburgerOnly ? (
-  // Render only the mobile/hamburger menu on all screen sizes
+  // Render mobile menu on all screen sizes if hamburgerOnly is true.
   <div class="block">
-    <MobileNavMenu items={items} client:load />
+    <MobileNavMenu items={items} client:idle />
   </div>
 ) : (
   <>
@@ -17,7 +23,11 @@ const { items, hamburgerOnly = false } = Astro.props;
       <NavMenu items={items} />
     </nav>
     <div class="block md:hidden">
-      <MobileNavMenu items={items} client:idle />
+      {/*
+        Hydrate the mobile menu only when the viewport matches our dynamic media query.
+        This ensures that on larger screens the mobile JS isn’t loaded.
+      */}
+      <MobileNavMenu items={items} client:media={mobileMediaQuery} />
     </div>
   </>
 )}
