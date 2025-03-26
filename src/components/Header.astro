@@ -3,6 +3,7 @@ import { SiteData } from "@/content/SiteData";
 import { buildContentQueries } from "@/utils/ArrayQueryUtils";
 import Menu from "../components/Menu/Menu.astro";
 import { Image } from "astro:assets";
+import Heading from "./Heading";
 
 const baseMainNavMenu = [
   { id: "home", label: "Home", slug: "/" },
@@ -22,7 +23,14 @@ const headerMenu = finalQueries.MainNavMenu || [];
       loading="eager"
       fetchpriority="high"
     />
-    <h1>{SiteData.title}</h1>
+    <div class="header-text">
+      <Heading tagName={"h2"} className="h2">
+        {SiteData.title}
+      </Heading>
+      <Heading tagName={"h5"} className="h5">
+        {SiteData.tagline}
+      </Heading>
+    </div>
   </a>
   <Menu items={headerMenu} hamburgerOnly={false} />
 </header>
