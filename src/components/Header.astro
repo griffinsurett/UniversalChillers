@@ -18,7 +18,7 @@ const headerMenu = finalQueries.MainNavMenu || [];
     <Image
       src={SiteData.logo.src}
       alt={`${SiteData.title} logo`}
-      class="h-20 w-20"
+      class="h-12"
       format="webp"
       loading="eager"
       fetchpriority="high"
@@ -32,5 +32,5 @@ const headerMenu = finalQueries.MainNavMenu || [];
       </Heading>
     </div>
   </a>
-  <Menu items={headerMenu} hamburgerOnly={true} />
+  <Menu items={headerMenu} hamburgerOnly={false} />
 </header>
