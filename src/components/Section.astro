@@ -44,43 +44,28 @@ const {
   ...props
 } = Astro.props;
 
-// Load meta (e.g. from _meta.mdx) for the collection.
 const meta = await resolveMetaProps(collectionName, queryType);
-
-// Resolve heading and description using the provided props and meta.
 const finalHeadingArray = resolveHeading(heading, meta.heading, collectionName);
 const finalDescription = resolveDescription(description, meta.description);
-
-// Determine container classes from the manual override (or default).
 const containerClasses = resolveContainerClasses(buttonsSectionClass);
 
-// Get items if the section is dynamic.
 let items = [];
 const isDynamic = Boolean(collectionName && queryType);
 if (isDynamic) {
   items = await getSectionItems(queryType, collectionName, Astro.url.pathname);
-  if (items.length === 0) {
-    return;
-  }
+  if (items.length === 0) return;
 }
 
-// Build the buttons array.
-const buttonsArray = resolveButtonsArray(
-  buttons,
-  meta.hasPage,
-  collectionName,
-  Astro.url.pathname
-);
-
+const buttonsArray = resolveButtonsArray(buttons, meta.hasPage, collectionName, Astro.url.pathname);
 const itemsDefaultHasPage = meta.itemsHasPage ?? false;
 ---
 {isDynamic ? (
   <section
-    class={`${sectionClass} w-full py-6 lg:px-15`}
+    class={`${sectionClass} w-full py-[var(--spacing-lg)] lg:px-[var(--spacing-md)]`}
     data-collection={collectionName}
     {...props}
   >
-    <div class={`${contentClass} w-3/4 my-6`}>
+    <div class={`${contentClass} w-3/4 my-[var(--spacing-lg)]`}>
       <div>
         {finalHeadingArray.map((head, i) => {
           const headObj = typeof head === "string" ? { text: head } : head;
@@ -91,9 +76,7 @@ const itemsDefaultHasPage = meta.itemsHasPage ?? false;
             </Heading>
           );
         })}
-        {finalDescription && (
-          <p class={description?.class}>{finalDescription}</p>
-        )}
+        {finalDescription && <p class={description?.class}>{finalDescription}</p>}
       </div>
       <slot name="aboveItemsInjection" />
       <ItemsTemplate
@@ -132,7 +115,7 @@ const itemsDefaultHasPage = meta.itemsHasPage ?? false;
     </div>
   </section>
 ) : (
-  <section class={`${sectionClass} w-full lg:px-15`} {...props}>
+  <section class={`${sectionClass} w-full lg:px-[var(--spacing-md)]`} {...props}>
     <div class={`${contentClass} w-3/4`}>
       {finalHeadingArray.map((head, i) => {
         const headObj = typeof head === "string" ? { text: head } : head;
@@ -143,9 +126,7 @@ const itemsDefaultHasPage = meta.itemsHasPage ?? false;
           </Heading>
         );
       })}
-      {finalDescription && (
-        <p class={description?.class}>{finalDescription}</p>
-      )}
+      {finalDescription && <p class={description?.class}>{finalDescription}</p>}
       <slot />
       <div class={containerClasses}>
         {buttonsArray.length > 0 &&

@@ -12,7 +12,7 @@ import MenuItem from './MenuItem.astro';
   For depth>1, position to the right of the parent item.
   The submenu is hidden by default (via "hidden").
 */}
-<ul class={`absolute ${depth === 1 ? 'top-full left-0' : 'top-0 left-full'} bg-white shadow-lg z-50 list-none min-w-max w-auto hidden transition duration-200`}>
+<ul class={`absolute ${depth === 1 ? 'top-full left-0' : 'top-0 left-full'} bg-[var(--color-bg)] shadow-lg z-50 list-none min-w-max w-auto hidden transition duration-200`}>
   {items.map((item) => (
     <MenuItem item={item} depth={depth} />
   ))}

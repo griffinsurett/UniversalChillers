@@ -17,9 +17,7 @@ export async function getStaticPaths() {
     let meta = {};
     try {
       meta = await getCollectionMeta(collName);
-    } catch {
-      // If no _meta.json, meta remains empty.
-    }
+    } catch {}
     const { itemsHasPage = true } = meta;
     const entries = await getCollection(collName);
     for (const entry of entries) {
@@ -45,27 +43,25 @@ try {
   meta = await getCollectionMeta(collection);
 } catch {}
 // Use sections defined on the item if available; otherwise, fall back to meta.itemsSections.
-const sections =
-  data.sections && data.sections.length > 0
-    ? data.sections
-    : meta.itemsSections || [];
+const sections = data.sections && data.sections.length > 0 ? data.sections : meta.itemsSections || [];
 ---
 <Layout title={data.title} description={data.description}>
-  <article>
-    <Heading tagName="h1" size="h1">
+  <article class="p-[var(--spacing-md)]">
+    <Heading tagName="h1" class="mb-[var(--spacing-md)]">
       {data.title}
     </Heading>
-    {data.description && <p>{data.description}</p>}
-    {"featuredImage" in data && data.featuredImage && (
+    {data.description && <p class="mb-[var(--spacing-md)]">{data.description}</p>}
+    {data.featuredImage && (
       <Image
         src={data.featuredImage}
         alt={data.title}
         width={600}
         height={400}
         format="avif"
+        class="mb-[var(--spacing-md)]"
       />
     )}
-    {body && <p>{body}</p>}
+    {body && <p class="mb-[var(--spacing-md)]">{body}</p>}
     {sections.map((section, i) => (
       <Section
         key={i}

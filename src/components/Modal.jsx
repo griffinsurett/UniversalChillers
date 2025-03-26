@@ -8,7 +8,7 @@ export default function Modal({
   children,
   closeButton = true,
   overlayClass = 'bg-black bg-opacity-50',
-  className = "bg-white shadow-xl p-4 rounded",
+  className = "bg-[var(--color-bg)] shadow-xl p-[var(--spacing-md)] rounded-[var(--radius-md)]",
   allowScroll = false,
 }) {
   const modalRef = useRef(null);
@@ -50,14 +50,10 @@ export default function Modal({
       <div
         ref={modalRef}
         className={`relative ${className}`}
-        onClick={(e) => e.stopPropagation()} // prevent modal closing on inner clicks
+        onClick={(e) => e.stopPropagation()}
       >
         {closeButton && (
-          <button
-            onClick={onClose}
-            className="absolute top-0 right-0 m-2"
-            aria-label="Close modal"
-          >
+          <button onClick={onClose} className="absolute top-0 right-0 m-[var(--spacing-sm)]" aria-label="Close modal">
             <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none">
               <line x1="4" y1="4" x2="20" y2="20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
               <line x1="20" y1="4" x2="4" y2="20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />

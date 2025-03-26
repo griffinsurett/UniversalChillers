@@ -10,10 +10,9 @@ const defaultHeadingStyles = {
 
 export default function Heading({ tagName, className = '', children, ...props }) {
   const Tag = tagName;
-  const defaultClass = defaultHeadingStyles[Tag] || '';
-
+  // Use the tag name as a CSS class – for example, an h2 tag will get the "h2" class.
   return (
-    <Tag className={`${defaultClass} ${className}`.trim()} {...props}>
+    <Tag className={`${Tag} ${className}`.trim()} {...props}>
       {children}
     </Tag>
   );

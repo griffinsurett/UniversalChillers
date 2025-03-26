@@ -10,13 +10,14 @@ export default function Card({ item, collectionName, HasPage }) {
   const effectiveHasPage =
     item.data.hasPage !== undefined ? item.data.hasPage : HasPage;
   return (
-    <li className="card">
-      <h3>{item.data.title}</h3>
-      <p>{item.data.description || item.body}</p>
+    <li className="card p-[var(--spacing-sm)]">
+      <h3 className="mb-[var(--spacing-sm)] text-[var(--color-text)]">{item.data.title}</h3>
+      <p className="mb-[var(--spacing-sm)]">{item.data.description || item.body}</p>
       {effectiveHasPage && (
-        <Button href={`/${collectionName}/${item.slug}`}>View More</Button>
+        <Button href={`/${collectionName}/${item.slug}`}>
+          View More
+        </Button>
       )}
     </li>
   );
 }
-

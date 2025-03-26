@@ -1,4 +1,5 @@
 ---
+// Menu.astro
 import NavMenu from "./BarMenu/NavMenu.astro";
 import MobileNavMenu from "./HamburgerMenu/HamburgerNavMenu.jsx";
 
@@ -15,7 +16,6 @@ const { items, hamburgerOnly = false } = Astro.props;
     <nav class="hidden md:block">
       <NavMenu items={items} />
     </nav>
-  
     <div class="block md:hidden">
       <MobileNavMenu items={items} client:load />
     </div>

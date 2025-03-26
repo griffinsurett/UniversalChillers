@@ -1,9 +1,9 @@
----
+--- 
 import "../BarMenu/menu.css";
 import NavMenuList from "./NavMenuList.astro";
 const { items = [] } = Astro.props;
 ---
 <nav>
   <!-- Render the top-level menu as a horizontal flex list -->
-  <NavMenuList items={items} class="flex gap-4" />
+  <NavMenuList items={items} class="flex gap-[var(--spacing-md)]" />
 </nav>

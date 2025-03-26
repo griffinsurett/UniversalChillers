@@ -1,8 +1,10 @@
 ---
 import Button from "@/components/Button.jsx";
-import Layout from "../layouts/Layout.astro"
+import Layout from "../layouts/Layout.astro";
 ---
 <Layout>
-    You've found the wrong place
-<Button href="/">Go back home</Button>
+  <p class="p-[var(--spacing-md)] text-[var(--color-text)]">You've found the wrong place</p>
+  <Button href="/" classname="mt-[var(--spacing-md)] px-[var(--spacing-md)] py-[var(--spacing-sm)] bg-[var(--color-primary)] text-[var(--color-bg)] rounded-[var(--radius-md)] hover:bg-[var(--color-secondary)]">
+    Go back home
+  </Button>
 </Layout>
