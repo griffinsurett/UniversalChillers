@@ -17,7 +17,7 @@ const { items, hamburgerOnly = false } = Astro.props;
       <NavMenu items={items} />
     </nav>
     <div class="block md:hidden">
-      <MobileNavMenu items={items} client:idle />
+      <MobileNavMenu items={items}  />
     </div>
   </>
 )}
