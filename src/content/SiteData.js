@@ -1,5 +1,5 @@
 // SiteData.js
-import Logo from "@/assets/astro.svg"
+import Logo from "@/assets/solar-house.webp"
 
 export const SiteData = {
     title: "Griffins Site",
