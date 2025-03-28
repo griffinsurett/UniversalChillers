@@ -1,0 +1,154 @@
+---
+/**
+ * Section Component – Order of Importance for Heading and Description Values:
+ *
+ * 1. **Section Override:** 
+ *    - Use the values passed directly via the Section props (i.e. the "heading" and "description" props).
+ *
+ * 2. **Meta Values:**
+ *    - If no direct override is provided, load the collection meta file (_meta.mdx, _meta.md, or _meta.json)
+ *      and use the "heading" and "description" defined there.
+ *
+ * 3. **Auto-Fallback:**
+ *    - If neither the Section props nor the meta file provide a value, automatically generate a default.
+ *      For the heading, this fallback is the collection slug capitalized (e.g., "services" becomes "Services").
+ *
+ * This hierarchy ensures that the highest priority values are used where explicitly provided, 
+ * while sensible defaults are always available.
+ */
+import Heading from "./Heading.jsx";
+import Button from "./Button.jsx";
+import ItemsTemplate from "./ItemsTemplate.astro";
+import {
+  resolveMetaProps,
+  resolveHeading,
+  resolveDescription,
+  resolveContainerClasses,
+  resolveButtonsArray,
+  getSectionItems,
+} from "@/utils/SectionUtils";
+import { capitalize } from "@/utils/ContentUtils";
+
+const {
+  collection: collectionName,
+  query: queryType,
+  component: ItemComponent,
+  heading,
+  description,
+  buttons,
+  buttonsSectionClass,
+  sectionClass,
+  itemsClass,
+  itemClass,
+  contentClass,
+  ...props
+} = Astro.props;
+
+const meta = await resolveMetaProps(collectionName, queryType);
+const finalHeadingArray = resolveHeading(heading, meta.heading, collectionName);
+const finalDescription = resolveDescription(description, meta.description);
+const containerClasses = resolveContainerClasses(buttonsSectionClass);
+
+let items = [];
+const isDynamic = Boolean(collectionName && queryType);
+if (isDynamic) {
+  items = await getSectionItems(queryType, collectionName, Astro.url.pathname);
+  if (items.length === 0) return;
+}
+
+const buttonsArray = resolveButtonsArray(buttons, meta.hasPage, collectionName, Astro.url.pathname);
+const itemsDefaultHasPage = meta.itemsHasPage ?? false;
+---
+{isDynamic ? (
+  <section
+    class={`${sectionClass} w-full py-[var(--spacing-lg)] lg:px-[var(--spacing-md)]`}
+    data-collection={collectionName}
+    {...props}
+  >
+    <div class={`${contentClass} w-3/4 my-[var(--spacing-lg)]`}>
+      <div>
+        {finalHeadingArray.map((head, i) => {
+          const headObj = typeof head === "string" ? { text: head } : head;
+          const tagName = headObj.tagName || "h2";
+          return (
+            <Heading key={i} tagName={tagName} className={headObj.class || ""}>
+              {headObj.text}
+            </Heading>
+          );
+        })}
+        {finalDescription && <p class={description?.class}>{finalDescription}</p>}
+      </div>
+      <slot name="aboveItemsInjection" />
+      <ItemsTemplate
+        items={items}
+        collection={collectionName}
+        query={queryType}
+        itemsClass={itemsClass}
+        itemClass={itemClass}
+        ItemComponent={ItemComponent}
+        HasPage={itemsDefaultHasPage}
+        pathname={Astro.url.pathname}
+      />
+      <slot name="belowItemsInjection" />
+      <div class={containerClasses}>
+        {buttonsArray.length > 0 &&
+          buttonsArray.map((btn, index) => {
+            const btnDefaults = {
+              text: capitalize(collectionName),
+              link: `/${collectionName}`,
+              class: ""
+            };
+            const finalButtonProps = { ...btnDefaults, ...btn };
+            return (
+              <Button
+                key={index}
+                href={finalButtonProps.link}
+                classname={finalButtonProps.class}
+                ariaLabel={finalButtonProps.text}
+              >
+                {finalButtonProps.text}
+              </Button>
+            );
+          })}
+      </div>
+      <slot />
+    </div>
+  </section>
+) : (
+  <section class={`${sectionClass} w-full lg:px-[var(--spacing-md)]`} {...props}>
+    <div class={`${contentClass} w-3/4`}>
+      {finalHeadingArray.map((head, i) => {
+        const headObj = typeof head === "string" ? { text: head } : head;
+        const tagName = headObj.tagName || "h2";
+        return (
+          <Heading key={i} tagName={tagName} className={headObj.class || ""}>
+            {headObj.text}
+          </Heading>
+        );
+      })}
+      {finalDescription && <p class={description?.class}>{finalDescription}</p>}
+      <slot />
+      <div class={containerClasses}>
+        {buttonsArray.length > 0 &&
+          buttonsArray.map((btn, index) => {
+            const btnDefaults = {
+              text: capitalize(collectionName),
+              link: `/${collectionName}`,
+              class: ""
+            };
+            const finalButtonProps = { ...btnDefaults, ...btn };
+            return (
+              <Button
+                key={index}
+                href={finalButtonProps.link}
+                classname={finalButtonProps.class}
+                ariaLabel={finalButtonProps.text}
+              >
+                {finalButtonProps.text}
+              </Button>
+            );
+          })}
+      </div>
+    </div>
+  </section>
+)}

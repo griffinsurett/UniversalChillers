@@ -1,0 +1,9 @@
+/* Ensure only the submenu of a hovered list item is shown */
+.hamburger-menu-item.relative:hover > ul {
+    display: block;
+  }
+  
+  /* When hovering over a menu item, rotate its arrow */
+.hamburger-menu-item.relative:hover > a > .arrow {
+    transform: rotate(180deg);
+  }

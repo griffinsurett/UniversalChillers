@@ -2,7 +2,7 @@
 @import "tailwindcss";
 
 /* Design tokens (colors, spacing, etc.) */
-@theme {
+:root {
   /* Colors */
   --color-bg: #ffffff;
   --color-text: #111111;
@@ -37,7 +37,16 @@
   --shadow-lg: 0 20px 25px rgba(0, 0, 0, 0.1);
 }
 
-@layer base {
+/* Dark mode overrides */
+.dark {
+  --color-bg: #111111;
+  --color-text: #ffffff;
+  --color-primary: #2563eb;
+  --color-secondary: #dc2626;
+  --color-accent: #34d399;
+  --color-neutral: #1f2937;
+}
+
 /* Base element styling */
 body {
   font-family: var(--font-base);
@@ -57,25 +66,26 @@ body {
 
 /* Global header styles (these are our dynamic header classes) */
 .h1 {
-  @apply text-5xl font-bold text-[var(--color-text)] mb-[var(--spacing-md)];
+  @apply text-5xl font-bold text-[var(--color-text)];
 }
 .h2 {
-  @apply text-4xl font-semibold text-[var(--color-text)] mb-[var(--spacing-md)];
+  @apply text-4xl font-semibold text-[var(--color-text)];
 }
 .h3 {
-  @apply text-3xl font-semibold text-[var(--color-text)] mb-[var(--spacing-md)];
+  @apply text-3xl font-semibold text-[var(--color-text)];
 }
 .h4 {
-  @apply text-2xl font-medium text-[var(--color-text)] mb-[var(--spacing-md)];
+  @apply text-2xl font-medium text-[var(--color-text)];
 }
 .h5 {
-  @apply text-xl font-medium text-[var(--color-text)] mb-[var(--spacing-md)];
+  @apply text-xl font-medium text-[var(--color-text)];
 }
 .h6 {
-  @apply text-lg font-medium text-[var(--color-text)] mb-[var(--spacing-md)];
+  @apply text-lg font-medium text-[var(--color-text)];
 }
 
 /* Base typography */
+@layer base {
   p {
     margin-bottom: var(--spacing-md);
   }

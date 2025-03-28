@@ -1,0 +1,57 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Section from "@/components/Section.astro";
+import Card from "@/components/LoopComponents/Card";
+import Modal from "@/components/Modal";
+---
+
+  <!-- Hero Section with two buttons -->
+  <Layout title="Welcome to Cleanomatic">
+
+    <Section
+      heading={[
+        { text: "Welcome to Cleanomatic – Your Trusted Cleaning Experts in New Jersey!", tagName: "h1" },
+      ]}
+      description="Welcome to Cleanomatic, your one-stop solution for professional cleaning services in New Jersey. With over 23 years of experience, our team is committed to delivering top-tier cleaning solutions for both residential and commercial clients."
+      buttons={[
+        { text: "About Us", link: "/about" },
+        { text: "Our Services", link: "/services" }
+      ]}
+    />
+
+    <Section
+    heading={[
+      { text: "Cleaning done right, Cleanomatic!", tagName: "h2" },
+      { text: "Your Trusted Cleaning Professionals for 23+ Years.", tagName: "h5" }
+    ]}
+    description="With over 23 years of experience, the Cleanomatic team is committed to delivering top-tier cleaning solutions for both residential and commercial clients. Whether you need thorough tile and grout restoration, air duct cleaning, or emergency water damage restoration, we have the expertise and tools to get the job done right."
+    buttons={[
+      { text: "About Us", link: "/about" },
+    ]}
+  />
+  
+
+
+  {/* Services */}
+  <Section
+    collection="services"
+    query="getAll"
+    component={Card}
+  />
+
+    {/* Testimonials */}
+    <Section
+    collection="testimonials"
+    query="getAll"
+    component={Card}
+  />
+  
+  {/* Projects */}
+  <Section
+    collection="projects"
+    query="getAll"
+    component={Card}
+  />
+
+</Layout>
+

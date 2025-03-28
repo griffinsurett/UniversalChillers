@@ -1,0 +1,13 @@
+---
+/*
+  This component renders a list of menu items recursively.
+  It expects an "items" prop that is an array of menu objects.
+*/
+const { items = [], class: extraClass = '' } = Astro.props;
+import MenuItem from './MenuItem.astro';
+---
+<ul class={`list-none m-0 p-0 ${extraClass}`}>
+  {items.map((item) => (
+    <MenuItem item={item} depth={0} />
+  ))}
+</ul>

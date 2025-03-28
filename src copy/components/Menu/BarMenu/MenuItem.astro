@@ -1,0 +1,23 @@
+--- 
+/*
+  This component renders a single menu item.
+  It expects an "item" prop with:
+    - slug: the link URL
+    - label: the text to display
+    - children: (optional) an array of submenu items
+  It also accepts a "depth" prop (number) to indicate the nesting level.
+*/
+const { item, depth = 0 } = Astro.props;
+import SubMenu from './SubMenu.astro';
+---
+<li class="relative hamburger-menu-item">
+  <a href={item.slug} class="flex items-center text-[var(--color-text)] hover:text-[var(--color-primary)]">
+    {item.label}
+    {item.children && item.children.length > 0 && (
+      <span class="arrow ml-[var(--spacing-sm)] transition-transform duration-200">▼</span>
+    )}
+  </a>
+  {item.children && item.children.length > 0 && (
+    <SubMenu items={item.children} depth={depth + 1} />
+  )}
+</li>

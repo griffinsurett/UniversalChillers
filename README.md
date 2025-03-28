@@ -47,3 +47,8 @@ All commands are run from the root of the project, from a terminal:
 
 Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
 # Greactstro
+
+# start by installing 
+npm install astro@latest react@latest react-dom@latest @astrojs/mdx@latest @astrojs/react@latest tailwindcss@latest @tailwindcss/vite@latest @types/react@latest @types/react-dom@latest
+
+npx astro dev --host
