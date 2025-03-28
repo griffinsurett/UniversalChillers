@@ -56,28 +56,27 @@ body {
 }
 
 /* Global header styles (these are our dynamic header classes) */
+/* Global header styles (these are our dynamic header classes) */
 .h1 {
-  @apply text-5xl font-bold text-[var(--color-text)] mb-[var(--spacing-md)];
+  @apply text-2xl font-bold text-[var(--color-text)];
 }
 .h2 {
-  @apply text-4xl font-semibold text-[var(--color-text)] mb-[var(--spacing-md)];
+  @apply text-2xl font-semibold text-[var(--color-text)];
 }
 .h3 {
-  @apply text-3xl font-semibold text-[var(--color-text)] mb-[var(--spacing-md)];
+  @apply text-xl font-semibold text-[var(--color-text)] md:text-2xl;
 }
 .h4 {
-  @apply text-2xl font-medium text-[var(--color-text)] mb-[var(--spacing-md)];
+  @apply text-lg font-medium text-[var(--color-text)] md:text-xl;
 }
 .h5 {
-  @apply text-xl font-medium text-[var(--color-text)] mb-[var(--spacing-md)];
+  @apply text-base font-medium text-[var(--color-text)] md:text-lg;
 }
 .h6 {
-  @apply text-lg font-medium text-[var(--color-text)] mb-[var(--spacing-md)];
+  @apply text-base font-medium text-[var(--color-text)] md:text-lg;
 }
-
-/* Base typography */
-  p {
-    margin-bottom: var(--spacing-md);
+p {
+    @apply mb-4 leading-relaxed text-base;
   }
 }
 
