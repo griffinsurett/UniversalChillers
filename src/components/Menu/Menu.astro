@@ -2,32 +2,50 @@
 // Menu.astro
 import NavMenu from "./BarMenu/NavMenu.astro";
 import MobileNavMenu from "./HamburgerMenu/HamburgerNavMenu.jsx";
-// Import Tailwind's default theme to access the breakpoint values.
 import defaultTheme from 'tailwindcss/defaultTheme';
 
-const { items, hamburgerOnly = false } = Astro.props;
+// Props:
+// - items: menu data array
+// - breakpoint: Tailwind breakpoint (e.g. "md", "lg"; default "md")
+// - menuClass: custom classes for desktop menu container
+// - menuItemClass: classes for individual menu items
+// - submenuClass: classes for submenu containers (falls back to menuItemClass if not provided)
+// - isHierarchical: boolean flag for nested vs flat menus (default true)
+// - menuItemComponent: optional override for menu item component
+const { 
+  items, 
+  breakpoint = "md",
+  menuClass = "",
+  menuItemClass = "",
+  submenuClass = "",
+  isHierarchical = true,
+  menuItemComponent,
+} = Astro.props;
 
-// Extract the native 'md' breakpoint (default is "768px")
-const mdBreakpoint = defaultTheme.screens.md || '768px';
-// Create a media query that targets viewports below md
-const mobileMediaQuery = `(max-width: ${mdBreakpoint})`;
+// Look up breakpoint value from Tailwind's default theme.
+const bpValue = defaultTheme.screens[breakpoint] || defaultTheme.screens.md;
+const mobileMediaQuery = `(max-width: ${bpValue})`;
 ---
-{hamburgerOnly ? (
-  // Render mobile menu on all screen sizes if hamburgerOnly is true.
-  <div class="block">
-    <MobileNavMenu items={items} client:idle />
-  </div>
-) : (
-  <>
-    <nav class="hidden md:block">
-      <NavMenu items={items} />
-    </nav>
-    <div class="block md:hidden">
-      {/*
-        Hydrate the mobile menu only when the viewport matches our dynamic media query.
-        This ensures that on larger screens the mobile JS isn’t loaded.
-      */}
-      <MobileNavMenu items={items} client:media={mobileMediaQuery} />
-    </div>
-  </>
-)}
+<!-- Desktop menu: visible on screens above the breakpoint -->
+<nav class={`hidden ${breakpoint}:block ${menuClass}`}>
+  <NavMenu 
+    items={items} 
+    menuItemClass={menuItemClass}
+    submenuClass={submenuClass || menuItemClass}
+    isHierarchical={isHierarchical}
+    menuItemComponent={menuItemComponent}
+    breakpoint={breakpoint}
+  />
+</nav>
+<!-- Mobile menu: visible on screens below the breakpoint -->
+<div class={`block ${breakpoint}:hidden`}>
+  <MobileNavMenu 
+    items={items} 
+    client:visible
+    menuItemClass={menuItemClass}
+    submenuClass={submenuClass || menuItemClass}
+    isHierarchical={isHierarchical}
+    menuItemComponent={menuItemComponent}
+    breakpoint={breakpoint}
+  />
+</div>

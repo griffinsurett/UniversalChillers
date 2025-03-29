@@ -3,7 +3,6 @@ import React from "react";
 export default function HamburgerIcon({ isOpen, onChange, hamburgerTransform = true }) {
   return (
     <div className="relative w-8 h-8 z-[99999]">
-      {/* The hidden checkbox controlling the state */}
       <input
         type="checkbox"
         id="hamburger-toggle"
@@ -11,7 +10,6 @@ export default function HamburgerIcon({ isOpen, onChange, hamburgerTransform = t
         checked={isOpen}
         onChange={onChange}
       />
-      {/* The label acts as the visible toggle */}
       <label htmlFor="hamburger-toggle" className="block w-8 h-8 cursor-pointer">
         {hamburgerTransform ? (
           <>

@@ -1,24 +1,25 @@
 import React from "react";
 
-export default function HamburgerMenuItem({ item, depth = 0, onClose }) {
+export default function HamburgerMenuItem({ item, depth = 0, onClose, breakpoint, menuItemClass, submenuClass, isHierarchical, menuItemComponent }) {
   const [open, setOpen] = React.useState(false);
-  const hasChildren = item.children && item.children.length > 0;
+  const hasChildren = isHierarchical && item.children && item.children.length > 0;
+  
+  // Determine the RenderComponent for recursive rendering.
+  const RenderComponent = menuItemComponent ? menuItemComponent : HamburgerMenuItem;
 
-  // Toggle the submenu if click is outside a link or button, but only if there are sub-items.
   const handleContainerClick = (e) => {
     if (hasChildren && !e.target.closest('a') && !e.target.closest('button')) {
       setOpen((prev) => !prev);
     }
   };
 
-  // Specific handler for clicking on the arrow, stopping propagation.
   const handleArrowClick = (e) => {
     e.stopPropagation();
     setOpen((prev) => !prev);
   };
 
   return (
-    <li className={`py-2 pl-${depth * 4}`}>
+    <li className={`py-2 pl-${depth * 4} ${menuItemClass}`}>
       <div
         onClick={handleContainerClick}
         className={`flex items-center justify-between ${hasChildren ? "cursor-pointer" : ""}`}
@@ -32,11 +33,7 @@ export default function HamburgerMenuItem({ item, depth = 0, onClose }) {
             className="text-gray-600 focus:outline-none"
             aria-label="Toggle submenu"
           >
-            <span
-              className={`inline-block transform transition-transform duration-200 cursor-pointer ${
-                open ? "rotate-180" : ""
-              }`}
-            >
+            <span className={`inline-block transform transition-transform duration-200 ${open ? "rotate-180" : ""}`}>
               ▼
             </span>
           </button>
@@ -45,11 +42,16 @@ export default function HamburgerMenuItem({ item, depth = 0, onClose }) {
       {hasChildren && open && (
         <ul className="ml-4 mt-2">
           {item.children.map((child) => (
-            <HamburgerMenuItem
+            <RenderComponent
               key={child.id}
               item={child}
               depth={depth + 1}
               onClose={onClose}
+              breakpoint={breakpoint}
+              menuItemClass={menuItemClass}
+              submenuClass={submenuClass}
+              isHierarchical={isHierarchical}
+              menuItemComponent={menuItemComponent}
             />
           ))}
         </ul>

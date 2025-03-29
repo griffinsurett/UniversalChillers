@@ -2,7 +2,10 @@ import React from "react";
 import Modal from "../../Modal.jsx";
 import HamburgerMenuItem from "./HamburgerMenuItem.jsx";
 
-export default function MobileMenuContainer({ items, isOpen, onClose }) {
+export default function MobileMenuContainer({ items, isOpen, onClose, breakpoint, menuItemClass, submenuClass, isHierarchical, menuItemComponent }) {
+  // Determine the RenderComponent for hamburger menu items.
+  const RenderComponent = menuItemComponent ? menuItemComponent : HamburgerMenuItem;
+  
   return (
     <Modal
       isOpen={isOpen}
@@ -14,7 +17,16 @@ export default function MobileMenuContainer({ items, isOpen, onClose }) {
       <nav onClick={(e) => e.stopPropagation()}>
         <ul className="space-y-2">
           {items.map((item) => (
-            <HamburgerMenuItem key={item.id} item={item} onClose={onClose} />
+            <RenderComponent 
+              key={item.id} 
+              item={item} 
+              onClose={onClose}
+              breakpoint={breakpoint}
+              menuItemClass={menuItemClass}
+              submenuClass={submenuClass}
+              isHierarchical={isHierarchical}
+              menuItemComponent={menuItemComponent}
+            />
           ))}
         </ul>
       </nav>

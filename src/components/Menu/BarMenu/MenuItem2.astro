@@ -1,12 +1,7 @@
 ---
 /*
-  Renders a single menu item.
-  Props:
-    - menuItemClass: custom classes for the menu item.
-    - submenuClass: custom classes for the submenu container.
-    - isHierarchical: flag to control nested rendering.
-    - menuItemComponent: optional custom component override.
-    - breakpoint: responsive breakpoint passed down.
+  Custom Menu Item Component (MenuItem2) for overriding the default menu item.
+  Props are similar to the default MenuItem.
 */
 const { 
   item, 
@@ -20,10 +15,10 @@ const {
 import SubMenu from './SubMenu.astro';
 ---
 <li class={`relative hamburger-menu-item ${menuItemClass}`}>
-  <a href={item.slug} class="flex items-center text-[var(--color-text)] hover:text-[var(--color-primary)]">
-    {item.label}
+  <a href={item.slug} class="flex items-center text-red-500 hover:text-red-700">
+    {item.label} (Custom)
     {isHierarchical && item.children && item.children.length > 0 && (
-      <span class="arrow ml-[var(--spacing-sm)] transition-transform duration-200">▼</span>
+      <span class="arrow ml-[var(--spacing-sm)] transition-transform duration-200">►</span>
     )}
   </a>
   {isHierarchical && item.children && item.children.length > 0 && (

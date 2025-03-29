@@ -2,6 +2,7 @@
 import { SiteData } from "@/content/SiteData";
 import { buildContentQueries } from "@/utils/ArrayQueryUtils";
 import Menu from "../components/Menu/Menu.astro";
+import MenuItem from "../components/Menu/BarMenu/MenuItem.astro"; // our custom override
 import { Image } from "astro:assets";
 import Heading from "./Heading";
 
@@ -21,18 +22,26 @@ const headerMenu = finalQueries.MainNavMenu || [];
       class="h-12"
       format="webp"
       loading="eager"
-      quality={"low"}
+      quality="low"
       fetchpriority="high"
       aria-hidden="true"
     />
     <div class="header-text">
-      <Heading tagName={"h1"} className="h2">
+      <Heading tagName="h1" className="h2">
         {SiteData.title}
       </Heading>
-      <Heading tagName={"h2"} className="h5">
+      <Heading tagName="h2" className="h5">
         {SiteData.tagline}
       </Heading>
     </div>
   </a>
-  <Menu items={headerMenu} hamburgerOnly={false} />
+  <Menu 
+    items={headerMenu} 
+    breakpoint="md" 
+    menuClass="custom-menu-class" 
+    menuItemClass="custom-menu-item" 
+    submenuClass="custom-submenu-class" 
+    isHierarchical={true}
+    menuItemComponent={MenuItem} 
+  />
 </header>
