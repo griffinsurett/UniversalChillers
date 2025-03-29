@@ -1,29 +1,27 @@
 ---
 /*
   Renders a list of menu items recursively.
-  Determines the RenderComponent for menu items once, then renders all items.
+  Uses a single object prop for menu item configuration.
 */
 const { 
   items = [], 
   class: extraClass = '', 
-  menuItemClass = "", 
-  submenuClass = "", 
+  menuItem,         // object: { component, class }
+  submenuItem,      // object: { component, class }
   isHierarchical = true, 
-  menuItemComponent,
   breakpoint
 } = Astro.props;
 import DefaultMenuItem from './MenuItem.astro';
 
-// Determine the component to use for menu items (override or default)
-const RenderComponent = menuItemComponent ? menuItemComponent : DefaultMenuItem;
+const RenderComponent = menuItem && menuItem.component ? menuItem.component : DefaultMenuItem;
 ---
 <ul class={`list-none m-0 p-0 ${extraClass}`}>
   {items.map((item) => (
     <RenderComponent 
       item={item} 
       depth={0} 
-      menuItemClass={menuItemClass}
-      submenuClass={submenuClass}
+      menuItem={menuItem}
+      submenuItem={submenuItem}
       isHierarchical={isHierarchical}
       breakpoint={breakpoint}
     />

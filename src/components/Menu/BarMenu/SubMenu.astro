@@ -1,28 +1,29 @@
 ---
 /*
   Renders a submenu for a menu item.
-  Determines the RenderComponent for submenu items, similar to NavMenuList.
+  Checks first for submenuItem; if not provided, falls back to menuItem.
 */
 const { 
   items = [], 
   depth = 1, 
-  submenuClass = "", 
-  menuItemClass = "", 
+  menuItem,      // main menu configuration (fallback)
+  submenuItem,   // submenu configuration
   isHierarchical = true, 
-  menuItemComponent,
   breakpoint
 } = Astro.props;
 import DefaultMenuItem from './MenuItem.astro';
-const RenderComponent = menuItemComponent ? menuItemComponent : DefaultMenuItem;
-const finalSubmenuClass = submenuClass || menuItemClass;
+const RenderComponent = submenuItem && submenuItem.component 
+  ? submenuItem.component 
+  : (menuItem && menuItem.component ? menuItem.component : DefaultMenuItem);
+const finalSubmenuClass = submenuItem && submenuItem.class ? submenuItem.class : (menuItem && menuItem.class ? menuItem.class : "");
 ---
 <ul class={`absolute ${depth === 1 ? 'top-full left-0' : 'top-0 left-full'} ${finalSubmenuClass} shadow-lg z-50 list-none min-w-max w-auto hidden transition duration-200`}>
   {items.map((item) => (
     <RenderComponent 
       item={item} 
       depth={depth} 
-      menuItemClass={menuItemClass}
-      submenuClass={submenuClass}
+      menuItem={menuItem}
+      submenuItem={submenuItem}
       isHierarchical={isHierarchical}
       breakpoint={breakpoint}
     />

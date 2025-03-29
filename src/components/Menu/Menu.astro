@@ -8,21 +8,18 @@ import defaultTheme from 'tailwindcss/defaultTheme';
 // - items: menu data array
 // - breakpoint: Tailwind breakpoint (e.g. "md", "lg"; default "md")
 // - menuClass: custom classes for desktop menu container
-// - menuItemClass: classes for individual menu items
-// - submenuClass: classes for submenu containers (falls back to menuItemClass if not provided)
+// - menuItem: object { component, class } for main menu items
+// - submenuItem: object { component, class } for submenu items
 // - isHierarchical: boolean flag for nested vs flat menus (default true)
-// - menuItemComponent: optional override for menu item component
 const { 
   items, 
   breakpoint = "md",
   menuClass = "",
-  menuItemClass = "",
-  submenuClass = "",
+  menuItem,
+  submenuItem,
   isHierarchical = true,
-  menuItemComponent,
 } = Astro.props;
 
-// Look up breakpoint value from Tailwind's default theme.
 const bpValue = defaultTheme.screens[breakpoint] || defaultTheme.screens.md;
 const mobileMediaQuery = `(max-width: ${bpValue})`;
 ---
@@ -30,10 +27,9 @@ const mobileMediaQuery = `(max-width: ${bpValue})`;
 <nav class={`hidden ${breakpoint}:block ${menuClass}`}>
   <NavMenu 
     items={items} 
-    menuItemClass={menuItemClass}
-    submenuClass={submenuClass || menuItemClass}
+    menuItem={menuItem}
+    submenuItem={submenuItem}
     isHierarchical={isHierarchical}
-    menuItemComponent={menuItemComponent}
     breakpoint={breakpoint}
   />
 </nav>
@@ -42,10 +38,9 @@ const mobileMediaQuery = `(max-width: ${bpValue})`;
   <MobileNavMenu 
     items={items} 
     client:visible
-    menuItemClass={menuItemClass}
-    submenuClass={submenuClass || menuItemClass}
+    menuItem={menuItem}
+    submenuItem={submenuItem}
     isHierarchical={isHierarchical}
-    menuItemComponent={menuItemComponent}
     breakpoint={breakpoint}
   />
 </div>

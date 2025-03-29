@@ -2,16 +2,15 @@ import React from "react";
 import Modal from "../../Modal.jsx";
 import HamburgerMenuItem from "./HamburgerMenuItem.jsx";
 
-export default function MobileMenuContainer({ items, isOpen, onClose, breakpoint, menuItemClass, submenuClass, isHierarchical, menuItemComponent }) {
-  // Determine the RenderComponent for hamburger menu items.
-  const RenderComponent = menuItemComponent ? menuItemComponent : HamburgerMenuItem;
+export default function MobileMenuContainer({ items, isOpen, onClose, breakpoint, menuItem, submenuItem, isHierarchical }) {
+  // Determine the RenderComponent for main items in the mobile menu.
+  const RenderComponent = menuItem && menuItem.component ? menuItem.component : HamburgerMenuItem;
   
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      overlayClass="bg-black bg-opacity-50"
-      className="bg-white rounded shadow-lg p-4 w-full h-full overflow-auto"
+      className="bg-bg rounded shadow-lg p-4 w-full h-full overflow-auto"
       closeButton={false}
     >
       <nav onClick={(e) => e.stopPropagation()}>
@@ -22,10 +21,9 @@ export default function MobileMenuContainer({ items, isOpen, onClose, breakpoint
               item={item} 
               onClose={onClose}
               breakpoint={breakpoint}
-              menuItemClass={menuItemClass}
-              submenuClass={submenuClass}
+              menuItem={menuItem}
+              submenuItem={submenuItem}
               isHierarchical={isHierarchical}
-              menuItemComponent={menuItemComponent}
             />
           ))}
         </ul>
