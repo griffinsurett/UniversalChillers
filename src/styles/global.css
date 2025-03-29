@@ -14,9 +14,6 @@
   /* Typography */
   --font-base: 'Inter', sans-serif;
   --font-heading: 'Poppins', sans-serif;
-  --font-size-base: 16px;
-  --font-size-sm: 14px;
-  --font-size-lg: 18px;
   
   /* Spacing tokens */
   --spacing-sm: 0.5rem;
@@ -41,10 +38,8 @@
 /* Base element styling */
 body {
   font-family: var(--font-base);
-  font-size: var(--font-size-base);
   background-color: var(--color-bg);
   color: var(--color-text);
-  line-height: 1.6;
 }
 
 /* Container for centered layouts */
@@ -55,7 +50,6 @@ body {
   padding: var(--spacing-md);
 }
 
-/* Global header styles (these are our dynamic header classes) */
 /* Global header styles (these are our dynamic header classes) */
 .h1 {
   @apply text-2xl font-bold text-[var(--color-text)];
