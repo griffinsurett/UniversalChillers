@@ -32,7 +32,7 @@ export default function HamburgerMenuItem({ item, depth = 0, onClose, breakpoint
         {hasSub && (
           <button onClick={handleArrowClick} className="focus:outline-none" aria-label="Toggle submenu">
             <span className={`inline-block transform transition-transform duration-200 ${open ? "rotate-180" : ""}`}>
-              ▼
+              {submenuItem && submenuItem.submenuArrow ? submenuItem.submenuArrow : "▼"}
             </span>
           </button>
         )}

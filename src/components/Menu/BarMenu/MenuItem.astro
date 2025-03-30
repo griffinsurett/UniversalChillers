@@ -6,8 +6,8 @@
 const { 
   item, 
   depth = 0, 
-  menuItem,      // object: { component, class }
-  submenuItem,   // object: { component, class }
+  menuItem,      // object: { component, class, submenuArrow }
+  submenuItem,   // object: { component, class, submenuArrow }
   isHierarchical = true, 
   breakpoint
 } = Astro.props;
@@ -19,7 +19,9 @@ const hasSub = isHierarchical && Array.isArray(item.children) && item.children.l
   <a href={item.slug} class="flex items-center text-[var(--color-text)] hover:text-[var(--color-primary)]">
     {item.label}
     {hasSub && (
-      <span class="arrow ml-[var(--spacing-sm)] transition-transform duration-200">▼</span>
+      <span class="arrow ml-[var(--spacing-sm)] transition-transform duration-200">
+        {menuItem && menuItem.submenuArrow ? menuItem.submenuArrow : "▼"}
+      </span>
     )}
   </a>
   {hasSub && (
