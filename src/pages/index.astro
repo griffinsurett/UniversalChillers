@@ -8,14 +8,13 @@ import Modal from "@/components/Modal";
 <Layout>
   <!-- Hero Section with two buttons -->
   <Section 
-  heading="Homepage" 
+  heading={{ text: "Homepage", tagName: "h1" }}
   description="Welcome to Astro!" 
   buttons={[
     { text: "See Our CTA", link: "/contact-us" },
     { text: "Learn More About Us", link: "/about-us" }
   ]}
 />
-
 
   {/* Services */}
   <Section
