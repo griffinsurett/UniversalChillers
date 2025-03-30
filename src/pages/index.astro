@@ -16,33 +16,37 @@ import Modal from "@/components/Modal";
   ]}
 />
 
-  {/* Services */}
-  <Section
-    collection="services"
-    query="getAll"
-    component={Card}
-  />
+ {/* Services */}
+ <Section
+ collection="services"
+ query="getAll"
+ component={Card}
+ heading={{ text: "Our Services", tagName: "h2" }}
+/>
 
-  {/* Clients */}
-  <Section
-    collection="clients"
-    query="getAll"
-    component={Card}
-  />
+{/* Clients */}
+<Section
+ collection="clients"
+ query="getAll"
+ component={Card}
+ heading={{ text: "Our Clients", tagName: "h2" }}
+/>
 
-  {/* Projects */}
-  <Section
-    collection="projects"
-    query="getAll"
-    component={Card}
-  />
+{/* Projects */}
+<Section
+ collection="projects"
+ query="getAll"
+ component={Card}
+ heading={{ text: "Our Projects", tagName: "h2" }}
+/>
 
-  {/* Testimonials */}
-  <Section
-    collection="testimonials"
-    query="getAll"
-    component={Card}
-  />
+{/* Testimonials */}
+<Section
+ collection="testimonials"
+ query="getAll"
+ component={Card}
+ heading={{ text: "Client Testimonials", tagName: "h2" }}
+/>
 
 </Layout>
 
