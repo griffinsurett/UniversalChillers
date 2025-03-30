@@ -32,7 +32,7 @@ try {
         key={i}
         collection={section.collection}
         query={section.query}
-        heading={section.heading}
+        heading={section.heading || { text: capitalize(section.collection), tagName: "h2" }}
         description={section.description ?? meta.description}
         component={Card}
         button={section.button}
@@ -48,6 +48,7 @@ try {
       collection={collection}
       query="getAll"
       component={Card}
+      heading={{ text: capitalize(collection), tagName: "h2" }}
       description={meta.description}
     />
   )}
