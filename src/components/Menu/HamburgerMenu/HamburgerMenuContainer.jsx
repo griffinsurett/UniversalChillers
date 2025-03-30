@@ -2,7 +2,7 @@ import React from "react";
 import Modal from "../../Modal.jsx";
 import HamburgerMenuItem from "./HamburgerMenuItem.jsx";
 
-export default function MobileMenuContainer({ items, isOpen, onClose, breakpoint, menuItem, submenuItem, isHierarchical }) {
+export default function HamburgerMenuContainer({ items, isOpen, onClose, breakpoint, menuItem, submenuItem, isHierarchical }) {
   // Determine the RenderComponent for main mobile menu items.
   const RenderComponent = menuItem && menuItem.component ? menuItem.component : HamburgerMenuItem;
   

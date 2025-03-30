@@ -1,6 +1,6 @@
 ---
 import NavMenu from "./BarMenu/NavMenu.astro";
-import MobileNavMenu from "./HamburgerMenu/HamburgerNavMenu.jsx";
+import HamburgerNavMenu from "./HamburgerMenu/HamburgerNavMenu.jsx";
 import defaultTheme from 'tailwindcss/defaultTheme';
 
 // Props with default breakpoint "md" unless explicitly set to "none"
@@ -30,7 +30,6 @@ if (!noBreakpoint) {
 ---
 {!noBreakpoint ? (
   <>
-    <!-- Desktop menu: visible on screens above the breakpoint -->
     <nav class={`hidden ${breakpoint}:block ${menuClass}`}>
       <NavMenu 
         items={items} 
@@ -40,11 +39,10 @@ if (!noBreakpoint) {
         breakpoint={breakpoint}
       />
     </nav>
-    <!-- Mobile menu: visible on screens below the breakpoint -->
     <div class={`block ${breakpoint}:hidden`}>
-      <MobileNavMenu 
+      <HamburgerNavMenu 
+      client:visible
         items={items} 
-        client:visible
         menuItem={menuItem}
         submenuItem={submenuItem}
         isHierarchical={isHierarchical}

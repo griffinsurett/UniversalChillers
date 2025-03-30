@@ -1,8 +1,17 @@
-import React from "react";
-import HamburgerButton from "./HamburgerIcon.jsx";
-import MobileMenuContainer from "./HamburgerMenuContainer.jsx";
+import React, { Suspense, lazy } from "react";
 
-export default function MobileNavMenu({ items, hamburgerTransform = true, breakpoint, menuItem, submenuItem, isHierarchical }) {
+// Lazy load the Hamburger Menu Container and Hamburger Button
+const HamburgerMenuContainer = lazy(() => import("./HamburgerMenuContainer.jsx"));
+const HamburgerButton = lazy(() => import("./HamburgerIcon.jsx"));
+
+export default function HamburgerNavMenu({
+  items,
+  hamburgerTransform = true,
+  breakpoint,
+  menuItem,
+  submenuItem,
+  isHierarchical
+}) {
   const [menuOpen, setMenuOpen] = React.useState(false);
 
   const toggleMenu = () => setMenuOpen((prev) => !prev);
@@ -15,20 +24,22 @@ export default function MobileNavMenu({ items, hamburgerTransform = true, breakp
 
   return (
     <>
-      <HamburgerButton
-        isOpen={menuOpen}
-        onChange={toggleMenu}
-        hamburgerTransform={hamburgerTransform}
-      />
-      <MobileMenuContainer 
-        items={items} 
-        isOpen={menuOpen} 
-        onClose={closeMenu}
-        breakpoint={breakpoint}
-        menuItem={menuItem}
-        submenuItem={submenuItem}
-        isHierarchical={isHierarchical}
-      />
+      <Suspense fallback={<div>Loading Menu...</div>}>
+        <HamburgerButton
+          isOpen={menuOpen}
+          onChange={toggleMenu}
+          hamburgerTransform={hamburgerTransform}
+        />
+        <HamburgerMenuContainer 
+          items={items} 
+          isOpen={menuOpen} 
+          onClose={closeMenu}
+          breakpoint={breakpoint}
+          menuItem={menuItem}
+          submenuItem={submenuItem}
+          isHierarchical={isHierarchical}
+        />
+      </Suspense>
     </>
   );
 }
