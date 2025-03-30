@@ -3,10 +3,9 @@ import "../BarMenu/menu.css";
 import NavMenuList from "./NavMenuList.astro";
 const { 
   items = [], 
-  menuItemClass = "", 
-  submenuClass = "", 
+  menuItem,         // object: { component, class }
+  submenuItem,      // object: { component, class }
   isHierarchical = true, 
-  menuItemComponent,
   breakpoint
 } = Astro.props;
 ---
@@ -14,10 +13,9 @@ const {
   <NavMenuList 
     items={items} 
     class="flex gap-[var(--spacing-md)]" 
-    menuItemClass={menuItemClass}
-    submenuClass={submenuClass}
+    menuItem={menuItem}
+    submenuItem={submenuItem}
     isHierarchical={isHierarchical}
-    menuItemComponent={menuItemComponent}
     breakpoint={breakpoint}
   />
 </nav>

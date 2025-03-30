@@ -2,7 +2,7 @@ import React from "react";
 import HamburgerButton from "./HamburgerIcon.jsx";
 import MobileMenuContainer from "./HamburgerMenuContainer.jsx";
 
-export default function MobileNavMenu({ items, hamburgerTransform = true, breakpoint, menuItemClass, submenuClass, isHierarchical, menuItemComponent }) {
+export default function MobileNavMenu({ items, hamburgerTransform = true, breakpoint, menuItem, submenuItem, isHierarchical }) {
   const [menuOpen, setMenuOpen] = React.useState(false);
 
   const toggleMenu = () => setMenuOpen((prev) => !prev);
@@ -25,10 +25,9 @@ export default function MobileNavMenu({ items, hamburgerTransform = true, breakp
         isOpen={menuOpen} 
         onClose={closeMenu}
         breakpoint={breakpoint}
-        menuItemClass={menuItemClass}
-        submenuClass={submenuClass}
+        menuItem={menuItem}
+        submenuItem={submenuItem}
         isHierarchical={isHierarchical}
-        menuItemComponent={menuItemComponent}
       />
     </>
   );

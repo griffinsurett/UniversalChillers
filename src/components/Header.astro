@@ -1,10 +1,9 @@
 ---
-// Header.astro
 import { SiteData } from "@/content/SiteData";
 import { buildContentQueries } from "@/utils/ArrayQueryUtils";
 import Menu from "../components/Menu/Menu.astro";
-import MenuItem from "../components/Menu/BarMenu/MenuItem.astro";    // default main menu item
-import MenuItem2 from "../components/Menu/BarMenu/MenuItem2.astro";  // custom submenu item
+import MenuItem from "../components/Menu/BarMenu/MenuItem.astro";    // default component (for main items)
+import MenuItem2 from "../components/Menu/BarMenu/MenuItem2.astro";  // custom component (for submenus)
 import { Image } from "astro:assets";
 import Heading from "./Heading";
 
@@ -41,10 +40,8 @@ const headerMenu = finalQueries.MainNavMenu || [];
     items={headerMenu} 
     breakpoint="md" 
     menuClass="custom-menu-class" 
-    // For main menu items, use the default component with custom classes:
     menuItem={{ component: MenuItem, class: "custom-menu-item" }}
-    // For submenu items, use our custom component:
-    submenuItem={{ component: MenuItem2, class: "custom-submenu-class" }}
+    submenuItem={{ component: MenuItem, class: "custom-submenu-class" }}
     isHierarchical={true}
   />
 </header>

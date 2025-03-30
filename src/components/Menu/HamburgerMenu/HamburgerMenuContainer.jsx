@@ -3,14 +3,15 @@ import Modal from "../../Modal.jsx";
 import HamburgerMenuItem from "./HamburgerMenuItem.jsx";
 
 export default function MobileMenuContainer({ items, isOpen, onClose, breakpoint, menuItem, submenuItem, isHierarchical }) {
-  // Determine the RenderComponent for main items in the mobile menu.
+  // Determine the RenderComponent for main mobile menu items.
   const RenderComponent = menuItem && menuItem.component ? menuItem.component : HamburgerMenuItem;
   
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      className="bg-bg rounded shadow-lg p-4 w-full h-full overflow-auto"
+      overlayClass="bg-black bg-opacity-50"
+      className="bg-white rounded shadow-lg p-4 w-full h-full overflow-auto"
       closeButton={false}
     >
       <nav onClick={(e) => e.stopPropagation()}>

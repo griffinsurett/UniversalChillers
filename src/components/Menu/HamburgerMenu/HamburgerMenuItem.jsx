@@ -7,7 +7,7 @@ export default function HamburgerMenuItem({ item, depth = 0, onClose, breakpoint
   
   const mainClass = menuItem && menuItem.class ? menuItem.class : "";
   
-  // For children, use submenuItem if provided; otherwise fallback.
+  // For children, check for submenu override first.
   const RenderComponent = submenuItem && submenuItem.component 
     ? submenuItem.component 
     : (menuItem && menuItem.component ? menuItem.component : HamburgerMenuItem);

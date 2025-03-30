@@ -1,34 +1,33 @@
 ---
 /*
   Custom Menu Item Component (MenuItem2) for overriding the default menu item.
-  Props are similar to the default MenuItem.
+  Props follow the same structure as the default MenuItem.
 */
 const { 
   item, 
   depth = 0, 
-  menuItemClass = "", 
-  submenuClass = "", 
+  menuItem,      // object: { component, class } for main items
+  submenuItem,   // object: { component, class } for submenu items
   isHierarchical = true, 
-  menuItemComponent,
   breakpoint
 } = Astro.props;
 import SubMenu from './SubMenu.astro';
+const mainClass = menuItem && menuItem.class ? menuItem.class : "";
 ---
-<li class={`relative hamburger-menu-item ${menuItemClass}`}>
+<li class={`relative hamburger-menu-item ${mainClass}`}>
   <a href={item.slug} class="flex items-center text-red-500 hover:text-red-700">
     {item.label} (Custom)
-    {isHierarchical && item.children && item.children.length > 0 && (
+    {isHierarchical && Array.isArray(item.children) && item.children.length > 0 && (
       <span class="arrow ml-[var(--spacing-sm)] transition-transform duration-200">►</span>
     )}
   </a>
-  {isHierarchical && item.children && item.children.length > 0 && (
+  {isHierarchical && Array.isArray(item.children) && item.children.length > 0 && (
     <SubMenu 
       items={item.children} 
       depth={depth + 1} 
-      menuItemClass={menuItemClass}
-      submenuClass={submenuClass}
+      menuItem={menuItem}
+      submenuItem={submenuItem}
       isHierarchical={isHierarchical}
-      menuItemComponent={menuItemComponent}
       breakpoint={breakpoint}
     />
   )}
