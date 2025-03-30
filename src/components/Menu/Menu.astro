@@ -18,7 +18,14 @@ const {
   menuItem,
   submenuItem,
   isHierarchical = true,
-} = Astro.props;
+} = Astro.props as {
+  items: any;
+  breakpoint?: keyof typeof defaultTheme.screens;
+  menuClass?: string;
+  menuItem?: any;
+  submenuItem?: any;
+  isHierarchical?: boolean;
+};
 
 const bpValue = defaultTheme.screens[breakpoint] || defaultTheme.screens.md;
 const mobileMediaQuery = `(max-width: ${bpValue})`;
