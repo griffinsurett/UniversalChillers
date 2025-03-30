@@ -27,14 +27,10 @@ const headerMenu = finalQueries.MainNavMenu || [];
       fetchpriority="high"
       aria-hidden="true"
     />
-    <div class="header-text">
-      <Heading tagName="h1" className="h2">
-        {SiteData.title}
-      </Heading>
-      <Heading tagName="h2" className="h5">
-        {SiteData.tagline}
-      </Heading>
-    </div>
+    <div class="header-text" aria-label="Site identity">
+      <div class="text-xl font-bold">{SiteData.title}</div>
+      <div class="text-sm">{SiteData.tagline}</div>
+    </div>    
   </a>
   <Menu 
     items={headerMenu} 
