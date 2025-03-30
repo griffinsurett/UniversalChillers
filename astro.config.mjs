@@ -14,10 +14,11 @@ export default defineConfig({
       rollupOptions: {
         output: {
           manualChunks(id) {
-            // Split node_modules into separate chunks for each package
-            if (id.includes('node_modules')) {
-              return id.toString().split('node_modules/')[1].split('/')[0];
+            // Split React-related code into a separate chunk
+            if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) {
+              return 'react-vendor';
             }
+            // Further customization can be added here for other libraries
           },
         },
       },
