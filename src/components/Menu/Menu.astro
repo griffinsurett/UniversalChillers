@@ -20,13 +20,10 @@ const {
   isHierarchical?: boolean;
 };
 
-// Check for the special "none" value
+// Determine if we have a breakpoint or not
 const noBreakpoint = breakpoint === "none";
-
-if (!noBreakpoint) {
-  // Regular breakpoint handling using Tailwind breakpoints
-  const bpValue = defaultTheme.screens[breakpoint] || defaultTheme.screens.md;
-}
+// Compute the breakpoint value (e.g. "768px" for "md")
+const bpValue = noBreakpoint ? null : (defaultTheme.screens[breakpoint] || defaultTheme.screens.md);
 ---
 {!noBreakpoint ? (
   <>
@@ -41,7 +38,7 @@ if (!noBreakpoint) {
     </nav>
     <div class={`block ${breakpoint}:hidden`}>
       <HamburgerNavMenu 
-      client:load
+        client:media={`(max-width: ${bpValue})`}
         items={items} 
         menuItem={menuItem}
         submenuItem={submenuItem}
@@ -51,7 +48,7 @@ if (!noBreakpoint) {
     </div>
   </>
 ) : (
-  // When breakpoint is "none", render a single menu version (e.g. the desktop version) for all screen sizes
+  // When breakpoint is "none", render a single menu version for all screen sizes
   <nav class={menuClass}>
     <NavMenu 
       items={items} 
