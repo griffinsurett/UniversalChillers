@@ -40,14 +40,14 @@ if (!noBreakpoint) {
       />
     </nav>
     <div class={`block ${breakpoint}:hidden`}>
-      {/* <HamburgerNavMenu 
-      client:visible
+      <HamburgerNavMenu 
+      client:load
         items={items} 
         menuItem={menuItem}
         submenuItem={submenuItem}
         isHierarchical={isHierarchical}
         breakpoint={breakpoint}
-      /> */}
+      />
     </div>
   </>
 ) : (
