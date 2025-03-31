@@ -1,4 +1,4 @@
-// src/utils/ContentQueries.ts
+// src/utils/ArrayQueryUtils.ts
 import { z } from "zod";
 import { capitalize, normalizeRef } from "./ContentUtils";
 import { getCollection } from "astro:content";
@@ -261,4 +261,12 @@ export async function gatherDynamicQueries(): Promise<{ [key: string]: QueryItem
   }
   
   return dynamicQueries;
+}
+
+export async function buildMenuQueries(
+  menuObj: { [menuKey: string]: QueryItem[] }
+): Promise<QueryItemTree[]> {
+  const menuKey = Object.keys(menuObj)[0]; // Automatically extract the query name from the variable
+  const mergedQueries = await buildContentQueries(menuObj);
+  return mergedQueries[menuKey] || [];
 }

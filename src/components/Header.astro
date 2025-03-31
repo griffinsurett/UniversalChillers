@@ -1,19 +1,15 @@
 ---
 import { SiteData } from "@/content/SiteData";
-import { buildContentQueries } from "@/utils/ArrayQueryUtils";
+import { buildMenuQueries } from "@/utils/ArrayQueryUtils";
 import Menu from "../components/Menu/Menu.astro";
-import MenuItem from "../components/Menu/BarMenu/MenuItem.astro";    // default main menu item
-import MenuItem2 from "../components/Menu/BarMenu/MenuItem2.astro";  // custom submenu item
+import MenuItem from "../components/Menu/BarMenu/MenuItem.astro"; // default main menu item
 import { Image } from "astro:assets";
-import Heading from "./Heading";
 
-const baseMainNavMenu = [
+const MainNavMenu = [
   { id: "home", label: "Home", slug: "/" },
   { id: "about", label: "About Us", slug: "/about-us" },
   { id: "contact", label: "Contact", slug: "/contact-us", position: "append", weight: 100 },
 ];
-const finalQueries = await buildContentQueries({ MainNavMenu: baseMainNavMenu });
-const headerMenu = finalQueries.MainNavMenu || [];
 ---
 <header class="flex justify-between items-center p-[var(--spacing-md)]">
   <a href="/" class="flex items-center">
@@ -33,7 +29,7 @@ const headerMenu = finalQueries.MainNavMenu || [];
     </div>    
   </a>
   <Menu 
-    items={headerMenu} 
+    items={await buildMenuQueries({ MainNavMenu })} 
     breakpoint="md" 
     menuClass="menu-class" 
     menuItem={{ component: MenuItem, class: "menu-item" }}
