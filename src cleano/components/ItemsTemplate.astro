@@ -1,0 +1,55 @@
+---
+import Card from "./LoopComponents/Card.jsx";
+import { queryItems } from "src (old) r/utils/CollectionQueryUtils.js";
+
+const {
+  collection,
+  query,
+  items: initialItems,
+  ItemComponent, // Can be a component or an object { component, props }
+  itemsClass,
+  itemClass,
+  HasPage, // New prop from Section.astro
+  pathname = "",
+  ...props
+} = Astro.props;
+
+let items = initialItems || [];
+if (!initialItems && collection && query) {
+  items = await queryItems(query, collection, pathname);
+}
+
+const isObjectComponent =
+  typeof ItemComponent === "object" && ItemComponent !== null;
+const RenderComponent = isObjectComponent
+  ? ItemComponent.component
+  : ItemComponent || Card;
+---
+
+{
+  items && items.length > 0 ? (
+    <ul class={itemsClass} aria-label="Items List" {...props}>
+      {items.map((item) => {
+        let componentProps = {};
+        if (isObjectComponent) {
+          componentProps =
+            typeof ItemComponent.props === "function"
+              ? ItemComponent.props(item)
+              : ItemComponent.props || {};
+        }
+        return (
+          <RenderComponent
+            key={item.slug}
+            item={item}
+            itemClass={itemClass}
+            collectionName={collection}
+            HasPage={HasPage}
+            {...componentProps}
+          />
+        );
+      })}
+    </ul>
+  ) : (
+    <p>No items found.</p>
+  )
+}

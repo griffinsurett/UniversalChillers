@@ -1,11 +1,11 @@
 ---
 import NavMenu from "./BarMenu/NavMenu.astro";
 import HamburgerNavMenu from "./HamburgerMenu/HamburgerNavMenu.jsx";
-import defaultTheme from 'tailwindcss/defaultTheme';
+import defaultTheme from "tailwindcss/defaultTheme";
 
 // Props with default breakpoint "md" unless explicitly set to "none"
-const { 
-  items, 
+const {
+  items,
   breakpoint = "none",
   menuClass = "",
   menuItem,
@@ -22,40 +22,59 @@ const {
 
 // Determine if we have a breakpoint or not
 const noBreakpoint = breakpoint === "none";
+
+// Create a lookup table for breakpoints to generate literal classes
+const responsiveClasses: Record<string, { show: string; hide: string }> = {
+  sm: { show: "sm:block", hide: "sm:hidden" },
+  md: { show: "md:block", hide: "md:hidden" },
+  lg: { show: "lg:block", hide: "lg:hidden" },
+  xl: { show: "xl:block", hide: "xl:hidden" },
+  "2xl": { show: "2xl:block", hide: "2xl:hidden" },
+};
+
 // Compute the breakpoint value (e.g. "768px" for "md")
-const bpValue = noBreakpoint ? null : (defaultTheme.screens[breakpoint] || defaultTheme.screens.md);
+const bpValue = noBreakpoint
+  ? null
+  : defaultTheme.screens[breakpoint] || defaultTheme.screens.md;
+
+// If we have a breakpoint, use the literal classes
+const showClass = !noBreakpoint && responsiveClasses[breakpoint] ? responsiveClasses[breakpoint].show : "";
+const hideClass = !noBreakpoint && responsiveClasses[breakpoint] ? responsiveClasses[breakpoint].hide : "";
 ---
-{!noBreakpoint ? (
-  <>
-    <nav class={`hidden ${breakpoint}:block ${menuClass}`}>
-      <NavMenu 
-        items={items} 
+
+{
+  !noBreakpoint ? (
+    <>
+      <nav class={`hidden ${showClass} ${menuClass}`}>
+        <NavMenu
+          items={items}
+          menuItem={menuItem}
+          submenuItem={submenuItem}
+          isHierarchical={isHierarchical}
+          breakpoint={breakpoint}
+        />
+      </nav>
+      <div class={`block ${hideClass}`}>
+        <HamburgerNavMenu
+          client:media={`(max-width: ${bpValue})`}
+          items={items}
+          menuItem={menuItem}
+          submenuItem={submenuItem}
+          isHierarchical={isHierarchical}
+          breakpoint={breakpoint}
+        />
+      </div>
+    </>
+  ) : (
+    // When breakpoint is "none", render a single menu version for all screen sizes
+    <nav class={menuClass}>
+      <NavMenu
+        items={items}
         menuItem={menuItem}
         submenuItem={submenuItem}
         isHierarchical={isHierarchical}
         breakpoint={breakpoint}
       />
     </nav>
-    <div class={`block ${breakpoint}:hidden`}>
-      <HamburgerNavMenu 
-        client:media={`(max-width: ${bpValue})`}
-        items={items} 
-        menuItem={menuItem}
-        submenuItem={submenuItem}
-        isHierarchical={isHierarchical}
-        breakpoint={breakpoint}
-      />
-    </div>
-  </>
-) : (
-  // When breakpoint is "none", render a single menu version for all screen sizes
-  <nav class={menuClass}>
-    <NavMenu 
-      items={items} 
-      menuItem={menuItem}
-      submenuItem={submenuItem}
-      isHierarchical={isHierarchical}
-      breakpoint={breakpoint}
-    />
-  </nav>
-)}
+  )
+}
