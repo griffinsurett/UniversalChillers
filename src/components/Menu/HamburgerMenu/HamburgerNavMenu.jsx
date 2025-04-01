@@ -13,7 +13,6 @@ export default function HamburgerNavMenu({
   isHierarchical
 }) {
   const [menuOpen, setMenuOpen] = React.useState(false);
-
   const toggleMenu = () => setMenuOpen((prev) => !prev);
   const closeMenu = () => {
     setMenuOpen(false);
