@@ -16,6 +16,8 @@ const RenderComponent = submenuItem && submenuItem.component
   ? submenuItem.component 
   : (menuItem && menuItem.component ? menuItem.component : DefaultMenuItem);
 const finalSubmenuClass = submenuItem && submenuItem.class ? submenuItem.class : (menuItem && menuItem.class ? menuItem.class : "");
+// Capture current path to compute active state
+const currentPath = Astro.url.pathname;
 ---
 <ul class={`absolute ${depth === 1 ? 'top-full left-0' : 'top-0 left-full'} ${finalSubmenuClass} shadow-lg z-50 list-none min-w-max w-auto hidden transition duration-200`}>
   {items.map((item) => (
@@ -26,6 +28,7 @@ const finalSubmenuClass = submenuItem && submenuItem.class ? submenuItem.class :
       submenuItem={submenuItem}
       isHierarchical={isHierarchical}
       breakpoint={breakpoint}
+      active={currentPath === item.slug}
     />
   ))}
 </ul>
