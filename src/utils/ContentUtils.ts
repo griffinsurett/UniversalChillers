@@ -12,6 +12,13 @@ export function normalizeRef(ref: any): string {
     }
     return '';
   }
+
+  // NEW HELPER: normalizePath
+// Removes trailing slashes (except for the root "/") to ensure consistent comparisons.
+export function normalizePath(path: string): string {
+  if (path === "/") return "/";
+  return path.replace(/\/+$/, "");
+}
   
   export function toArray(refOrArray: any): any[] {
     if (!refOrArray) return [];
