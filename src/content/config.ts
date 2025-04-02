@@ -34,6 +34,7 @@ const buttonSchema = z.object({
   text: z.string().optional(),
   class: z.string().optional(),
   link: z.string().optional(),
+  variant: z.enum(["primary", "secondary", "underline"]).optional(),
 });
 
 // Updated sectionSchema using the isolated heading and description schemas.
