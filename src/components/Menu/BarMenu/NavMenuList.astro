@@ -13,6 +13,9 @@ const {
 } = Astro.props;
 import DefaultMenuItem from './MenuItem.astro';
 
+// Capture the current path for active comparison.
+const currentPath = Astro.url.pathname;
+
 const RenderComponent = menuItem && menuItem.component ? menuItem.component : DefaultMenuItem;
 ---
 <ul class={`list-none m-0 p-0 ${extraClass}`}>
@@ -24,6 +27,7 @@ const RenderComponent = menuItem && menuItem.component ? menuItem.component : De
       submenuItem={submenuItem}
       isHierarchical={isHierarchical}
       breakpoint={breakpoint}
+      active={currentPath === item.slug}
     />
   ))}
 </ul>

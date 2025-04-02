@@ -9,14 +9,18 @@ const {
   menuItem,      // object: { component, class, submenuArrow }
   submenuItem,   // object: { component, class, submenuArrow }
   isHierarchical = true, 
-  breakpoint
+  breakpoint,
+  active = false  // new prop for active state
 } = Astro.props;
 import SubMenu from './SubMenu.astro';
 const mainClass = menuItem && menuItem.class ? menuItem.class : "";
 const hasSub = isHierarchical && Array.isArray(item.children) && item.children.length > 0;
 ---
 <li class={`relative hamburger-menu-item ${mainClass}`}>
-  <a href={item.slug} class="flex items-center text-[var(--color-text)] hover:text-[var(--color-primary)]">
+  <a 
+    href={item.slug} 
+    class={`flex items-center px-[var(--spacing-md)] ${active ? "text-[var(--color-primary)]" : "text-[var(--color-text)]"} hover:text-[var(--color-primary)]`}
+  >
     {item.label}
     {hasSub && (
       <span class="arrow ml-[var(--spacing-sm)] transition-transform duration-200">

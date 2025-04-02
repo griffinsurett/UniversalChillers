@@ -1,0 +1,23 @@
+---
+// src/components/Logo.astro
+import { Image } from "astro:assets";
+import { SiteData } from "@/content/SiteData";
+---
+<a href="/" class="flex flex-col items-start justify-left py-[var(--spacing-md)]">
+  <div class="h1">
+    {SiteData.title}
+  </div>
+  <div class="tagline-and-logo flex justify-center items-center">
+    <div class="h6">
+      {SiteData.tagline}
+    </div>
+    <Image
+      src={SiteData.logo.src}
+      alt={`${SiteData.title} logo`}
+      class="h-6 w-auto md:h-8 animate-slide-right"
+      loading="eager"
+      fetchpriority="high"
+      aria-hidden="true"
+    />
+  </div>
+</a>
