@@ -65,23 +65,26 @@ export function resolveButtonsArray(
   collectionName: string,
   currentPath: string
 ) {
-  const defaultButton = {
-    text: getDefaultButtonText(collectionName),
-    link: `/${collectionName}`,
-    ifButton: collectionName ? metaHasPage : false,
-    class: ""
-  };
-  const finalShowButton = shouldShowSectionButton(
-    collectionName,
-    metaHasPage,
-    currentPath
-  );
-  return buttons && Array.isArray(buttons)
-    ? buttons
-    : finalShowButton
-      ? [defaultButton]
-      : [];
+  // If buttons are explicitly provided in the Section props, use them.
+  if (buttons && Array.isArray(buttons)) {
+    return buttons;
+  }
+  // Otherwise, if the meta indicates a page exists and we're not on the root, create a default button.
+  const isCollectionRootPage =
+    currentPath === `/${collectionName}` || currentPath === `/${collectionName}/`;
+  if (metaHasPage && !isCollectionRootPage) {
+    return [
+      {
+        text: `View All ${capitalize(collectionName)}`,
+        link: `/${collectionName}`,
+        class: "",
+        variant: "primary",
+      },
+    ];
+  }
+  return [];
 }
+
 
 export async function getSectionItems(
   queryType: string,

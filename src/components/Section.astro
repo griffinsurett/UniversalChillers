@@ -35,7 +35,7 @@ const {
   component: ItemComponent,
   heading,
   description,
-  buttons,
+  buttons, // Expecting an array of buttons from the content meta
   buttonsSectionClass,
   sectionClass,
   itemsClass,
@@ -56,16 +56,17 @@ if (isDynamic) {
   if (items.length === 0) return;
 }
 
+// Use the new resolveButtonsArray to merge content buttons with defaults.
 const buttonsArray = resolveButtonsArray(buttons, meta.hasPage, collectionName, Astro.url.pathname);
 const itemsDefaultHasPage = meta.itemsHasPage ?? false;
 ---
 {isDynamic ? (
   <section
-    class={`${sectionClass} w-full py-[var(--spacing-lg)] lg:px-[var(--spacing-md)]`}
+    class={`${sectionClass} w-full py-var(--template-spacing-lg) lg:px-var(--template-spacing-md)`}
     data-collection={collectionName}
     {...props}
   >
-    <div class={`${contentClass} w-3/4 my-[var(--spacing-lg)]`}>
+    <div class={`${contentClass} w-3/4 my-var(--template-spacing-lg)`}>
       <div>
         {finalHeadingArray.map((head, i) => {
           const headObj = typeof head === "string" ? { text: head } : head;
@@ -96,15 +97,17 @@ const itemsDefaultHasPage = meta.itemsHasPage ?? false;
             const btnDefaults = {
               text: capitalize(collectionName),
               link: `/${collectionName}`,
-              class: ""
+              class: "",
+              variant: "primary",
             };
             const finalButtonProps = { ...btnDefaults, ...btn };
             return (
               <Button
                 key={index}
                 href={finalButtonProps.link}
-                classname={finalButtonProps.class}
+                className={finalButtonProps.class}
                 ariaLabel={finalButtonProps.text}
+                variant={finalButtonProps.variant}
               >
                 {finalButtonProps.text}
               </Button>
@@ -115,7 +118,10 @@ const itemsDefaultHasPage = meta.itemsHasPage ?? false;
     </div>
   </section>
 ) : (
-  <section class={`${sectionClass} w-full lg:px-[var(--spacing-md)]`} {...props}>
+  <section
+    class={`${sectionClass} w-full lg:px-var(--template-spacing-md)`}
+    {...props}
+  >
     <div class={`${contentClass} w-3/4`}>
       {finalHeadingArray.map((head, i) => {
         const headObj = typeof head === "string" ? { text: head } : head;
@@ -142,9 +148,9 @@ const itemsDefaultHasPage = meta.itemsHasPage ?? false;
               <Button
                 key={index}
                 href={finalButtonProps.link}
-                classname={finalButtonProps.class}
+                className={finalButtonProps.class}
                 ariaLabel={finalButtonProps.text}
-                variant={finalButtonProps.variant} 
+                variant={finalButtonProps.variant}
               >
                 {finalButtonProps.text}
               </Button>
