@@ -8,6 +8,7 @@ const {
   items,
   breakpoint = "none",
   menuClass = "",
+  listClass = "", // NEW prop for ul classes
   menuItem,
   submenuItem,
   isHierarchical = true,
@@ -15,15 +16,14 @@ const {
   items: any;
   breakpoint?: keyof typeof defaultTheme.screens | "none";
   menuClass?: string;
+  listClass?: string;
   menuItem?: any;
   submenuItem?: any;
   isHierarchical?: boolean;
 };
 
-// Determine if we have a breakpoint or not
 const noBreakpoint = breakpoint === "none";
 
-// Create a lookup table for breakpoints to generate literal classes
 const responsiveClasses: Record<string, { show: string; hide: string }> = {
   sm: { show: "sm:block", hide: "sm:hidden" },
   md: { show: "md:block", hide: "md:hidden" },
@@ -32,12 +32,10 @@ const responsiveClasses: Record<string, { show: string; hide: string }> = {
   "2xl": { show: "2xl:block", hide: "2xl:hidden" },
 };
 
-// Compute the breakpoint value (e.g. "768px" for "md")
 const bpValue = noBreakpoint
   ? null
   : defaultTheme.screens[breakpoint] || defaultTheme.screens.md;
 
-// If we have a breakpoint, use the literal classes
 const showClass = !noBreakpoint && responsiveClasses[breakpoint] ? responsiveClasses[breakpoint].show : "";
 const hideClass = !noBreakpoint && responsiveClasses[breakpoint] ? responsiveClasses[breakpoint].hide : "";
 ---
@@ -52,6 +50,7 @@ const hideClass = !noBreakpoint && responsiveClasses[breakpoint] ? responsiveCla
           submenuItem={submenuItem}
           isHierarchical={isHierarchical}
           breakpoint={breakpoint}
+          listClass={listClass} 
         />
       </nav>
       <div class={`block ${hideClass}`}>
@@ -62,11 +61,11 @@ const hideClass = !noBreakpoint && responsiveClasses[breakpoint] ? responsiveCla
           submenuItem={submenuItem}
           isHierarchical={isHierarchical}
           breakpoint={breakpoint}
+          listClass={listClass}  
         />
       </div>
     </>
   ) : (
-    // When breakpoint is "none", render a single menu version for all screen sizes
     <nav class={menuClass}>
       <NavMenu
         items={items}
@@ -74,6 +73,7 @@ const hideClass = !noBreakpoint && responsiveClasses[breakpoint] ? responsiveCla
         submenuItem={submenuItem}
         isHierarchical={isHierarchical}
         breakpoint={breakpoint}
+        listClass={listClass}  
       />
     </nav>
   )

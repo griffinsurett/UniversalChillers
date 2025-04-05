@@ -6,13 +6,15 @@ const {
   menuItem,         // object: { component, class }
   submenuItem,      // object: { component, class }
   isHierarchical = true, 
-  breakpoint
+  breakpoint,
+  listClass,        // NEW prop for the ul classes
 } = Astro.props;
 ---
 <nav>
   <NavMenuList 
     items={items} 
     class="flex gap-[var(--spacing-md)]" 
+    listClass={listClass} 
     menuItem={menuItem}
     submenuItem={submenuItem}
     isHierarchical={isHierarchical}
