@@ -1,9 +1,10 @@
-// SectionUtils.ts
+// src/utils/SectionUtils.ts
 import { getCollectionMeta } from "./FetchMeta";
 import { capitalize } from "./ContentUtils";
 import { queryItems } from "./CollectionQueryUtils";
 import { shouldShowSectionButton, getDefaultButtonText } from "./ButtonVisibilityUtils";
 
+// Returns meta data for the given collection.
 export async function resolveMetaProps(
   collectionName: string,
   queryType: string
@@ -22,54 +23,58 @@ export async function resolveMetaProps(
   return meta;
 }
 
+// Resolves the heading by checking explicit props, then meta, then a fallback.
 export function resolveHeading(
   headingProp: any,
   metaHeading: any,
   collectionName: string
 ) {
-  let finalHeadingArray = [];
   if (headingProp) {
-    finalHeadingArray = Array.isArray(headingProp)
-      ? headingProp
-      : [headingProp];
+    return Array.isArray(headingProp) ? headingProp : [headingProp];
   } else if (metaHeading) {
-    finalHeadingArray = Array.isArray(metaHeading) ? metaHeading : [metaHeading];
+    return Array.isArray(metaHeading) ? metaHeading : [metaHeading];
   } else {
-    finalHeadingArray = [{ text: capitalize(collectionName), tagName: "h2" }];
+    return [{ text: capitalize(collectionName), tagName: "h2" }];
   }
-  return finalHeadingArray;
 }
 
+// Resolves the description similarly.
 export function resolveDescription(
   descriptionProp: any,
   metaDescription: string
 ) {
-  const descriptionObj =
+  const descObj =
     typeof descriptionProp === "string"
       ? { text: descriptionProp }
       : descriptionProp || {};
-  return descriptionObj.text || metaDescription;
+  return descObj.text || metaDescription;
 }
 
-export function resolveContainerClasses(
-  buttonsSectionClass: string | undefined
-) {
-  return buttonsSectionClass !== undefined
-    ? buttonsSectionClass
-    : "mt-4 space-x-2";
+// Merges the style-related props with defaults from meta.
+export function resolveSectionStyles(sectionProps: {
+  sectionClass?: string;
+  contentClass?: string;
+  itemsClass?: string;
+  buttonsSectionClass?: string;
+}, defaultSection: any) {
+  return {
+    finalSectionClass: sectionProps.sectionClass || defaultSection.sectionClass || "",
+    finalContentClass: sectionProps.contentClass || defaultSection.contentClass || "",
+    finalItemsClass: sectionProps.itemsClass || defaultSection.itemsClass || "",
+    finalButtonsSectionClass: sectionProps.buttonsSectionClass || defaultSection.buttonsSectionClass || "",
+  };
 }
 
+// Resolves the buttons array.
 export function resolveButtonsArray(
   buttons: any,
   metaHasPage: boolean,
   collectionName: string,
   currentPath: string
 ) {
-  // If buttons are explicitly provided in the Section props, use them.
   if (buttons && Array.isArray(buttons)) {
     return buttons;
   }
-  // Otherwise, if the meta indicates a page exists and we're not on the root, create a default button.
   const isCollectionRootPage =
     currentPath === `/${collectionName}` || currentPath === `/${collectionName}/`;
   if (metaHasPage && !isCollectionRootPage) {
@@ -85,11 +90,21 @@ export function resolveButtonsArray(
   return [];
 }
 
-
+// Returns dynamic items for the section.
 export async function getSectionItems(
   queryType: string,
   collectionName: string,
   currentPath: string
 ) {
   return await queryItems(queryType, collectionName, currentPath);
+}
+
+// Resolves the component to render using an external auto-imported mapping.
+import { componentMapping } from "@/utils/ComponentMapping";
+export function resolveComponent(ItemComponent: any, defaultComponent: any) {
+  let finalComponent = ItemComponent || defaultComponent;
+  if (typeof finalComponent === "string") {
+    finalComponent = componentMapping[finalComponent] || componentMapping["Card"];
+  }
+  return finalComponent;
 }

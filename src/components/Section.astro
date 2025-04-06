@@ -16,7 +16,14 @@
  * This hierarchy ensures that the highest priority values are used where explicitly provided, 
  * while sensible defaults are always available.
  */
-import Heading from "./Heading.jsx";
+/**
+ * Section Component – Determines heading, description, styles, component, and buttons.
+ * Priority:
+ * 1. Section props override meta.
+ * 2. Otherwise, meta defaults.
+ * 3. Otherwise, auto-fallback (e.g. collection name capitalized).
+ */
+ import Heading from "./Heading.jsx";
 import Button from "./Button.jsx";
 import ItemsTemplate from "./ItemsTemplate.astro";
 import {
@@ -25,40 +32,49 @@ import {
   resolveDescription,
   resolveButtonsArray,
   getSectionItems,
+  resolveSectionStyles,
+  resolveComponent,
 } from "@/utils/SectionUtils";
 import { capitalize } from "@/utils/ContentUtils";
-import { componentMapping } from "@/utils/componentMapping"; // Auto-imported mapping
 
 const {
   collection: collectionName,
   query: queryType,
-  component: ItemComponent, // Explicit component prop from page (if any)
+  component: ItemComponent, // Optional explicit component
   heading,
   description,
   buttons,
-  buttonsSectionClass,
   sectionClass,
+  contentClass,
   itemsClass,
   itemClass,
-  contentClass,
+  buttonsSectionClass,
   ...props
 } = Astro.props;
 
+// Retrieve meta from the collection.
 const meta = await resolveMetaProps(collectionName, queryType);
 const defaultSection = meta.defaultSection || {};
 
-const finalSectionClass = sectionClass || defaultSection.sectionClass || "";
-const finalContentClass = contentClass || defaultSection.contentClass || "";
-const finalItemsClass = itemsClass || defaultSection.itemsClass || "";
-const finalButtonsSectionClass = buttonsSectionClass || defaultSection.buttonsSectionClass || "";
+// Merge style classes.
+const {
+  finalSectionClass,
+  finalContentClass,
+  finalItemsClass,
+  finalButtonsSectionClass,
+} = resolveSectionStyles(
+  { sectionClass, contentClass, itemsClass, buttonsSectionClass },
+  defaultSection
+);
 
-// Determine the component to use:
-// Priority: explicit prop > defaultSection.component from meta.
-let finalComponent = ItemComponent || defaultSection.component;
-if (typeof finalComponent === "string") {
-  finalComponent = componentMapping[finalComponent] || componentMapping["Card"];
-}
+// Resolve headings and description.
+const finalHeadingArray = resolveHeading(heading, meta.heading, collectionName);
+const finalDescription = resolveDescription(description, meta.description);
 
+// Determine the component to render.
+const finalComponent = resolveComponent(ItemComponent, defaultSection.component);
+
+// Fetch dynamic items if applicable.
 let items = [];
 const isDynamic = Boolean(collectionName && queryType);
 if (isDynamic) {
@@ -82,14 +98,10 @@ const itemsDefaultHasPage = meta.itemsHasPage ?? false;
     {...props}
   >
     <div class={`${finalContentClass} w-3/4 my-[var(--template-spacing-lg)]`}>
-      {resolveHeading(heading, meta.heading, collectionName).map((head, i) => {
+      {finalHeadingArray.map((head, i) => {
         const headObj = typeof head === "string" ? { text: head } : head;
-        const tagName = headObj.tagName || "h2";
-        return (
-          <Heading key={i} tagName={tagName} className={headObj.class || ""}>
-            {headObj.text}
-          </Heading>
-        );
+        const Tag = headObj.tagName || "h2";
+        return <Heading key={i} tagName={Tag} className={headObj.class || ""}>{headObj.text}</Heading>;
       })}
       <slot name="aboveItemsInjection" />
       <ItemsTemplate
@@ -130,23 +142,16 @@ const itemsDefaultHasPage = meta.itemsHasPage ?? false;
     </div>
   </section>
 ) : (
-  <section
-    class={`${finalSectionClass} w-full lg:px-[var(--template-spacing-md)]`}
-    {...props}
-  >
+  <section class={`${finalSectionClass} w-full lg:px-[var(--template-spacing-md)]`} {...props}>
     <div class={`${finalContentClass} w-3/4`}>
-      {resolveHeading(heading, meta.heading, collectionName).map((head, i) => {
+      {finalHeadingArray.map((head, i) => {
         const headObj = typeof head === "string" ? { text: head } : head;
-        const tagName = headObj.tagName || "h2";
-        return (
-          <Heading key={i} tagName={tagName} className={headObj.class || ""}>
-            {headObj.text}
-          </Heading>
-        );
+        const Tag = headObj.tagName || "h2";
+        return <Heading key={i} tagName={Tag} className={headObj.class || ""}>{headObj.text}</Heading>;
       })}
-      {resolveDescription(description, meta.description) && (
+      {finalDescription && (
         <p class={description?.class}>
-          {resolveDescription(description, meta.description)}
+          {finalDescription}
         </p>
       )}
       <slot />
