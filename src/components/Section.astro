@@ -23,19 +23,19 @@ import {
   resolveMetaProps,
   resolveHeading,
   resolveDescription,
-  resolveContainerClasses,
   resolveButtonsArray,
   getSectionItems,
 } from "@/utils/SectionUtils";
 import { capitalize } from "@/utils/ContentUtils";
+import { componentMapping } from "@/utils/componentMapping"; // Auto-imported mapping
 
 const {
   collection: collectionName,
   query: queryType,
-  component: ItemComponent,
+  component: ItemComponent, // Explicit component prop from page (if any)
   heading,
   description,
-  buttons, // Expecting an array of buttons from the content meta
+  buttons,
   buttonsSectionClass,
   sectionClass,
   itemsClass,
@@ -45,9 +45,19 @@ const {
 } = Astro.props;
 
 const meta = await resolveMetaProps(collectionName, queryType);
-const finalHeadingArray = resolveHeading(heading, meta.heading, collectionName);
-const finalDescription = resolveDescription(description, meta.description);
-const containerClasses = resolveContainerClasses(buttonsSectionClass);
+const defaultSection = meta.defaultSection || {};
+
+const finalSectionClass = sectionClass || defaultSection.sectionClass || "";
+const finalContentClass = contentClass || defaultSection.contentClass || "";
+const finalItemsClass = itemsClass || defaultSection.itemsClass || "";
+const finalButtonsSectionClass = buttonsSectionClass || defaultSection.buttonsSectionClass || "";
+
+// Determine the component to use:
+// Priority: explicit prop > defaultSection.component from meta.
+let finalComponent = ItemComponent || defaultSection.component;
+if (typeof finalComponent === "string") {
+  finalComponent = componentMapping[finalComponent] || componentMapping["Card"];
+}
 
 let items = [];
 const isDynamic = Boolean(collectionName && queryType);
@@ -56,42 +66,44 @@ if (isDynamic) {
   if (items.length === 0) return;
 }
 
-// Use the new resolveButtonsArray to merge content buttons with defaults.
-const buttonsArray = resolveButtonsArray(buttons, meta.hasPage, collectionName, Astro.url.pathname);
+const buttonsArray = resolveButtonsArray(
+  buttons,
+  meta.hasPage,
+  collectionName,
+  Astro.url.pathname
+);
 const itemsDefaultHasPage = meta.itemsHasPage ?? false;
 ---
+
 {isDynamic ? (
   <section
-    class={`${sectionClass} w-full py-var(--template-spacing-lg) lg:px-var(--template-spacing-md)`}
+    class={`${finalSectionClass} w-full py-[var(--template-spacing-lg)] lg:px-[var(--template-spacing-md)]`}
     data-collection={collectionName}
     {...props}
   >
-    <div class={`${contentClass} w-3/4 my-var(--template-spacing-lg)`}>
-      <div>
-        {finalHeadingArray.map((head, i) => {
-          const headObj = typeof head === "string" ? { text: head } : head;
-          const tagName = headObj.tagName || "h2";
-          return (
-            <Heading key={i} tagName={tagName} className={headObj.class || ""}>
-              {headObj.text}
-            </Heading>
-          );
-        })}
-        {finalDescription && <p class={description?.class}>{finalDescription}</p>}
-      </div>
+    <div class={`${finalContentClass} w-3/4 my-[var(--template-spacing-lg)]`}>
+      {resolveHeading(heading, meta.heading, collectionName).map((head, i) => {
+        const headObj = typeof head === "string" ? { text: head } : head;
+        const tagName = headObj.tagName || "h2";
+        return (
+          <Heading key={i} tagName={tagName} className={headObj.class || ""}>
+            {headObj.text}
+          </Heading>
+        );
+      })}
       <slot name="aboveItemsInjection" />
       <ItemsTemplate
         items={items}
         collection={collectionName}
         query={queryType}
-        itemsClass={itemsClass}
+        itemsClass={finalItemsClass}
         itemClass={itemClass}
-        ItemComponent={ItemComponent}
+        ItemComponent={finalComponent}
         HasPage={itemsDefaultHasPage}
         pathname={Astro.url.pathname}
       />
       <slot name="belowItemsInjection" />
-      <div class={containerClasses}>
+      <div class={finalButtonsSectionClass}>
         {buttonsArray.length > 0 &&
           buttonsArray.map((btn, index) => {
             const btnDefaults = {
@@ -119,11 +131,11 @@ const itemsDefaultHasPage = meta.itemsHasPage ?? false;
   </section>
 ) : (
   <section
-    class={`${sectionClass} w-full lg:px-var(--template-spacing-md)`}
+    class={`${finalSectionClass} w-full lg:px-[var(--template-spacing-md)]`}
     {...props}
   >
-    <div class={`${contentClass} w-3/4`}>
-      {finalHeadingArray.map((head, i) => {
+    <div class={`${finalContentClass} w-3/4`}>
+      {resolveHeading(heading, meta.heading, collectionName).map((head, i) => {
         const headObj = typeof head === "string" ? { text: head } : head;
         const tagName = headObj.tagName || "h2";
         return (
@@ -132,9 +144,13 @@ const itemsDefaultHasPage = meta.itemsHasPage ?? false;
           </Heading>
         );
       })}
-      {finalDescription && <p class={description?.class}>{finalDescription}</p>}
+      {resolveDescription(description, meta.description) && (
+        <p class={description?.class}>
+          {resolveDescription(description, meta.description)}
+        </p>
+      )}
       <slot />
-      <div class={containerClasses}>
+      <div class={finalButtonsSectionClass}>
         {buttonsArray.length > 0 &&
           buttonsArray.map((btn, index) => {
             const btnDefaults = {
