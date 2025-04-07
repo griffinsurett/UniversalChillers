@@ -1,48 +1,47 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import Section from "@/components/Section.astro";
-import Card from "@/components/LoopComponents/Card";
+import HeroBg from "@/assets/glen-rushton-PjeZGaKunAI-unsplash.jpg"; // Example image, replace with your own
 ---
 
 <Layout title="Welcome to Astro!">
   <!-- Hero Section with two buttons -->
-  <Section 
-  heading={{ text: "Homepage", tagName: "h1" }}
-  description="Welcome to Astro!" 
-  buttons={[
-    { text: "See Our CTA", link: "/contact-us", variant: "secondary" },
-    { text: "Learn More About Us", link: "/about-us" }
-  ]}
-/>
+  <Section
+    heading={{ text: "Homepage", tagName: "h1" }}
+    description="Welcome to Astro!"
+    buttons={[
+      { text: "See Our CTA", link: "/contact-us", variant: "secondary" },
+      { text: "Learn More About Us", link: "/about-us" },
+    ]}
+    buttonsSectionClass="mt-[var(--spacing-xl)]"
+    sectionClass="min-h-[80vh] md:min-h-[70vh] flex items-center justify-center bg-cover bg-fixed bg-center z-100 md:p-[var(--spacing-lg)] text-bg text-xl"
+  />
 
+  {/* Services */}
+  <Section
+    collection="services"
+    query="getAll"
+    heading={{ text: "Our Services", tagName: "h2" }}
+  />
 
- {/* Services */}
- <Section
- collection="services"
- query="getAll"
- heading={{ text: "Our Services", tagName: "h2" }}
-/>
+  {/* Clients */}
+  <Section
+    collection="clients"
+    query="getAll"
+    heading={{ text: "Our Clients", tagName: "h2" }}
+  />
 
-{/* Clients */}
-<Section
- collection="clients"
- query="getAll"
- heading={{ text: "Our Clients", tagName: "h2" }}
-/>
+  {/* Projects */}
+  <Section
+    collection="projects"
+    query="getAll"
+    heading={{ text: "Our Projects", tagName: "h2" }}
+  />
 
-{/* Projects */}
-<Section
- collection="projects"
- query="getAll"
- heading={{ text: "Our Projects", tagName: "h2" }}
-/>
-
-{/* Testimonials */}
-<Section
- collection="testimonials"
- query="getAll"
- heading={{ text: "Client Testimonials", tagName: "h2" }}
-/>
-
+  {/* Testimonials */}
+  <Section
+    collection="testimonials"
+    query="getAll"
+    heading={{ text: "Client Testimonials", tagName: "h2" }}
+  />
 </Layout>
-

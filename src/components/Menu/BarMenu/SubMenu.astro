@@ -23,7 +23,7 @@ const finalSubmenuClass = submenuItem && submenuItem.class ? submenuItem.class :
 // Normalize current path.
 const currentPath = normalizePath(Astro.url.pathname);
 ---
-<ul class={`absolute ${depth === 1 ? 'top-full left-0' : 'top-0 left-full'} ${finalSubmenuClass} shadow-lg z-50 list-none min-w-max w-auto hidden transition duration-200`}>
+<ul class={`absolute ${depth === 1 ? 'top-full left-0' : 'top-0 left-full'} ${finalSubmenuClass} shadow-lg z-[250] list-none min-w-max w-auto bg-bg hidden transition duration-200`}>
   {items.map((item) => {
     const normalizedSlug = normalizePath(item.slug);
     return (

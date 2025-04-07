@@ -42,7 +42,7 @@ export default function Modal({
 
   return createPortal(
     <div
-      className={`fixed inset-0 z-50 flex items-center justify-center ${overlayClass}`}
+      className={`fixed inset-0 z-[250] flex items-center justify-center ${overlayClass}`}
       onClick={onClose}
       role="dialog"
       aria-modal="true"

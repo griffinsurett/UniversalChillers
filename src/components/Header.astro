@@ -1,5 +1,4 @@
 ---
-// Header.astro
 import { SiteData } from "@/content/SiteData";
 import { buildMenuQueries } from "@/utils/ArrayQueryUtils";
 import Menu from "../components/Menu/Menu.astro";
@@ -12,7 +11,6 @@ const MainNavMenu = [
   { id: "contact", label: "Contact", slug: "/contact-us", position: "append", weight: 100 },
 ];
 
-// Define a breakpoint variable to easily update the responsive setting.
 const breakpoint = "lg";
 ---
 <header class="flex justify-between items-center p-[var(--spacing-md)]">
@@ -37,8 +35,19 @@ const breakpoint = "lg";
     items={await buildMenuQueries({ MainNavMenu })} 
     breakpoint={breakpoint} 
     listClass="flex flex-row"
-    menuItem={{ component: MenuItem, class: "menu-item" }}
-    submenuItem={{ component: MenuItem, class: "submenu-class" }}
+    barMenu={{
+      menuItem: { component: MenuItem, class: "menu-item" },
+      submenuItem: { component: MenuItem, class: "submenu-class" },
+      listClass: "flex gap-[var(--spacing-md)]"
+    }}
+    hamburgerMenu={{
+      hamburgerIconClass: "custom-hamburger-icon",
+      hamburgerIconTransform: true,
+      menuBackground: "bg-primary bg-opacity-75",
+      menuItem: { component: MenuItem, class: "text-text" },
+      submenuItem: { component: MenuItem, class: "mobile-submenu-item" },
+      listClass: "flex flex-col"
+    }}
     isHierarchical={true}
   />
 </header>

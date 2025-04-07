@@ -10,7 +10,9 @@ export default function HamburgerNavMenu({
   breakpoint,
   menuItem,
   submenuItem,
-  isHierarchical
+  isHierarchical,
+  listClass,
+  hamburgerMenu, // additional hamburger customization options
 }) {
   const [menuOpen, setMenuOpen] = React.useState(false);
   const toggleMenu = () => setMenuOpen((prev) => !prev);
@@ -27,7 +29,8 @@ export default function HamburgerNavMenu({
         <HamburgerButton
           isOpen={menuOpen}
           onChange={toggleMenu}
-          hamburgerTransform={hamburgerTransform}
+          hamburgerTransform={hamburgerMenu?.hamburgerIconTransform ?? true}
+          className={hamburgerMenu?.hamburgerIconClass}
         />
         <HamburgerMenuContainer 
           items={items} 
@@ -37,6 +40,8 @@ export default function HamburgerNavMenu({
           menuItem={menuItem}
           submenuItem={submenuItem}
           isHierarchical={isHierarchical}
+          listClass={listClass}
+          hamburgerMenu={hamburgerMenu}
         />
       </Suspense>
     </>
