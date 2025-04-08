@@ -1,5 +1,6 @@
 // src/components/Button.jsx
 import DefaultIcon from "@/assets/astro.svg"; // Neutral default icon for the template
+import { getImage } from "astro:assets";
 
 // Default base button classes for non-underline variants.
 const baseButtonClasses =
@@ -28,7 +29,7 @@ const buttonVariantDefaults = {
   underline: {
     variantClasses:
       "underline text-[var(--color-primary)] hover:text-[var(--color-secondary)]",
-    buttonClasses: "", // Override default button classes for underline.
+    buttonClasses: "",
     iconDefaults: {
       className: "hidden",
       hoverOnly: false,
@@ -37,7 +38,8 @@ const buttonVariantDefaults = {
   },
 };
 
-export default function Button({
+// Mark the component as async so we can await getImage.
+export default async function Button({
   as: ComponentProp,
   type = "button",
   onClick,
@@ -65,32 +67,48 @@ export default function Button({
     animateIcon, // from mergedIconProps (if needed later)
   } = mergedIconProps;
 
-  // Use provided icon element or default to the neutral DefaultIcon.
+  // Use provided custom icon element or optimize the default icon.
+  let optimizedDefaultIcon = null;
+  if (element === undefined) {
+    optimizedDefaultIcon = await getImage({ src: DefaultIcon }, {
+      format: "webp",
+      quality: 80,
+      width: 16,      // Explicit width in pixels
+      height: 16,     // Explicit height in pixels
+      sizes: "16px",  // Inform the browser about the intended display size
+    });
+  }
   const finalIcon =
     element !== undefined ? element : (
-      <img src={DefaultIcon.src} alt="Icon" className="h-4 w-4" />
+      <img
+        src={optimizedDefaultIcon?.src}
+        alt="Icon"
+        className="h-4 w-4" // Ensure it matches your desired dimensions
+      />
     );
 
   // Determine icon container classes.
   let iconContainerClasses = "";
-  if (hoverOnly) {
-    if (animateIcon) {
-      iconContainerClasses =
-        position === "right"
-          ? "inline-flex w-0 overflow-hidden transform -translate-x-4 opacity-0 transition-all duration-300 ease-in-out group-hover:w-auto group-hover:ml-2 group-hover:translate-x-0 group-hover:opacity-100"
-          : "inline-flex w-0 overflow-hidden transform translate-x-4 opacity-0 transition-all duration-300 ease-in-out group-hover:w-auto group-hover:mr-2 group-hover:translate-x-0 group-hover:opacity-100";
+  if (finalIcon) {
+    if (hoverOnly) {
+      if (animateIcon) {
+        iconContainerClasses =
+          position === "right"
+            ? "inline-flex w-0 overflow-hidden transform -translate-x-4 opacity-0 transition-all duration-300 ease-in-out group-hover:w-auto group-hover:ml-2 group-hover:translate-x-0 group-hover:opacity-100"
+            : "inline-flex w-0 overflow-hidden transform translate-x-4 opacity-0 transition-all duration-300 ease-in-out group-hover:w-auto group-hover:mr-2 group-hover:translate-x-0 group-hover:opacity-100";
+      } else {
+        iconContainerClasses =
+          position === "right"
+            ? "inline-flex w-0 overflow-hidden opacity-0 transition-all duration-300 ease-in-out group-hover:w-auto group-hover:ml-2 group-hover:opacity-100"
+            : "inline-flex w-0 overflow-hidden opacity-0 transition-all duration-300 ease-in-out group-hover:w-auto group-hover:mr-2 group-hover:opacity-100";
+      }
     } else {
       iconContainerClasses =
-        position === "right"
-          ? "inline-flex w-0 overflow-hidden opacity-0 transition-all duration-300 ease-in-out group-hover:w-auto group-hover:ml-2 group-hover:opacity-100"
-          : "inline-flex w-0 overflow-hidden opacity-0 transition-all duration-300 ease-in-out group-hover:w-auto group-hover:mr-2 group-hover:opacity-100";
+        position === "right" ? "ml-2 inline-flex" : "mr-2 inline-flex";
     }
-  } else {
-    iconContainerClasses =
-      position === "right" ? "ml-2 inline-flex" : "mr-2 inline-flex";
   }
 
-  // If the merged icon props specify a class that contains "hidden", then just use that.
+  // If the merged icon props specify a class containing "hidden", then just use that.
   const finalIconContainerClass = iconCustomClass.includes("hidden")
     ? iconCustomClass
     : `${iconCustomClass} ${iconContainerClasses}`.trim();
