@@ -13,8 +13,9 @@
  *    - If neither the Section props nor the meta file provide a value, automatically generate a default.
  *      For the heading, this fallback is the collection slug capitalized (e.g., "services" becomes "Services").
  *
- * Extended to support a background object for background images and overlays.
- * Now using Astro's getImage to generate an optimized low-res WebP background.
+ * Extended to support a background media object for background videos and images.
+ * If a video is provided, it will be used as the background, with the background image as a poster/fallback.
+ * Otherwise, the provided image is optimized using Astro's getImage.
  */
  import Heading from "./Heading.jsx";
 import Button from "./Button.jsx";
@@ -34,7 +35,7 @@ import { capitalize } from "@/utils/ContentUtils";
 const {
   collection: collectionName,
   query: queryType,
-  component: ItemComponent, // Optional explicit component prop
+  component: ItemComponent,
   heading,
   description,
   buttons,
@@ -43,8 +44,10 @@ const {
   itemsClass,
   itemClass,
   buttonsSectionClass,
-  // Grouped background properties into one object
-  background, // expected keys: image, imageClass, overlayClass
+  // Destructure headingAreaClass from Astro.props
+  headingAreaClass,
+  // Renamed from "background" to "backgroundMedia"
+  backgroundMedia,
   ...props
 } = Astro.props;
 
@@ -61,6 +64,10 @@ const {
   { sectionClass, contentClass, itemsClass, buttonsSectionClass },
   defaultSection
 );
+
+// NEW: Merge headingAreaClass from Astro.props with the default from meta/defaultSection.
+const finalHeadingAreaClass =
+  headingAreaClass || defaultSection.headingAreaClass || "";
 
 // Resolve headings and description.
 const finalHeadingArray = resolveHeading(heading, meta.heading, collectionName);
@@ -85,15 +92,13 @@ const buttonsArray = resolveButtonsArray(
 );
 const itemsDefaultHasPage = meta.itemsHasPage ?? false;
 
-// Use getImage to generate an optimized version of the background image.
-// Note: Pass an object with the image in the src property.
-let optimizedBackground = null;
-if (background?.image) {
-  optimizedBackground = await getImage({ src: background.image }, {
+let optimizedBackgroundImage = null;
+if (backgroundMedia?.image && backgroundMedia.image.src) {
+  optimizedBackgroundImage = await getImage({ src: backgroundMedia.image.src }, {
     format: "webp",
-    quality: 80,
+    quality: 50,
     width: 1200,
-    // placeholder: "blur", // Enable if you want a low-res blur effect.
+    placeholder: "blur",
   });
 }
 ---
@@ -104,29 +109,53 @@ if (background?.image) {
   data-collection={collectionName}
   {...props}
 >
-  <!-- Optimized Background Image Layer as a CSS background, with additional image classes -->
-  {optimizedBackground && (
-    <div
-      class={`absolute inset-0 z-0 ${background?.imageClass || ""}`}
-      style={`background-image: url('${optimizedBackground.src}');`}
+  {backgroundMedia?.video && backgroundMedia.video.src ? (
+    <video
+      class={`absolute inset-0 z-0 w-full h-full object-cover ${backgroundMedia.video.videoClass || ""}`}
+      autoPlay={backgroundMedia.video.autoPlay !== undefined ? backgroundMedia.video.autoPlay : true}
+      muted={backgroundMedia.video.muted !== undefined ? backgroundMedia.video.muted : true}
+      loop={backgroundMedia.video.loop !== undefined ? backgroundMedia.video.loop : true}
+      playsInline={backgroundMedia.video.playsInline !== undefined ? backgroundMedia.video.playsInline : true}
+      controls={backgroundMedia.video.controls || false}
+      preload={backgroundMedia.video.preload || "metadata"}
+      poster={optimizedBackgroundImage ? optimizedBackgroundImage.src : ""}
       aria-hidden="true"
-    ></div>
+    >
+      <source src={backgroundMedia.video.src} type="video/mp4" />
+      Your browser does not support the video tag.
+    </video>
+  ) : (
+    optimizedBackgroundImage && (
+      <div
+        class={`absolute inset-0 z-0 ${backgroundMedia?.image?.imageClass || ""}`}
+        style={`background-image: url('${optimizedBackgroundImage.src}');`}
+        aria-hidden="true"
+      ></div>
+    )
   )}
-  <!-- Background Overlay Layer using overlay class from the background object -->
-  {background?.overlayClass && (
-    <div class={`absolute inset-0 ${background.overlayClass} z-0`} aria-hidden="true"></div>
+  {backgroundMedia?.overlayClass && (
+    <div class={`absolute inset-0 ${backgroundMedia.overlayClass} z-0`} aria-hidden="true"></div>
   )}
-  <!-- Content container with relative positioning and higher z-index to sit above backgrounds -->
-  <div class={`${finalContentClass} relative w-3/4 z-10 ${isDynamic ? "my-[var(--spacing-lg)]" : ""}`}>
-    {finalHeadingArray.map((head, i) => {
-      const headObj = typeof head === "string" ? { text: head } : head;
-      const Tag = headObj.tagName || "h2";
-      return (
-        <Heading key={i} tagName={Tag} className={headObj.class || ""}>
-          {headObj.text}
-        </Heading>
-      );
-    })}
+  <!-- Content container: contains both the heading area and items -->
+  <div class={`${finalContentClass} relative z-10 w-3/4 ${isDynamic ? "my-[var(--spacing-lg)]" : ""}`}>
+    <!-- Heading Area: wrapped inside the content container -->
+    <div class={`section-heading-area ${finalHeadingAreaClass}`}>
+      {finalHeadingArray.map((head, i) => {
+        const headObj = typeof head === "string" ? { text: head } : head;
+        const Tag = headObj.tagName || "h2";
+        return (
+          <Heading key={i} tagName={Tag} className={headObj.class || ""}>
+            {headObj.text}
+          </Heading>
+        );
+      })}
+      {finalDescription && (
+        <p class={description?.class}>
+          {finalDescription}
+        </p>
+      )}
+    </div>
+    <!-- Items or slot content rendered below the heading area -->
     {isDynamic ? (
       <>
         <slot name="aboveItemsInjection" />
@@ -168,11 +197,6 @@ if (background?.image) {
       </>
     ) : (
       <>
-        {finalDescription && (
-          <p class={description?.class}>
-            {finalDescription}
-          </p>
-        )}
         <slot />
         <div class={finalButtonsSectionClass}>
           {buttonsArray.length > 0 &&

@@ -70,7 +70,6 @@ const sections = data.sections && data.sections.length > 0 ? data.sections : met
         query={section.query}
         heading={section.heading || { text: section.collection, tagName: "h2" }}
         description={section.description ?? meta.description}
-        component={Card}
         buttons={section.buttons}
         sectionClass={section.sectionClass}
         itemsClass={section.itemsClass}

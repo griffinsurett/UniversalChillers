@@ -34,7 +34,6 @@ try {
         query={section.query}
         heading={section.heading || { text: capitalize(section.collection), tagName: "h2" }}
         description={section.description ?? meta.description}
-        component={Card}
         buttons={section.buttons}
         sectionClass={section.sectionClass}
         itemsClass={section.itemsClass}
@@ -47,7 +46,6 @@ try {
     <Section
       collection={collection}
       query="getAll"
-      component={Card}
       heading={{ text: capitalize(collection), tagName: "h2" }}
       description={meta.description}
     />
