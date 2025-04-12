@@ -1,37 +1,62 @@
 // src/utils/ContentUtils.ts
-export function normalizeRef(ref: any): string {
-  if (typeof ref === 'string') {
-    return ref.trim().replace(/,$/, '');
-  } else if (typeof ref === 'object' && ref !== null) {
-    if (ref.slug) {
-      return ref.slug.trim().replace(/,$/, '');
-    }
-    if (ref.id) {
-      return ref.id.trim().replace(/,$/, '');
-    }
+export function getCanonicalSlug(entry: any): string {
+  // Try auto-generated slug first (for MDX/Markdown entries)
+  let slug = entry.slug;
+  // If there's a data object (e.g. from JSON or MDX frontmatter), try data.slug then data.id.
+  if (!slug && entry.data) {
+    slug = entry.data.slug || entry.data.id;
   }
-  return '';
+  // Finally, check if entry has an id property directly.
+  if (!slug && entry.id) {
+    slug = entry.id;
+  }
+  if (!slug) {
+    throw new Error("Missing both slug and id for entry");
+  }
+  // Ensure both properties are in sync:
+  if (entry.data) {
+    entry.data.slug = slug;
+    entry.data.id = slug;
+  } else {
+    entry.slug = slug;
+    entry.id = slug;
+  }
+  return slug;
 }
 
-export function normalizePath(path: string): string {
-  // If the path is just "/", leave it as is.
-  if (path === "/") return "/";
-  // Remove any trailing slashes
-  return path.replace(/\/+$/, "");
-}  
+export function normalizeRef(ref: any): string {
+    if (typeof ref === 'string') {
+      return ref.trim().replace(/,$/, '');
+    } else if (typeof ref === 'object' && ref !== null) {
+      if (ref.slug) {
+        return ref.slug.trim().replace(/,$/, '');
+      }
+      if (ref.id) {
+        return ref.id.trim().replace(/,$/, '');
+      }
+    }
+    return '';
+  }
 
-export function toArray(refOrArray: any): any[] {
-  if (!refOrArray) return [];
-  return Array.isArray(refOrArray) ? refOrArray : [refOrArray];
-}
-
-// NEW HELPER FOR CAPITALIZATION
-export function capitalize(str: string): string {
-  if (!str) return '';
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
+  export function normalizePath(path: string): string {
+    // If the path is just "/", leave it as is.
+    if (path === "/") return "/";
+    // Remove any trailing slashes
+    return path.replace(/\/+$/, "");
+  }  
   
-// NEW HELPER FOR UPPERCASE
+  export function toArray(refOrArray: any): any[] {
+    if (!refOrArray) return [];
+    return Array.isArray(refOrArray) ? refOrArray : [refOrArray];
+  }
+  
+  // NEW HELPER FOR CAPITALIZATION
+  export function capitalize(str: string): string {
+    if (!str) return '';
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+  
+  // NEW HELPER FOR UPPERCASE
 export function uppercase(str: string): string {
   if (!str) return '';
   return str.toUpperCase();

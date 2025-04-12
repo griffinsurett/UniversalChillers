@@ -13,6 +13,13 @@ import HeroBg from "@/assets/glen-rushton-PjeZGaKunAI-unsplash.jpg"; // Example 
       { text: "See Our CTA", link: "/contact-us", variant: "secondary" },
       { text: "Learn More About Us", link: "/about-us" },
     ]}
+    backgroundMedia={{
+      image: {
+        src: HeroBg, // imported image as fallback/poster
+        imageClass: "filter brightness-50 bg-cover bg-center xl:bg-fixed",
+      },
+      overlayClass: "bg-black opacity-50",
+    }}
     buttonsSectionClass="mt-[var(--spacing-xl)]"
     sectionClass="min-h-[80vh] md:min-h-[70vh] flex items-center justify-center bg-cover bg-fixed bg-center z-100 md:p-[var(--spacing-lg)] text-bg text-xl"
   />

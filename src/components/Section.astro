@@ -1,26 +1,8 @@
 ---
-/**
- * Section Component – Order of Importance for Heading and Description Values:
- *
- * 1. **Section Override:**
- *    - Use the values passed directly via the Section props (i.e. the "heading" and "description" props).
- *
- * 2. **Meta Values:**
- *    - If no direct override is provided, load the collection meta file (_meta.mdx, _meta.md, or _meta.json)
- *      and use the "heading" and "description" defined there.
- *
- * 3. **Auto-Fallback:**
- *    - If neither the Section props nor the meta file provide a value, automatically generate a default.
- *      For the heading, this fallback is the collection slug capitalized (e.g., "services" becomes "Services").
- *
- * Extended to support a background media object for background videos and images.
- * If a video is provided, it will be used as the background, with the background image as a poster/fallback.
- * Otherwise, the provided image is optimized using Astro's getImage.
- */
- import Heading from "./Heading.jsx";
+import Heading from "./Heading.jsx";
 import Button from "./Button.jsx";
 import ItemsTemplate from "./ItemsTemplate.astro";
-import { getImage } from "astro:assets";
+import BackgroundMedia from "./BackgroundMedia.astro";  // <-- New import
 import {
   resolveMetaProps,
   resolveHeading,
@@ -30,6 +12,7 @@ import {
   resolveSectionStyles,
   resolveComponent,
 } from "@/utils/SectionUtils";
+import { getImage } from "astro:assets";
 import { capitalize } from "@/utils/ContentUtils";
 
 const {
@@ -65,18 +48,14 @@ const {
   defaultSection
 );
 
-// NEW: Merge headingAreaClass from Astro.props with the default from meta/defaultSection.
+// Merge headingAreaClass from Astro.props with the default from meta/defaultSection.
 const finalHeadingAreaClass =
   headingAreaClass || defaultSection.headingAreaClass || "";
 
-// Resolve headings and description.
 const finalHeadingArray = resolveHeading(heading, meta.heading, collectionName);
 const finalDescription = resolveDescription(description, meta.description);
-
-// Resolve the component to render.
 const finalComponent = resolveComponent(ItemComponent, defaultSection.component);
 
-// Fetch dynamic items (if applicable).
 let items = [];
 const isDynamic = Boolean(collectionName && queryType);
 if (isDynamic) {
@@ -91,16 +70,6 @@ const buttonsArray = resolveButtonsArray(
   Astro.url.pathname
 );
 const itemsDefaultHasPage = meta.itemsHasPage ?? false;
-
-let optimizedBackgroundImage = null;
-if (backgroundMedia?.image && backgroundMedia.image.src) {
-  optimizedBackgroundImage = await getImage({ src: backgroundMedia.image.src }, {
-    format: "webp",
-    quality: 50,
-    width: 1200,
-    placeholder: "blur",
-  });
-}
 ---
 
 <!-- Outer section: relative for layering -->
@@ -109,36 +78,11 @@ if (backgroundMedia?.image && backgroundMedia.image.src) {
   data-collection={collectionName}
   {...props}
 >
-  {backgroundMedia?.video && backgroundMedia.video.src ? (
-    <video
-      class={`absolute inset-0 z-0 w-full h-full object-cover ${backgroundMedia.video.videoClass || ""}`}
-      autoPlay={backgroundMedia.video.autoPlay !== undefined ? backgroundMedia.video.autoPlay : true}
-      muted={backgroundMedia.video.muted !== undefined ? backgroundMedia.video.muted : true}
-      loop={backgroundMedia.video.loop !== undefined ? backgroundMedia.video.loop : true}
-      playsInline={backgroundMedia.video.playsInline !== undefined ? backgroundMedia.video.playsInline : true}
-      controls={backgroundMedia.video.controls || false}
-      preload={backgroundMedia.video.preload || "metadata"}
-      poster={optimizedBackgroundImage ? optimizedBackgroundImage.src : ""}
-      aria-hidden="true"
-    >
-      <source src={backgroundMedia.video.src} type="video/mp4" />
-      Your browser does not support the video tag.
-    </video>
-  ) : (
-    optimizedBackgroundImage && (
-      <div
-        class={`absolute inset-0 z-0 ${backgroundMedia?.image?.imageClass || ""}`}
-        style={`background-image: url('${optimizedBackgroundImage.src}');`}
-        aria-hidden="true"
-      ></div>
-    )
-  )}
-  {backgroundMedia?.overlayClass && (
-    <div class={`absolute inset-0 ${backgroundMedia.overlayClass} z-0`} aria-hidden="true"></div>
-  )}
+  {/* Use the modular BackgroundMedia component */}
+  {backgroundMedia && <BackgroundMedia backgroundMedia={backgroundMedia} />}
+  
   <!-- Content container: contains both the heading area and items -->
   <div class={`${finalContentClass} relative z-10 w-3/4 ${isDynamic ? "my-[var(--spacing-lg)]" : ""}`}>
-    <!-- Heading Area: wrapped inside the content container -->
     <div class={`section-heading-area ${finalHeadingAreaClass}`}>
       {finalHeadingArray.map((head, i) => {
         const headObj = typeof head === "string" ? { text: head } : head;
@@ -155,7 +99,6 @@ if (backgroundMedia?.image && backgroundMedia.image.src) {
         </p>
       )}
     </div>
-    <!-- Items or slot content rendered below the heading area -->
     {isDynamic ? (
       <>
         <slot name="aboveItemsInjection" />

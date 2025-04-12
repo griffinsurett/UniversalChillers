@@ -32,7 +32,7 @@ try {
         key={i}
         collection={section.collection}
         query={section.query}
-        heading={section.heading || { text: capitalize(section.collection), tagName: "h2" }}
+        heading={section.heading}
         description={section.description ?? meta.description}
         buttons={section.buttons}
         sectionClass={section.sectionClass}
@@ -40,6 +40,7 @@ try {
         itemClass={section.itemClass}
         contentClass={section.contentClass}
         buttonsSectionClass={section.buttonsSectionClass}
+        headingAreaClass={section.headingAreaClass}
       />
     ))
   ) : (

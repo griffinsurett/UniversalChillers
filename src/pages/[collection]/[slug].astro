@@ -8,6 +8,7 @@ import Section from "@/components/Section.astro";
 import Card from "@/components/LoopComponents/Card";
 import { collections } from "@/content/config";
 import { getCollectionMeta } from "@/utils/FetchMeta";
+import { getCanonicalSlug } from "@/utils/ContentUtils";
 
 // Build all paths for items that end up with `hasPage: true`.
 export async function getStaticPaths() {
@@ -27,10 +28,13 @@ export async function getStaticPaths() {
     }
     const pathsForColl = entries
       .filter((entry) => entry.data.hasPage === true)
-      .map((entry) => ({
-        params: { collection: collName, slug: entry.slug },
-        props: { collection: collName, entry },
-      }));
+      .map((entry) => {
+        const computedSlug = getCanonicalSlug(entry);
+        return {
+          params: { collection: collName, slug: computedSlug },
+          props: { collection: collName, entry },
+        };
+      });
     allPaths.push(...pathsForColl);
   }
   return allPaths;
@@ -76,6 +80,7 @@ const sections = data.sections && data.sections.length > 0 ? data.sections : met
         itemClass={section.itemClass}
         contentClass={section.contentClass}
         buttonsSectionClass={section.buttonsSectionClass}
+        headingAreaClass={section.headingAreaClass}
       />
     ))}
   </article>
