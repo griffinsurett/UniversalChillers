@@ -1,22 +1,18 @@
 ---
+// src/pages/contact-us.astro
 import SecondaryHero from "@/components/StaticSections/SecondaryHero.astro";
-import Layout from "../layouts/Layout.astro";
+import ExtendedLayout from "../layouts/ExtendedLayout.astro";
 import { ContactData } from "@/content/SiteData";
 ---
-
-<Layout>
+<ExtendedLayout title="Contact Us" description="Get in touch with Cleanomatic">
   <SecondaryHero title="Contact Us" description="Get in touch with Cleanomatic" />
   <section class="p-[var(--spacing-lg)]">
     <h1>Contact Us</h1>
     <p>
-      If you have any questions, please email us at
-      <a href="mailto:griffinswebservices@gmail.com"
-        >griffinswebservices@gmail.com</a
-      >
+      If you have any questions, please email us at 
+      <a href="mailto:griffinswebservices@gmail.com">griffinswebservices@gmail.com</a>
       or call 
-      <a href={`tel:${ContactData.phone}`}>
-        {ContactData.phone}
-      </a>
+      <a href={`tel:${ContactData.phone}`}>{ContactData.phone}</a>.
     </p>
   </section>
-</Layout>
+</ExtendedLayout>

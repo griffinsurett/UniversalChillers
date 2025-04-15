@@ -1,17 +1,13 @@
 ---
+// src/pages/about-us.astro
 import Section from "@/components/Section.astro";
 import SecondaryHero from "@/components/StaticSections/SecondaryHero.astro";
-import Layout from "@/layouts/Layout.astro";
+import ExtendedLayout from "@/layouts/ExtendedLayout.astro";
 ---
-
-<Layout
-  title="About Us"
-  description="Learn more about our company, our mission, and our team."
->
-<SecondaryHero title="About Us" />
-
-<Section
+<ExtendedLayout title="About Us" description="Learn more about our company, our mission, and our team.">
+  <SecondaryHero title="About Us" />
+  <Section
     heading="About Us"
     description="We are a company dedicated to providing the best services to our clients. Our mission is to deliver quality and excellence in everything we do."
   />
-</Layout>
+</ExtendedLayout>

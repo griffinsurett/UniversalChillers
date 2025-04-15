@@ -1,40 +1,38 @@
 ---
-import Layout from "@/layouts/Layout.astro";
+// src/pages/index.astro
+import ExtendedLayout from "@/layouts/ExtendedLayout.astro";
 import Section from "@/components/Section.astro";
 import PrimaryHero from "@/components/StaticSections/PrimaryHero.astro";
 ---
-
-<Layout title="Welcome to Astro!">
-  <!-- Hero Section with two buttons -->
+<ExtendedLayout title="Welcome to Astro!" description="Your gateway to amazing projects.">
+  <!-- Hero Section -->
   <PrimaryHero title="Welcome to Astro!" />
 
-  {/* About Us */}
-
-  {/* Services */}
+  <!-- Services -->
   <Section
     collection="services"
     query="getAll"
     heading={{ text: "Our Services", tagName: "h2" }}
   />
 
-  {/* Clients */}
+  <!-- Clients -->
   <Section
     collection="clients"
     query="getAll"
     heading={{ text: "Our Clients", tagName: "h2" }}
   />
 
-  {/* Projects */}
+  <!-- Projects -->
   <Section
     collection="projects"
     query="getAll"
     heading={{ text: "Our Projects", tagName: "h2" }}
   />
 
-  {/* Testimonials */}
+  <!-- Testimonials -->
   <Section
     collection="testimonials"
     query="getAll"
     heading={{ text: "Client Testimonials", tagName: "h2" }}
   />
-</Layout>
+</ExtendedLayout>
