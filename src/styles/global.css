@@ -85,9 +85,27 @@ p {
     }
   }
   
+  @layer utilities {
   .scroll-fade-up {
     animation: fade-in-up linear;
     animation-timeline: view();
     animation-range: entry 0% cover 45%;
   }
+
+  .transition-default {
+    transition: var(--transition-default);
+    transition-delay: var(--transition-delay-default);
+  }
+  .transition-fast {
+    transition: var(--transition-fast);
+    transition-delay: var(--transition-delay-default);
+  }
+  .transition-slow {
+    transition: var(--transition-slow);
+    transition-delay: var(--transition-delay-default);
+  }
+  .delay-default {
+    transition-delay: var(--transition-delay-default);
+  }
+}
   

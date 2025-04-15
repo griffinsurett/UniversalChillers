@@ -1,0 +1,14 @@
+---
+// src/components/StaticSections/PrimaryHero.astro
+import Section from "@/components/Section.astro";
+---
+<Section
+  heading={{ text: "Homepage", tagName: "h1" }}
+  description="Welcome to Astro!"
+  buttons={[
+    { text: "See Our CTA", link: "/contact-us", variant: "secondary" },
+    { text: "Learn More About Us", link: "/about-us" },
+  ]}
+  buttonsSectionClass="mt-[var(--spacing-xl)]"
+  sectionClass="min-h-[80vh] md:min-h-[70vh] flex items-center justify-center bg-cover bg-fixed bg-center z-100 md:p-[var(--spacing-lg)] text-bg text-xl"
+/>

@@ -17,10 +17,11 @@
  * If a video is provided, it will be used as the background, with the background image as a poster/fallback.
  * Otherwise, the provided image is optimized using Astro's getImage.
  */
- import Heading from "./Heading.jsx";
+// src/components/Section.astro
+import Heading from "./Heading.jsx";
 import Button from "./Button.jsx";
 import ItemsTemplate from "./ItemsTemplate.astro";
-import { getImage } from "astro:assets";
+import BackgroundMedia from "./BackgroundMedia.astro";
 import {
   resolveMetaProps,
   resolveHeading,
@@ -46,8 +47,26 @@ const {
   buttonsSectionClass,
   headingAreaClass,
   backgroundMedia,
+  // Added new props; if they aren’t provided as Section props, default to empty strings.
+  topContentClass = "",
+  itemPlacement = "",
+  slotPlacement = "",
+  childSlotClass = "",
   ...props
 } = Astro.props;
+
+// Convert placement props to arrays for flexible checking.
+// We use the "final" values after merging with meta (see below)
+let propItemPlacementArray = Array.isArray(itemPlacement)
+  ? itemPlacement
+  : itemPlacement
+  ? [itemPlacement]
+  : [];
+let propSlotPlacementArray = Array.isArray(slotPlacement)
+  ? slotPlacement
+  : slotPlacement
+  ? [slotPlacement]
+  : [];
 
 const meta = await resolveMetaProps(collectionName, queryType);
 const defaultSection = meta.defaultSection || {};
@@ -63,9 +82,31 @@ const {
   defaultSection
 );
 
-// NEW: Merge headingAreaClass from Astro.props with the default from meta/defaultSection.
+// Merge headingAreaClass from Astro.props with the default.
 const finalHeadingAreaClass =
   headingAreaClass || defaultSection.headingAreaClass || "";
+
+// Merge the new placement and layout fields in the same way as others.
+const finalTopContentClass =
+  topContentClass || defaultSection.topContentClass || "";
+const finalItemPlacement =
+  itemPlacement || defaultSection.itemPlacement || "";
+const finalSlotPlacement =
+  slotPlacement || defaultSection.slotPlacement || "";
+const finalChildSlotClass =
+  childSlotClass || defaultSection.childSlotClass || "";
+
+// Convert the merged itemPlacement and slotPlacement into arrays.
+const itemPlacementArray = Array.isArray(finalItemPlacement)
+  ? finalItemPlacement
+  : finalItemPlacement
+  ? [finalItemPlacement]
+  : [];
+const slotPlacementArray = Array.isArray(finalSlotPlacement)
+  ? finalSlotPlacement
+  : finalSlotPlacement
+  ? [finalSlotPlacement]
+  : [];
 
 // Resolve headings and description.
 const finalHeadingArray = resolveHeading(heading, meta.heading, collectionName);
@@ -74,7 +115,7 @@ const finalDescription = resolveDescription(description, meta.description);
 // Resolve the component to render.
 const finalComponent = resolveComponent(ItemComponent, defaultSection.component);
 
-// Fetch dynamic items (if applicable).
+// Fetch dynamic items, if applicable.
 let items = [];
 const isDynamic = Boolean(collectionName && queryType);
 if (isDynamic) {
@@ -82,78 +123,99 @@ if (isDynamic) {
   if (items.length === 0) return;
 }
 
+const effectiveButtons = buttons && buttons.length > 0
+  ? buttons
+  : defaultSection.buttons;
+  
 const buttonsArray = resolveButtonsArray(
-  buttons,
+  effectiveButtons,
   meta.hasPage,
   collectionName,
   Astro.url.pathname
 );
 const itemsDefaultHasPage = meta.itemsHasPage ?? false;
-
-let optimizedBackgroundImage = null;
-if (backgroundMedia?.image && backgroundMedia.image.src) {
-  optimizedBackgroundImage = await getImage({ src: backgroundMedia.image.src }, {
-    format: "webp",
-    quality: 50,
-    placeholder: "blur",
-  });
-}
 ---
 
-<!-- Outer section: relative for layering -->
+<!-- Outer section with relative positioning -->
 <section
   class={`${finalSectionClass} relative w-full ${isDynamic ? "py-[var(--spacing-lg)] lg:px-[var(--spacing-md)]" : "lg:px-[var(--spacing-md)]"}`}
   data-collection={collectionName}
   {...props}
 >
-  {backgroundMedia?.video && backgroundMedia.video.src ? (
-    <video
-      class={`absolute inset-0 z-0 w-full h-full object-cover ${backgroundMedia.video.videoClass || ""}`}
-      autoPlay={backgroundMedia.video.autoPlay !== undefined ? backgroundMedia.video.autoPlay : true}
-      muted={backgroundMedia.video.muted !== undefined ? backgroundMedia.video.muted : true}
-      loop={backgroundMedia.video.loop !== undefined ? backgroundMedia.video.loop : true}
-      playsInline={backgroundMedia.video.playsInline !== undefined ? backgroundMedia.video.playsInline : true}
-      controls={backgroundMedia.video.controls || false}
-      preload={backgroundMedia.video.preload || "metadata"}
-      poster={optimizedBackgroundImage ? optimizedBackgroundImage.src : ""}
-      aria-hidden="true"
-    >
-      <source src={backgroundMedia.video.src} type="video/mp4" />
-      Your browser does not support the video tag.
-    </video>
-  ) : (
-    optimizedBackgroundImage && (
-      <div
-        class={`absolute inset-0 z-0 ${backgroundMedia?.image?.imageClass || ""}`}
-        style={`background-image: url('${optimizedBackgroundImage.src}');`}
-        aria-hidden="true"
-      ></div>
-    )
-  )}
-  {backgroundMedia?.overlayClass && (
-    <div class={`absolute inset-0 ${backgroundMedia.overlayClass} z-0`} aria-hidden="true"></div>
-  )}
-  <!-- Content container: contains both the heading area and items -->
-  <div class={`${finalContentClass} relative z-10 w-3/4 ${isDynamic ? "my-[var(--spacing-lg)]" : ""}`}>
-    <!-- Heading Area: wrapped inside the content container -->
-    <div class={`section-heading-area ${finalHeadingAreaClass}`}>
-      {finalHeadingArray.map((head, i) => {
-        const headObj = typeof head === "string" ? { text: head } : head;
-        const Tag = headObj.tagName || "h2";
-        return (
-          <Heading key={i} tagName={Tag} className={headObj.class || ""}>
-            {headObj.text}
-          </Heading>
-        );
-      })}
-      <!-- {finalDescription && (
-        <p class={description?.class}>
-          {finalDescription}
-        </p>
-      )} -->
+  {backgroundMedia && <BackgroundMedia backgroundMedia={backgroundMedia} />}
+
+  <!-- Content container -->
+  <div class={`${finalContentClass} content-section relative z-10 w-3/4 ${isDynamic ? "my-[var(--spacing-lg)]" : ""}`}>
+    
+    <!-- Top content section: headings and optional default slot injection -->
+    <div class={`top-content-section ${finalTopContentClass}`}>
+      <div class={`section-heading-area ${finalHeadingAreaClass}`}>
+        {finalHeadingArray.map((head, i) => {
+          const headObj = typeof head === "string" ? { text: head } : head;
+          const Tag = headObj.tagName || "h2";
+          return (
+            <Heading key={i} tagName={Tag} className={headObj.class || ""}>
+              {headObj.text}
+            </Heading>
+          );
+        })}
+        {finalDescription && (
+          <p class={description?.class}>
+            {finalDescription}
+          </p>
+        )}
+      </div>
+      
+      {/* Inject default slot if the slotPlacement includes "top-content-section" */}
+      {slotPlacementArray.includes("top-content-section") && <slot />}
+      
+      {/* Render dynamic items if itemPlacement includes "top-content-section" */}
+      {itemPlacementArray.includes("top-content-section") && isDynamic && (
+        <>
+          <slot name="aboveItemsInjection" />
+          <ItemsTemplate
+            items={items}
+            collection={collectionName}
+            query={queryType}
+            itemsClass={finalItemsClass}
+            itemClass={itemClass}
+            ItemComponent={finalComponent}
+            HasPage={itemsDefaultHasPage}
+            pathname={Astro.url.pathname}
+          />
+          <slot name="belowItemsInjection" />
+          <div class={finalButtonsSectionClass}>
+            {buttonsArray.length > 0 &&
+              buttonsArray.map((btn, index) => {
+                const btnDefaults = {
+                  text: capitalize(collectionName),
+                  link: `/${collectionName}`,
+                  class: "",
+                  variant: "primary",
+                };
+                const finalButtonProps = { ...btnDefaults, ...btn };
+                return (
+                  <Button
+                    key={index}
+                    href={finalButtonProps.link}
+                    className={finalButtonProps.class}
+                    ariaLabel={finalButtonProps.text}
+                    variant={finalButtonProps.variant}
+                  >
+                    {finalButtonProps.text}
+                  </Button>
+                );
+              })}
+          </div>
+        </>
+      )}
     </div>
-    <!-- Items or slot content rendered below the heading area -->
-    {isDynamic ? (
+
+    {/*
+      When itemPlacement does not include "top-content-section" and the section is dynamic,
+      render dynamic items and buttons in a separate container.
+    */}
+    {!itemPlacementArray.includes("top-content-section") && isDynamic && (
       <>
         <slot name="aboveItemsInjection" />
         <ItemsTemplate
@@ -190,35 +252,46 @@ if (backgroundMedia?.image && backgroundMedia.image.src) {
               );
             })}
         </div>
-        <slot />
       </>
-    ) : (
-      <>
+    )}
+
+    {/*
+      For non-dynamic sections, render the default button block if any button exists.
+    */}
+    {!isDynamic && buttonsArray.length > 0 && (
+      <div class={`${finalButtonsSectionClass} order-last`}>
+        {buttonsArray.map((btn, index) => {
+          const btnDefaults = {
+            text: capitalize(collectionName),
+            link: `/${collectionName}`,
+            class: "",
+            variant: "primary",
+          };
+          const finalButtonProps = { ...btnDefaults, ...btn };
+          return (
+            <Button
+              key={index}
+              href={finalButtonProps.link}
+              className={finalButtonProps.class}
+              ariaLabel={finalButtonProps.text}
+              variant={finalButtonProps.variant}
+            >
+              {finalButtonProps.text}
+            </Button>
+          );
+        })}
+      </div>
+    )}
+
+    {/*
+      Finally, if slotPlacement does not include "top-content-section",
+      render the default slot in its own container.
+      Optionally you could wrap it with finalChildSlotClass, if needed.
+    */}
+    {!slotPlacementArray.includes("top-content-section") && (
+      <div class={`${finalChildSlotClass}`}>
         <slot />
-        <div class={finalButtonsSectionClass}>
-          {buttonsArray.length > 0 &&
-            buttonsArray.map((btn, index) => {
-              const btnDefaults = {
-                text: capitalize(collectionName),
-                link: `/${collectionName}`,
-                class: "",
-                variant: "primary",
-              };
-              const finalButtonProps = { ...btnDefaults, ...btn };
-              return (
-                <Button
-                  key={index}
-                  href={finalButtonProps.link}
-                  className={finalButtonProps.class}
-                  ariaLabel={finalButtonProps.text}
-                  variant={finalButtonProps.variant}
-                >
-                  {finalButtonProps.text}
-                </Button>
-              );
-            })}
-        </div>
-      </>
+      </div>
     )}
   </div>
 </section>

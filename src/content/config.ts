@@ -1,4 +1,5 @@
 // src/content/config.ts
+import { file } from "astro/loaders";
 import { defineCollection, reference, z } from "astro:content";
 
 // Isolated Heading Schema – allows a string, an object, or an array of these.
@@ -7,7 +8,7 @@ export const headingSchema = z.union([
   z.object({
     text: z.string(),
     class: z.string().optional(),
-    tagName: z.string().optional(), // e.g. "h2", "h3"
+    tagName: z.string().optional(),
   }),
   z.array(
     z.union([
@@ -38,18 +39,25 @@ const buttonSchema = z.object({
 });
 
 // Updated sectionSchema using the isolated heading and description schemas.
+// Added new optional properties to match the Section component props.
 const sectionSchema = z.object({
-  collection: z.string().optional(), // optional if not dynamic
+  collection: z.string().optional(),
   query: z.string().optional(),
   component: z.union([z.function(), z.string()]).optional(),
   heading: headingSchema.optional(),
   description: descriptionSchema.optional(),
   buttons: z.array(buttonSchema).optional(),
-  buttonsSectionClass: z.string().optional(), // now a plain string
+  buttonsSectionClass: z.string().optional(),
   sectionClass: z.string().optional(),
   itemsClass: z.string().optional(),
   itemClass: z.string().optional(),
   contentClass: z.string().optional(),
+  headingAreaClass: z.string().optional(),
+  // New properties added for slot and layout injection
+  topContentClass: z.string().optional(),
+  itemPlacement: z.union([z.string(), z.array(z.string())]).optional(),
+  slotPlacement: z.union([z.string(), z.array(z.string())]).optional(),
+  childSlotClass: z.string().optional(),
 });
 
 export const QueryItemSchema = z.object({
@@ -84,6 +92,7 @@ const baseSchema = ({ image }: { image: Function }) =>
     sections: z.array(sectionSchema).optional(),
     addToQuery: z.array(QueryItemSchema).optional(),
     tags: z.array(z.string()).optional(),
+    icon: z.string().optional(),
   });
 
 export const collections = {

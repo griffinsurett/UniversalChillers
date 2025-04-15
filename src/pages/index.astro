@@ -2,20 +2,14 @@
 import Layout from "@/layouts/Layout.astro";
 import Section from "@/components/Section.astro";
 import HeroBg from "@/assets/glen-rushton-PjeZGaKunAI-unsplash.jpg"; // Example image, replace with your own
+import PrimaryHero from "@/components/StaticSections/PrimaryHero.astro";
 ---
 
 <Layout title="Welcome to Astro!">
   <!-- Hero Section with two buttons -->
-  <Section
-    heading={{ text: "Homepage", tagName: "h1" }}
-    description="Welcome to Astro!"
-    buttons={[
-      { text: "See Our CTA", link: "/contact-us", variant: "secondary" },
-      { text: "Learn More About Us", link: "/about-us" },
-    ]}
-    buttonsSectionClass="mt-[var(--spacing-xl)]"
-    sectionClass="min-h-[80vh] md:min-h-[70vh] flex items-center justify-center bg-cover bg-fixed bg-center z-100 md:p-[var(--spacing-lg)] text-bg text-xl"
-  />
+  <PrimaryHero title="Welcome to Astro!" />
+
+  {/* About Us */}
 
   {/* Services */}
   <Section

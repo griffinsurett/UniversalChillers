@@ -6,6 +6,7 @@ import Card from "@/components/LoopComponents/Card";
 import { collections } from "@/content/config";
 import { getCollectionMeta } from "@/utils/FetchMeta";
 import { capitalize } from "@/utils/ContentUtils";
+import SecondaryHero from "@/components/StaticSections/SecondaryHero.astro";
 
 export async function getStaticPaths() {
   const collectionNames = Object.keys(collections);
@@ -26,6 +27,7 @@ try {
 } catch {}
 ---
 <Layout title={capitalize(collection)} description={meta.description}>
+  <SecondaryHero title={capitalize(collection)} />
   {meta.sections && meta.sections.length > 0 ? (
     meta.sections.map((section, i) => (
       <Section
