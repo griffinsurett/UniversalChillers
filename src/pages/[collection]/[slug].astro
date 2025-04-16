@@ -50,7 +50,7 @@ const sections = data.sections && data.sections.length > 0
   ? data.sections
   : meta.itemsSections || [];
 ---
-<ExtendedLayout title={data.title} description={data.description} keywords={meta.keywords}>
+<ExtendedLayout title={data.title} description={data.description} keywords={data.keywords} ogType={data.ogType}>
   <article>
     <!-- Hero Section -->
     <SecondaryHero title={data.title} />

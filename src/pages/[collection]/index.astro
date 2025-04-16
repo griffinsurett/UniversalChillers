@@ -25,7 +25,7 @@ try {
   meta = await getCollectionMeta(collection);
 } catch {}
 ---
-<ExtendedLayout title={capitalize(collection)} description={meta.description} keywords={meta.keywords}>
+<ExtendedLayout title={capitalize(collection)} description={meta.description} keywords={meta.keywords} ogType={meta.ogType}>
   <SecondaryHero title={capitalize(collection)} />
   {meta.sections && meta.sections.length > 0 ? (
     meta.sections.map((section, i) => (
