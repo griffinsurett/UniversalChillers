@@ -5,12 +5,12 @@ import ExtendedLayout from "@/layouts/ExtendedLayout.astro";
 import { Image } from "astro:assets";
 import Heading from "@/components/Heading.jsx";
 import Section from "@/components/Section.astro";
+import SecondaryHero from "@/components/StaticSections/SecondaryHero.astro";
 import { collections } from "@/content/config";
 import { getCollectionMeta } from "@/utils/FetchMeta";
 import { getCanonicalSlug } from "@/utils/ContentUtils";
-import SecondaryHero from "@/components/StaticSections/SecondaryHero.astro";
 
-// Build all paths for items that have `hasPage: true`
+// Build all paths for items that end up with `hasPage: true`.
 export async function getStaticPaths() {
   const collectionNames = Object.keys(collections);
   let allPaths = [];
@@ -46,14 +46,17 @@ let meta = {};
 try {
   meta = await getCollectionMeta(collection);
 } catch {}
-// Use item sections if available; otherwise fall back to meta.itemsSections.
-const sections = data.sections && data.sections.length > 0 ? data.sections : meta.itemsSections || [];
+const sections = data.sections && data.sections.length > 0
+  ? data.sections
+  : meta.itemsSections || [];
 ---
-<ExtendedLayout title={data.title} description={data.description}>
-  <article class="p-[var(--spacing-md)]">
+<ExtendedLayout title={data.title} description={data.description} keywords={meta.keywords}>
+  <article>
     <!-- Hero Section -->
     <SecondaryHero title={data.title} />
-    <Heading tagName="h2" class="mb-[var(--spacing-md)]">{data.title}</Heading>
+    <Heading tagName="h2" class="mb-[var(--spacing-md)]">
+      {data.title}
+    </Heading>
     {data.description && <p class="mb-[var(--spacing-md)]">{data.description}</p>}
     {data.featuredImage && (
       <Image
@@ -72,7 +75,6 @@ const sections = data.sections && data.sections.length > 0 ? data.sections : met
         collection={section.collection}
         query={section.query}
         heading={section.heading || { text: section.collection, tagName: "h2" }}
-        description={section.description ?? meta.description}
         buttons={section.buttons}
         sectionClass={section.sectionClass}
         itemsClass={section.itemsClass}

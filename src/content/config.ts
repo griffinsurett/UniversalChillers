@@ -73,6 +73,7 @@ export const QueryItemSchema = z.object({
 export const metaSchema = z.object({
   heading: headingSchema.optional(),
   description: descriptionSchema.optional(),
+  keywords: z.array(z.string()).optional(),  
   hasPage: z.boolean().default(true),
   itemsHasPage: z.boolean().default(true),
   defaultSection: sectionSchema.optional(),
@@ -88,6 +89,7 @@ const baseSchema = ({ image }: { image: Function }) =>
     featuredImage: image().optional(),
     heading: headingSchema.optional(),
     description: descriptionSchema.optional(),
+    keywords: z.array(z.string()).optional(),  
     hasPage: z.boolean().optional(),
     sections: z.array(sectionSchema).optional(),
     addToQuery: z.array(QueryItemSchema).optional(),

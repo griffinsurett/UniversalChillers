@@ -2,10 +2,10 @@
 // src/pages/[collection]/index.astro
 import ExtendedLayout from "@/layouts/ExtendedLayout.astro";
 import Section from "@/components/Section.astro";
+import SecondaryHero from "@/components/StaticSections/SecondaryHero.astro";
 import { collections } from "@/content/config";
 import { getCollectionMeta } from "@/utils/FetchMeta";
 import { capitalize } from "@/utils/ContentUtils";
-import SecondaryHero from "@/components/StaticSections/SecondaryHero.astro";
 
 export async function getStaticPaths() {
   const collectionNames = Object.keys(collections);
@@ -25,7 +25,7 @@ try {
   meta = await getCollectionMeta(collection);
 } catch {}
 ---
-<ExtendedLayout title={capitalize(collection)} description={meta.description}>
+<ExtendedLayout title={capitalize(collection)} description={meta.description} keywords={meta.keywords}>
   <SecondaryHero title={capitalize(collection)} />
   {meta.sections && meta.sections.length > 0 ? (
     meta.sections.map((section, i) => (
@@ -34,7 +34,6 @@ try {
         collection={section.collection}
         query={section.query}
         heading={section.heading}
-        description={section.description ?? meta.description}
         buttons={section.buttons}
         sectionClass={section.sectionClass}
         itemsClass={section.itemsClass}

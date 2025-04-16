@@ -7,8 +7,11 @@ const {
   canonicalUrl,
   robots,
   siteName,
-  ogType = "website"
+  ogType = "website",
+  keywords, // new prop for keywords: expect an array of strings
 } = Astro.props;
+
+console.log("keywords", keywords); // Debugging line to check the value of keywords
 ---
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -16,6 +19,11 @@ const {
 <meta name="description" content={description} />
 {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
 {robots && <meta name="robots" content={robots} />}
+
+{keywords && Array.isArray(keywords) && keywords.length > 0 && (
+  <meta name="keywords" content={keywords.join(", ")} />
+)}
+
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
 <meta property="og:image" content={image} />
