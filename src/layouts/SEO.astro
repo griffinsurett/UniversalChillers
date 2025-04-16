@@ -5,7 +5,7 @@ const {
   description,
   image,
   keywords,
-  canonicalUrl,
+  canonicalUrl, // may come from Astro.props
   robots,
   siteName,
   ogType = "website",
@@ -15,14 +15,21 @@ const {
 // Use a fallback value if ogType is falsy
 const finalOgType = ogType || "website";
 
+// Determine a domain for your site. In a real-world app, you might fetch this from an environment variable.
+const domain = "cleanomatic.netlify.app";
+
+// If canonicalUrl is not explicitly provided, build it using the current path:
+const finalCanonicalUrl = canonicalUrl || `https://${domain}${Astro.url.pathname}`;
+
 console.log("keywords", keywords); // Debug output for keywords
 console.log("ogType", finalOgType); // Debug output for ogType
+console.log("canonicalUrl", finalCanonicalUrl); // Debug output for canonical URL
 ---
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>{title}</title>
 <meta name="description" content={description} />
-{canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
+{finalCanonicalUrl && <link rel="canonical" href={finalCanonicalUrl} />}
 {robots && <meta name="robots" content={robots} />}
 
 {keywords && Array.isArray(keywords) && keywords.length > 0 && (
