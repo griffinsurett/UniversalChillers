@@ -4,14 +4,19 @@ const {
   title,
   description,
   image,
+  keywords,
   canonicalUrl,
   robots,
   siteName,
   ogType = "website",
-  keywords, // new prop for keywords: expect an array of strings
+  crawl = true,
 } = Astro.props;
 
-console.log("keywords", keywords); // Debugging line to check the value of keywords
+// Use a fallback value if ogType is falsy
+const finalOgType = ogType || "website";
+
+console.log("keywords", keywords); // Debug output for keywords
+console.log("ogType", finalOgType); // Debug output for ogType
 ---
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -27,7 +32,7 @@ console.log("keywords", keywords); // Debugging line to check the value of keywo
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
 <meta property="og:image" content={image} />
-<meta property="og:type" content={ogType} />
+<meta property="og:type" content={finalOgType} />
 <meta property="og:site_name" content={siteName} />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content={title} />
