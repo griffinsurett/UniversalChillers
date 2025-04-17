@@ -2,7 +2,40 @@
 import { getCollectionMeta } from "./FetchMeta";
 import { capitalize } from "./ContentUtils";
 import { queryItems } from "./CollectionQueryUtils";
-import { shouldShowSectionButton, getDefaultButtonText } from "./ButtonVisibilityUtils";
+
+/**
+ * Generate a unique section ID of form:
+ *   {collection}-{query}-{pageSlug}[-{n}]
+ *
+ * Where '-n' is only appended if the same baseId has been generated before.
+ */
+const sectionIdCounts = new Map<string, number>();
+
+export function resetSectionIds() {
+  sectionIdCounts.clear();
+}
+/**
+ * Generate a section ID of form:
+ *   {collection}-{query}-{pageSlug}
+ */
+export function generateSectionId(
+  collectionName: string | undefined,
+  queryType: string | undefined,
+  pagePath: string
+): string {
+  // derive the last segment of the path, or "home"
+  const pageSlug =
+    pagePath
+      .split("/")
+      .filter(Boolean)
+      .pop() || "home";
+
+  // fallback to "static" or "default" when undefined
+  const sectionSlug = collectionName || "static";
+  const queryName   = queryType      || "default";
+
+  return `${sectionSlug}-${queryName}-${pageSlug}`;
+}
 
 // Returns meta data for the given collection.
 export async function resolveMetaProps(

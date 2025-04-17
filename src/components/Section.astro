@@ -23,6 +23,7 @@ import Button from "./Button.jsx";
 import ItemsTemplate from "./ItemsTemplate.astro";
 import BackgroundMedia from "./BackgroundMedia.astro";
 import {
+  generateSectionId,
   resolveMetaProps,
   resolveHeading,
   resolveDescription,
@@ -47,7 +48,6 @@ const {
   buttonsSectionClass,
   headingAreaClass,
   backgroundMedia,
-  // Added new props; if they aren’t provided as Section props, default to empty strings.
   topContentClass = "",
   itemPlacement = "",
   slotPlacement = "",
@@ -67,6 +67,13 @@ let propSlotPlacementArray = Array.isArray(slotPlacement)
   : slotPlacement
   ? [slotPlacement]
   : [];
+
+  // derive the unique id
+const sectionId = generateSectionId(
+  collectionName,
+  queryType,
+  Astro.url.pathname
+);
 
 const meta = await resolveMetaProps(collectionName, queryType);
 const defaultSection = meta.defaultSection || {};
@@ -139,6 +146,7 @@ const itemsDefaultHasPage = meta.itemsHasPage ?? false;
 <!-- Outer section with relative positioning -->
 <section
   class={`${finalSectionClass} relative w-full ${isDynamic ? "py-[var(--spacing-lg)] lg:px-[var(--spacing-md)]" : "lg:px-[var(--spacing-md)]"}`}
+  id={sectionId}
   data-collection={collectionName}
   {...props}
 >

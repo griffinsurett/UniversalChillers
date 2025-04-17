@@ -6,6 +6,7 @@ import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
 import Marketing from '@/layouts/Marketing.astro';
 import { SiteData } from '@/content/SiteData';
+import { resetSectionIds } from "@/utils/SectionUtils.js";
 
 const {
   title = SiteData.title,
@@ -18,6 +19,8 @@ const {
   crawl = true,
   keywords,  // New: keywords prop added here
 } = Astro.props;
+
+resetSectionIds();
 ---
 <!DOCTYPE html>
 <html lang="en">
