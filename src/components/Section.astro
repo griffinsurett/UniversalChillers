@@ -52,6 +52,7 @@ const {
   itemPlacement = "",
   slotPlacement = "",
   childSlotClass = "",
+  client,
   ...props
 } = Astro.props;
 
@@ -121,6 +122,7 @@ const finalDescription = resolveDescription(description, meta.description);
 
 // Resolve the component to render.
 const finalComponent = resolveComponent(ItemComponent, defaultSection.component);
+const finalClient = client ?? defaultSection.client;
 
 // Fetch dynamic items, if applicable.
 let items = [];
@@ -190,6 +192,7 @@ const itemsDefaultHasPage = meta.itemsHasPage ?? false;
             ItemComponent={finalComponent}
             HasPage={itemsDefaultHasPage}
             pathname={Astro.url.pathname}
+            client={finalClient}
           />
           <slot name="belowItemsInjection" />
           <div class={finalButtonsSectionClass}>
@@ -235,6 +238,7 @@ const itemsDefaultHasPage = meta.itemsHasPage ?? false;
           ItemComponent={finalComponent}
           HasPage={itemsDefaultHasPage}
           pathname={Astro.url.pathname}
+          client={finalClient}
         />
         <slot name="belowItemsInjection" />
         <div class={finalButtonsSectionClass}>

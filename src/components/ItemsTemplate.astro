@@ -1,52 +1,95 @@
 ---
+// src/components/ItemsTemplate.astro
 import Card from "./LoopComponents/Card.jsx";
 import { queryItems } from "@/utils/CollectionQueryUtils.js";
+import ClientItemsTemplate from "./ClientItemsTemplate.jsx";
 
 const {
   collection,
   query,
   items: initialItems,
-  ItemComponent, // Can be a component or an object { component, props }
+  ItemComponent,    // component OR { component, props }
   itemsClass,
   itemClass,
-  HasPage, // New prop from Section.astro
+  HasPage,
   pathname = "",
+  client,           // "load" | "visible" | "idle" or undefined
   ...props
 } = Astro.props;
 
+// 1️⃣ Fetch at build time if not already passed in
 let items = initialItems || [];
 if (!initialItems && collection && query) {
   items = await queryItems(query, collection, pathname);
 }
 
+// 2️⃣ Pick a renderer for each item
 const isObjectComponent =
   typeof ItemComponent === "object" && ItemComponent !== null;
 const RenderComponent = isObjectComponent
   ? ItemComponent.component
   : ItemComponent || Card;
+
+// 3️⃣ Helper to merge in per-item props when using the `{ props }` pattern
+function getItemProps(item) {
+  if (!isObjectComponent) return {};
+  const p = ItemComponent.props;
+  return typeof p === "function" ? p(item) : p || {};
+}
 ---
 {items && items.length > 0 ? (
-  <ul class={itemsClass} aria-label="Items List" {...props}>
-    {items.map((item) => {
-      let componentProps = {};
-      if (isObjectComponent) {
-        componentProps =
-          typeof ItemComponent.props === "function"
-            ? ItemComponent.props(item)
-            : ItemComponent.props || {};
-      }
-      return (
-        <RenderComponent
-          key={item.slug}
-          item={item}
-          itemClass={itemClass}
-          collectionName={collection}
-          HasPage={HasPage}
-          {...componentProps}
-        />
-      );
-    })}
-  </ul>
+  <>
+    {/* Client‑side hydrating path */}
+    {client === "load" && (
+      <ClientItemsTemplate
+        client:load
+        items={items}
+        ItemComponent={ItemComponent}
+        itemsClass={itemsClass}
+        itemClass={itemClass}
+        collectionName={collection}
+        HasPage={HasPage}
+      />
+    )}
+    {client === "visible" && (
+      <ClientItemsTemplate
+        client:visible
+        items={items}
+        ItemComponent={ItemComponent}
+        itemsClass={itemsClass}
+        itemClass={itemClass}
+        collectionName={collection}
+        HasPage={HasPage}
+      />
+    )}
+    {client === "idle" && (
+      <ClientItemsTemplate
+        client:idle
+        items={items}
+        ItemComponent={ItemComponent}
+        itemsClass={itemsClass}
+        itemClass={itemClass}
+        collectionName={collection}
+        HasPage={HasPage}
+      />
+    )}
+
+    {/* Default SSG path */}
+    {!client && (
+      <ul class={itemsClass} {...props}>
+        {items.map((item) => (
+          <RenderComponent
+            key={item.slug}
+            item={item}
+            itemClass={itemClass}
+            collectionName={collection}
+            HasPage={HasPage}
+            {...getItemProps(item)}
+          />
+        ))}
+      </ul>
+    )}
+  </>
 ) : (
   <p>No items found.</p>
 )}

@@ -57,6 +57,7 @@ const sectionSchema = z.object({
   itemPlacement: z.union([z.string(), z.array(z.string())]).optional(),
   slotPlacement: z.union([z.string(), z.array(z.string())]).optional(),
   childSlotClass: z.string().optional(),
+  client: z.enum(["load", "idle", "visible"]).optional(),
 });
 
 export const QueryItemSchema = z.object({
@@ -117,6 +118,9 @@ export const collections = {
       }),
   }),
   testimonials: defineCollection({
+    schema: ({ image }) => baseSchema({ image }),
+  }),
+  faq: defineCollection({
     schema: ({ image }) => baseSchema({ image }),
   }),
   clients: defineCollection({
