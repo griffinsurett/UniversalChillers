@@ -1,72 +1,66 @@
 ---
-// src/components/ItemsTemplate.astro
+/* ─────────── src/components/ItemsTemplate.astro ─────────── */
 import Card from "./LoopComponents/Card.jsx";
 import { queryItems } from "@/utils/CollectionQueryUtils.js";
 import ClientItemsTemplate from "./ClientItemsTemplate.jsx";
 
 const {
+  /* incoming props */
   collection,
   query,
   items: initialItems,
-  ItemComponent,    // component OR { component, props }
-  itemsClass,
-  itemClass,
+  ItemComponent,            // function | string | { component, props }
+  itemsClass = "",
+  itemClass  = "",
   HasPage,
-  pathname = "",
-  client,           // "load" | "visible" | "idle" or undefined
-  ...props
+  pathname   = "",
+  client,                   // "load" | "idle" | "visible" | undefined
+  ...rest
 } = Astro.props;
 
-// 1️⃣ Fetch at build time if not already passed in
+/* 1. Build‑time data  */
 let items = initialItems || [];
 if (!initialItems && collection && query) {
   items = await queryItems(query, collection, pathname);
 }
 
-// 2️⃣ Pick a renderer for each item
-const isObjectComponent =
-  typeof ItemComponent === "object" && ItemComponent !== null;
-const RenderComponent = isObjectComponent
+/* 2. Server‑side component (unchanged) */
+const isObjComponent = typeof ItemComponent === "object" && ItemComponent !== null;
+const RenderComponent = isObjComponent
   ? ItemComponent.component
   : ItemComponent || Card;
 
-// 3️⃣ Helper to merge in per-item props when using the `{ props }` pattern
+/* 3. Serialisable key sent to the island */
+let componentKey = "Card";
+if (typeof ItemComponent === "string") {
+  componentKey = ItemComponent;
+} else if (isObjComponent) {
+  const comp = ItemComponent.component;
+  componentKey = typeof comp === "string" ? comp : comp?.name || "Card";
+} else if (typeof ItemComponent === "function") {
+  componentKey = ItemComponent.name || "Card";
+}
+
+/* helper for { component, props } pattern */
 function getItemProps(item) {
-  if (!isObjectComponent) return {};
+  if (!isObjComponent) return {};
   const p = ItemComponent.props;
   return typeof p === "function" ? p(item) : p || {};
 }
 ---
-{items && items.length > 0 ? (
+{items?.length ? (
   <>
-    {/* Client‑side hydrating path */}
+    {/*
+      ────────────────────────────────────────────────
+      CLIENT‑SIDE ISLANDS
+      Each branch hard‑codes its hydration directive.
+      ────────────────────────────────────────────────
+    */}
     {client === "load" && (
       <ClientItemsTemplate
         client:load
         items={items}
-        ItemComponent={ItemComponent}
-        itemsClass={itemsClass}
-        itemClass={itemClass}
-        collectionName={collection}
-        HasPage={HasPage}
-      />
-    )}
-    {client === "visible" && (
-      <ClientItemsTemplate
-        client:visible
-        items={items}
-        ItemComponent={ItemComponent}
-        itemsClass={itemsClass}
-        itemClass={itemClass}
-        collectionName={collection}
-        HasPage={HasPage}
-      />
-    )}
-    {client === "idle" && (
-      <ClientItemsTemplate
-        client:idle
-        items={items}
-        ItemComponent={ItemComponent}
+        componentKey={componentKey}
         itemsClass={itemsClass}
         itemClass={itemClass}
         collectionName={collection}
@@ -74,9 +68,37 @@ function getItemProps(item) {
       />
     )}
 
-    {/* Default SSG path */}
+    {client === "visible" && (
+      <ClientItemsTemplate
+        client:visible
+        items={items}
+        componentKey={componentKey}
+        itemsClass={itemsClass}
+        itemClass={itemClass}
+        collectionName={collection}
+        HasPage={HasPage}
+      />
+    )}
+
+    {client === "idle" && (
+      <ClientItemsTemplate
+        client:idle
+        items={items}
+        componentKey={componentKey}
+        itemsClass={itemsClass}
+        itemClass={itemClass}
+        collectionName={collection}
+        HasPage={HasPage}
+      />
+    )}
+
+    {/*
+      ────────────────────────────────────────────────
+      STATIC‑ONLY PATH (no hydration)
+      ────────────────────────────────────────────────
+    */}
     {!client && (
-      <ul class={itemsClass} {...props}>
+      <ul class={itemsClass} {...rest}>
         {items.map((item) => (
           <RenderComponent
             key={item.slug}

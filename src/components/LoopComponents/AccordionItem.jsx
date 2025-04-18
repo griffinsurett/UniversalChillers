@@ -1,5 +1,5 @@
 // src/components/LoopComponents/AccordionItem.jsx
-import React from "react";
+import React, { useState } from "react";
 
 export default function AccordionItem({
   item,
@@ -7,31 +7,36 @@ export default function AccordionItem({
   collectionName,
   HasPage,
 }) {
-  // Unique ID for checkbox toggle
-  const toggleId = `accordion-toggle-${item.slug}`;
+  const [open, setOpen] = useState(false);
+  const toggle = () => setOpen((prev) => !prev);
 
   return (
     <li className={itemClass}>
-      {/* Hidden checkbox */}
-      <input
-        type="checkbox"
-        id={toggleId}
-        className="peer hidden"
-      />
-
-      {/* Header */}
-      <label
-        htmlFor={toggleId}
+      {/* Header: clicking toggles open/closed */}
+      <div
+        onClick={toggle}
         className="w-full flex justify-between items-center py-[var(--spacing-lg)] cursor-pointer select-none"
       >
         <span className="h6">{item.data.title || item.slug}</span>
-        <span className="transform transition-transform peer-checked:rotate-180">
-          ▼
-        </span>
-      </label>
+        <svg
+          className={`w-4 h-4 transform transition-transform duration-200 ${
+            open ? "rotate-180" : "rotate-0"
+          }`}
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </div>
 
-      {/* Body */}
-      <div className="max-h-0 overflow-hidden transition-max-height duration-[var(--transition-fast)] peer-checked:max-h-96 peer-checked:py-[var(--spacing-sm)] peer-checked:px-[var(--spacing-lg)]">
+      {/* Body: conditionally rendered */}
+      <div
+        className={`overflow-hidden transition-[max-height] duration-[var(--transition-fast)] ${
+          open ? "max-h-96 py-[var(--spacing-sm)] px-[var(--spacing-lg)]" : "max-h-0"
+        }`}
+      >
         {item.data.description ?? item.body}
       </div>
     </li>
