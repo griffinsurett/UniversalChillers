@@ -1,0 +1,66 @@
+---
+/** Generic <Form> wrapper
+ *
+ * Props
+ * ─────────────────────────────────────────────────────────────
+ * name            – unique Netlify form name (default "generic-form")
+ * method          – HTTP method (default "post")
+ * action          – optional success redirect URL
+ * netlify         – boolean flag to inject Netlify attrs (default true)
+ * honeypotName    – name of the hidden honeypot field (default "bot-field")
+ * formClass       – extra classes on <form>
+ * submitClass     – default Tailwind classes for the fallback button
+ * submitLabel     – text for the fallback button (default "Submit")
+ *
+ * Slots
+ * ─────────────────────────────────────────────────────────────
+ * default         – your input fields
+ * submit          – optional custom submit content; if omitted we render a
+ *                   default <Button />
+ */
+ import Button from "@/components/Button";
+
+const {
+  name = "generic-form",
+  method = "post",
+  action,
+  netlify = false,
+  honeypotName = "bot-field",
+  formClass = "",
+  submitClass = "w-full mt-[var(--spacing-sm)] justify-center cursor-pointer",
+  submitLabel = "Submit",
+} = Astro.props;
+---
+
+<form
+  name={name}
+  method={method}
+  action={action}
+  class={`w-full p-[var(--spacing-md)] ${formClass}`}
+  {...netlify
+    ? { "data-netlify": "true", "netlify-honeypot": honeypotName }
+    : {}}
+>
+  {/** Netlify needs these hidden inputs at build‑time */}
+  {
+    netlify && (
+      <>
+        <input type="hidden" name="form-name" value={name} />
+        <input type="hidden" name={honeypotName} />
+      </>
+    )
+  }
+
+  <slot />
+
+  {/** If consumer didn’t provide a <slot name="submit" />, show fallback */}
+  {
+    Astro.slots.has("submit") ? (
+      <slot name="submit" />
+    ) : (
+      <Button type="submit" variant="primary" className={submitClass}>
+        {submitLabel}
+      </Button>
+    )
+  }
+</form>

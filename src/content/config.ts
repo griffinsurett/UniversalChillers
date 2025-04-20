@@ -43,6 +43,7 @@ const buttonSchema = z.object({
 const sectionSchema = z.object({
   collection: z.string().optional(),
   query: z.string().optional(),
+  variant: z.string().optional(),
   component: z.union([z.function(), z.string()]).optional(),
   heading: headingSchema.optional(),
   description: descriptionSchema.optional(),
