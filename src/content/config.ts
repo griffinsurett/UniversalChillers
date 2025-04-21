@@ -56,7 +56,7 @@ const sectionSchema = z.object({
   headingAreaClass: z.string().optional(),
   topContentClass: z.string().optional(),
   itemPlacement: z.union([z.string(), z.array(z.string())]).optional(),
-  slotPlacement: z.union([z.string(), z.array(z.string())]).optional(),
+  childPlacement: z.union([z.string(), z.array(z.string())]).optional(),
   childSlotClass: z.string().optional(),
   client: z.enum(["load", "idle", "visible"]).optional(),
 });
@@ -75,7 +75,7 @@ export const metaSchema = z.object({
   heading: headingSchema.optional(),
   description: descriptionSchema.optional(),
   keywords: z.array(z.string()).optional(),
-  ogType: z.string().optional(),  
+  ogType: z.string().optional(),
   hasPage: z.boolean().default(true),
   itemsHasPage: z.boolean().default(true),
   defaultSection: sectionSchema.optional(),
@@ -93,7 +93,7 @@ const baseSchema = ({ image }: { image: Function }) =>
     heading: headingSchema.optional(),
     description: descriptionSchema.optional(),
     keywords: z.array(z.string()).optional(),
-    ogType: z.string().optional(),  // NEW: Include ogType in individual items too.
+    ogType: z.string().optional(), // NEW: Include ogType in individual items too.
     hasPage: z.boolean().optional(),
     sections: z.array(sectionSchema).optional(),
     addToQuery: z.array(QueryItemSchema).optional(),
@@ -106,7 +106,9 @@ export const collections = {
     schema: ({ image }) =>
       baseSchema({ image }).extend({
         icon: z.string().optional(),
-        parent: z.union([reference("services"), z.array(reference("services"))]).optional(),
+        parent: z
+          .union([reference("services"), z.array(reference("services"))])
+          .optional(),
       }),
   }),
   projects: defineCollection({
@@ -114,8 +116,15 @@ export const collections = {
       baseSchema({ image }).extend({
         beforeImage: image().optional(),
         afterImage: image().optional(),
-        services: z.union([reference("services"), z.array(reference("services"))]).optional(),
-        testimonials: z.union([reference("testimonials"), z.array(reference("testimonials"))]).optional(),
+        services: z
+          .union([reference("services"), z.array(reference("services"))])
+          .optional(),
+        testimonials: z
+          .union([
+            reference("testimonials"),
+            z.array(reference("testimonials")),
+          ])
+          .optional(),
       }),
   }),
   testimonials: defineCollection({
@@ -127,7 +136,9 @@ export const collections = {
   clients: defineCollection({
     schema: ({ image }) =>
       baseSchema({ image }).extend({
-        projects: z.union([reference("projects"), z.array(reference("projects"))]).optional(),
+        projects: z
+          .union([reference("projects"), z.array(reference("projects"))])
+          .optional(),
       }),
-  }),  
+  }),
 };

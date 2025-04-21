@@ -1,0 +1,34 @@
+---
+// src/components/inputs/TextInput.astro
+// Props:
+// - label: (optional) label text for the input
+// - name: input name & id
+// - type: input type (default "text")
+// - placeholder: (optional)
+// - value: (optional)
+// - required: (optional, boolean)
+// - inputClass: Tailwind (or custom) classes for the input element
+// - wrapperClass: Tailwind classes for the outer container
+const {
+  label,
+  name,
+  type = "text",
+  placeholder = "",
+  value = "",
+  required = false,
+  inputClass = "",
+  wrapperClass = ""
+} = Astro.props;
+---
+<div class={wrapperClass}>
+  {label && <label for={name}>{label}</label>}
+  <input
+    id={name}
+    name={name}
+    type={type}
+    placeholder={placeholder}
+    value={value}
+    required={required}
+    class={inputClass}
+  />
+</div>

@@ -1,0 +1,33 @@
+---
+// src/components/inputs/Textarea.astro
+// Props:
+// - label: (optional) label text for the textarea
+// - name: textarea name & id
+// - placeholder: (optional)
+// - value: (optional)
+// - required: (optional, boolean)
+// - rows: (optional, default 4)
+// - inputClass: Tailwind classes for the textarea element
+// - wrapperClass: Tailwind classes for the outer container
+const {
+  label,
+  name,
+  placeholder = "",
+  value = "",
+  required = false,
+  rows = 4,
+  inputClass = "",
+  wrapperClass = ""
+} = Astro.props;
+---
+<div class={wrapperClass}>
+  {label && <label for={name}>{label}</label>}
+  <textarea
+    id={name}
+    name={name}
+    placeholder={placeholder}
+    required={required}
+    rows={rows}
+    class={inputClass}
+  >{value}</textarea>
+</div>

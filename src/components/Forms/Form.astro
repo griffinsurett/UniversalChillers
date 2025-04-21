@@ -18,7 +18,7 @@
  * submit          – optional custom submit content; if omitted we render a
  *                   default <Button />
  */
- import Button from "@/components/Button";
+import Button from "@/components/Button";
 
 const {
   name = "generic-form",
@@ -29,6 +29,11 @@ const {
   formClass = "",
   submitClass = "w-full mt-[var(--spacing-sm)] justify-center cursor-pointer",
   submitLabel = "Submit",
+
+  // new banner props
+  enableSuccessBanner = false,
+  successBannerMessage = "Thank you for your submission!",
+  successBannerClass = "p-[var(--spacing-sm)] bg-primary text-bg border border-[var(--color-border)]",
 } = Astro.props;
 ---
 
@@ -37,30 +42,53 @@ const {
   method={method}
   action={action}
   class={`w-full p-[var(--spacing-md)] ${formClass}`}
-  {...netlify
+  data-success-banner={enableSuccessBanner}
+  data-success-message={successBannerMessage}
+  data-success-class={successBannerClass}
+  {...(netlify
     ? { "data-netlify": "true", "netlify-honeypot": honeypotName }
-    : {}}
+    : {})}
 >
-  {/** Netlify needs these hidden inputs at build‑time */}
-  {
-    netlify && (
-      <>
-        <input type="hidden" name="form-name" value={name} />
-        <input type="hidden" name={honeypotName} />
-      </>
-    )
-  }
+  {netlify && (
+    <>
+      <input type="hidden" name="form-name" value={name} />
+      <input type="hidden" name={honeypotName} />
+    </>
+  )}
 
   <slot />
 
-  {/** If consumer didn’t provide a <slot name="submit" />, show fallback */}
-  {
-    Astro.slots.has("submit") ? (
-      <slot name="submit" />
-    ) : (
-      <Button type="submit" variant="primary" className={submitClass}>
-        {submitLabel}
-      </Button>
-    )
-  }
+  {Astro.slots.has("submit") ? (
+    <slot name="submit" />
+  ) : (
+    <Button type="submit" variant="primary" className={submitClass}>
+      {submitLabel}
+    </Button>
+  )}
 </form>
+
+{/**  
+  Inlined script to wire up *all* forms with data-success-banner="true"
+**/}
+<script is:inline>
+  document.addEventListener("DOMContentLoaded", () => {
+    document
+      .querySelectorAll('form[data-success-banner="true"]')
+      .forEach((form) => {
+        form.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const data = new URLSearchParams(new FormData(form));
+          await fetch(form.action || "/", {
+            method: form.method.toUpperCase() || "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: data.toString(),
+          });
+          const banner = document.createElement("div");
+          banner.className = form.dataset.successClass;
+          banner.textContent = form.dataset.successMessage;
+          form.style.display = "none";
+          form.parentNode.insertBefore(banner, form.nextSibling);
+        });
+      });
+  });
+</script>
