@@ -22,7 +22,6 @@ import Heading from "./Heading.jsx";
 import Button from "./Button.jsx";
 import ItemsTemplate from "./ItemsTemplate.astro";
 import BackgroundMedia from "./BackgroundMedia.astro";
-import { SectionVariants } from "./SectionVariants";
 import {
   generateSectionId,
   resolveMetaProps,
@@ -69,7 +68,15 @@ const defaultSection = meta.defaultSection || {};
 
 // 2️⃣ Determine variant
 const variantName = rawVariant ?? defaultSection.variant;
-const variantDefaults = SectionVariants?.[variantName] ?? {};
+
+// 3️⃣ Dynamically import SectionVariants if you actually have a variant
+let variantDefaults = {};
+if (variantName) {
+  // note the explicit “.js” extension so Vite can find it in production
+  const variantsModule = await import("./SectionVariants.js");
+  // grab the matching variant or fallback to {}
+  variantDefaults = variantsModule.SectionVariants?.[variantName] ?? {};
+}
 
 // 3️⃣ Merge all class props
 const sectionClass = mergeClass(
