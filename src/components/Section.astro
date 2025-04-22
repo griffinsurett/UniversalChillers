@@ -17,6 +17,7 @@
  * If a video is provided, it will be used as the background, with the background image as a poster/fallback.
  * Otherwise, the provided image is optimized using Astro's getImage.
  */
+// src/components/Section.astro
 import Heading from "./Heading.jsx";
 import Button from "./Button.jsx";
 import ItemsTemplate from "./ItemsTemplate.astro";
@@ -50,26 +51,27 @@ const {
   backgroundMedia: rawBackgroundMedia,
   topContentClass: rawTopContentClass = "",
   itemPlacement: rawItemPlacement = "",
-  childPlacement: rawchildPlacement = "",
+  childPlacement: rawChildPlacement = "",
+  buttonsPlacement: rawButtonsPlacement = "",
   childSlotClass: rawChildSlotClass = "",
   client: rawClient,
   ...props
 } = Astro.props;
 
-// simple helper to merge any number of class strings
+// helper to merge class names
 function mergeClass(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
-// 1. load meta and defaultSection (your front‑matter _meta.*)
+// 1️⃣ Load meta + defaults
 const meta = await resolveMetaProps(collectionName, queryType);
 const defaultSection = meta.defaultSection || {};
 
-// 2. determine which variant to use (prop overrides meta.defaultSection.variant)
+// 2️⃣ Determine variant
 const variantName = rawVariant ?? defaultSection.variant;
 const variantDefaults = (variantName && SectionVariants[variantName]) || {};
 
-// 3. build every “final” class by merging: variant → meta → raw override
+// 3️⃣ Merge all class props
 const sectionClass = mergeClass(
   variantDefaults.sectionClass,
   defaultSection.sectionClass,
@@ -111,63 +113,84 @@ const childSlotClass = mergeClass(
   rawChildSlotClass
 );
 
-// 4. backgroundMedia: allow override → variant → meta
+// 4️⃣ Background media fallback
 const backgroundMedia =
   rawBackgroundMedia ??
   variantDefaults.backgroundMedia ??
   defaultSection.backgroundMedia;
 
-// 5. placement props: override → variant → meta
+// 5️⃣ Placement props: override → variant → meta → fallback
 const itemPlacement =
   rawItemPlacement ||
   variantDefaults.itemPlacement ||
   defaultSection.itemPlacement ||
   "";
 const childPlacement =
-  rawchildPlacement ||
+  rawChildPlacement ||
   variantDefaults.childPlacement ||
   defaultSection.childPlacement ||
   "";
+const buttonsPlacement =
+  rawButtonsPlacement ||
+  variantDefaults.buttonsPlacement ||
+  defaultSection.buttonsPlacement ||
+  "content-section";
 
-// convert to arrays
+// normalize to arrays
 const itemPlacementArray = Array.isArray(itemPlacement)
   ? itemPlacement
   : itemPlacement
-    ? [itemPlacement]
-    : [];
+  ? [itemPlacement]
+  : [];
 const childPlacementArray = Array.isArray(childPlacement)
   ? childPlacement
   : childPlacement
-    ? [childPlacement]
-    : [];
+  ? [childPlacement]
+  : [];
+const buttonsPlacementArray = Array.isArray(buttonsPlacement)
+  ? buttonsPlacement
+  : buttonsPlacement
+  ? [buttonsPlacement]
+  : [];
 
-// 6. Generate section ID
+// 6️⃣ Generate section ID
 const sectionId = generateSectionId(
   collectionName,
   queryType,
   Astro.url.pathname
 );
 
-// 7. Heading & description resolution
-const finalHeadingArray = resolveHeading(heading, meta.heading, collectionName);
-const finalDescription = resolveDescription(description, meta.description);
+// 7️⃣ Heading & description
+const finalHeadingArray = resolveHeading(
+  heading,
+  meta.heading,
+  collectionName
+);
+const finalDescription = resolveDescription(
+  description,
+  meta.description
+);
 
-// 8. Resolve which component to render for items
+// 8️⃣ Resolve item component + client
 const finalComponent = resolveComponent(
   ItemComponent,
   defaultSection.component
 );
 const finalClient = rawClient ?? defaultSection.client;
 
-// 9. Fetch dynamic items if needed
+// 9️⃣ Fetch dynamic items
 let items = [];
 const isDynamic = Boolean(collectionName && queryType);
 if (isDynamic) {
-  items = await getSectionItems(queryType, collectionName, Astro.url.pathname);
+  items = await getSectionItems(
+    queryType,
+    collectionName,
+    Astro.url.pathname
+  );
   if (items.length === 0) return;
 }
 
-// 10. Buttons array (explicit → meta → auto‑View All)
+// 🔟 Buttons array
 const effectiveButtons =
   buttons && buttons.length > 0 ? buttons : defaultSection.buttons;
 const buttonsArray = resolveButtonsArray(
@@ -196,77 +219,29 @@ const itemsDefaultHasPage = meta.itemsHasPage ?? false;
       isDynamic ? "my-[var(--spacing-lg)]" : ""
     }`}
   >
-    <!-- Top content: heading + optional slot/items/buttons -->
+    <!-- === Top Content Wrapper === -->
     <div class={`top-content-section ${topContentClass}`}>
+      <!-- Heading Area -->
       <div class={`section-heading-area ${headingAreaClass}`}>
-        {
-          finalHeadingArray.map((head, i) => {
-            const headObj = typeof head === "string" ? { text: head } : head;
-            const Tag = headObj.tagName || "h2";
-            return (
-              <Heading key={i} tagName={Tag} className={headObj.class || ""}>
-                {headObj.text}
-              </Heading>
-            );
-          })
-        }
-        {
-          finalDescription && (
-            <p class={description?.class}>{finalDescription}</p>
-          )
-        }
+        {finalHeadingArray.map((head, i) => {
+          const headObj = typeof head === "string" ? { text: head } : head;
+          const Tag = headObj.tagName || "h2";
+          return (
+            <Heading key={i} tagName={Tag} className={headObj.class || ""}>
+              {headObj.text}
+            </Heading>
+          );
+        })}
+        {finalDescription && (
+          <p class={description?.class}>{finalDescription}</p>
+        )}
       </div>
 
-      {/* default slot at top? */}
+      <!-- Child slot at top? -->
       {childPlacementArray.includes("top-content-section") && <slot />}
 
-      {/* items at top? */}
-      {
-        itemPlacementArray.includes("top-content-section") && isDynamic && (
-          <>
-            <slot name="aboveItemsInjection" />
-            <ItemsTemplate
-              items={items}
-              collection={collectionName}
-              query={queryType}
-              itemsClass={itemsClass}
-              itemClass={itemClass}
-              ItemComponent={finalComponent}
-              HasPage={itemsDefaultHasPage}
-              pathname={Astro.url.pathname}
-              client={finalClient}
-            />
-            <slot name="belowItemsInjection" />
-            <div class={buttonsSectionClass}>
-              {buttonsArray.map((btn, idx) => {
-                const defaults = {
-                  text: capitalize(collectionName),
-                  link: `/${collectionName}`,
-                  class: "",
-                  variant: "primary",
-                };
-                const props = { ...defaults, ...btn };
-                return (
-                  <Button
-                    key={idx}
-                    href={props.link}
-                    className={props.class}
-                    ariaLabel={props.text}
-                    variant={props.variant}
-                  >
-                    {props.text}
-                  </Button>
-                );
-              })}
-            </div>
-          </>
-        )
-      }
-    </div>
-
-    {/* main items block if not top */}
-    {
-      !itemPlacementArray.includes("top-content-section") && isDynamic && (
+      <!-- Items at top? -->
+      {itemPlacementArray.includes("top-content-section") && isDynamic && (
         <>
           <slot name="aboveItemsInjection" />
           <ItemsTemplate
@@ -281,6 +256,13 @@ const itemsDefaultHasPage = meta.itemsHasPage ?? false;
             client={finalClient}
           />
           <slot name="belowItemsInjection" />
+        </>
+      )}
+
+      <!-- Buttons at top? (dynamic only) -->
+      {isDynamic &&
+        buttonsPlacementArray.includes("top-content-section") &&
+        buttonsArray.length > 0 && (
           <div class={buttonsSectionClass}>
             {buttonsArray.map((btn, idx) => {
               const defaults = {
@@ -303,13 +285,88 @@ const itemsDefaultHasPage = meta.itemsHasPage ?? false;
               );
             })}
           </div>
-        </>
-      )
-    }
+        )}
 
-    {/* static‑only buttons */}
-    {
-      !isDynamic && buttonsArray.length > 0 && (
+      <!-- Buttons at top? (static only) -->
+      {!isDynamic &&
+        buttonsPlacementArray.includes("top-content-section") &&
+        buttonsArray.length > 0 && (
+          <div class={`${buttonsSectionClass} order-last`}>
+            {buttonsArray.map((btn, idx) => {
+              const defaults = {
+                text: capitalize(collectionName),
+                link: `/${collectionName}`,
+                class: "",
+                variant: "primary",
+              };
+              const props = { ...defaults, ...btn };
+              return (
+                <Button
+                  key={idx}
+                  href={props.link}
+                  className={props.class}
+                  ariaLabel={props.text}
+                  variant={props.variant}
+                >
+                  {props.text}
+                </Button>
+              );
+            })}
+          </div>
+        )}
+    </div>
+
+    <!-- === Main Items Block if not placed at top === -->
+    {!itemPlacementArray.includes("top-content-section") && isDynamic && (
+      <>
+        <slot name="aboveItemsInjection" />
+        <ItemsTemplate
+          items={items}
+          collection={collectionName}
+          query={queryType}
+          itemsClass={itemsClass}
+          itemClass={itemClass}
+          ItemComponent={finalComponent}
+          HasPage={itemsDefaultHasPage}
+          pathname={Astro.url.pathname}
+          client={finalClient}
+        />
+        <slot name="belowItemsInjection" />
+      </>
+    )}
+
+    <!-- Buttons in content-section? (dynamic only) -->
+    {isDynamic &&
+      buttonsPlacementArray.includes("content-section") &&
+      buttonsArray.length > 0 && (
+        <div class={buttonsSectionClass}>
+          {buttonsArray.map((btn, idx) => {
+            const defaults = {
+              text: capitalize(collectionName),
+              link: `/${collectionName}`,
+              class: "",
+              variant: "primary",
+            };
+            const props = { ...defaults, ...btn };
+            return (
+              <Button
+                key={idx}
+                href={props.link}
+                className={props.class}
+                ariaLabel={props.text}
+                variant={props.variant}
+              >
+                {props.text}
+              </Button>
+            );
+          })}
+        </div>
+      )}
+
+    <!-- Buttons in content-section? (static only) -->
+    {!isDynamic &&
+      buttonsPlacementArray.includes("content-section") &&
+      buttonsArray.length > 0 && (
         <div class={`${buttonsSectionClass} order-last`}>
           {buttonsArray.map((btn, idx) => {
             const defaults = {
@@ -332,16 +389,13 @@ const itemsDefaultHasPage = meta.itemsHasPage ?? false;
             );
           })}
         </div>
-      )
-    }
+      )}
 
-    {/* final default slot if not at top */}
-    {
-      !childPlacementArray.includes("top-content-section") && (
-        <div class={childSlotClass}>
-          <slot />
-        </div>
-      )
-    }
+    <!-- Final child slot if not already at top -->
+    {!childPlacementArray.includes("top-content-section") && (
+      <div class={childSlotClass}>
+        <slot />
+      </div>
+    )}
   </div>
 </section>
