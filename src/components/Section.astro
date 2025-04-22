@@ -69,7 +69,8 @@ const defaultSection = meta.defaultSection || {};
 
 // 2️⃣ Determine variant
 const variantName = rawVariant ?? defaultSection.variant;
-const variantDefaults = (variantName && SectionVariants?.[variantName]) || {};
+const variantDefaults = SectionVariants?.[variantName] ?? {};
+
 // 3️⃣ Merge all class props
 const sectionClass = mergeClass(
   variantDefaults.sectionClass,
