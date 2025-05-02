@@ -1,6 +1,5 @@
 // src/components/Button.jsx
-import DefaultIcon from "@/assets/astro.svg"; // Neutral default icon for the template (if needed)
-import { getImage } from "astro:assets";
+import ButtonIcon from "./ButtonIcon";
 
 // Default base button classes for non-underline variants.
 const baseButtonClasses =
@@ -34,41 +33,61 @@ export default async function Button({
   as: ComponentProp,
   type = "button",
   onClick,
+  disabled, // New prop to manually disable a button.
   children,
   className = "",
   href,
   variant, // "primary", "secondary", or "underline"
-  disabled, // Explicit disabled prop
+  iconProps = {}, // Consolidated icon properties.
+  showIcon = false, // Controls whether an icon is rendered.
   ...props
 }) {
-  variant = variant || "link";
-  const { variantClasses, buttonClasses } =
-    buttonVariantDefaults[variant] || buttonVariantDefaults.primary;
-  
-  // Determine disabled state: if no href is provided then treat it as disabled
-  const computedDisabled = disabled !== undefined ? disabled : (!href);
+  // Default the variant to "primary" if not provided.
+  variant = variant || "primary";
 
-  // Choose whether to render as <a> or <button>
-  const ComponentFinal = computedDisabled ? "button" : ComponentProp || (href ? "a" : "button");
-  
-  // Prepare extra props
+  // Pull in the variant defaults.
+  const { variantClasses, buttonClasses, iconDefaults } =
+    buttonVariantDefaults[variant] || buttonVariantDefaults.primary;
+
+  // Merge the variant's icon defaults with any custom iconProps.
+  const mergedIconProps = { ...iconDefaults, ...iconProps };
+  const {
+    element,               // The actual icon element (e.g., an inline SVG, image, etc.)
+    position = "right",    // "left" or "right"
+    className: iconCustomClass = "", // Additional class for the icon container.
+    hoverOnly,
+    animateIcon,
+  } = mergedIconProps;
+
+  // Ensure the button container is positioned correctly.
+  const containerDefaults = "relative inline-flex items-center group";
+
+  // Build overall class names.
+  let combinedClassNames =
+    variant === "underline"
+      ? `${className} ${variantClasses} transition-colors duration-300 ease-in-out ${containerDefaults} inline-flex items-center group`
+      : `${className} ${variantClasses} ${buttonClasses} ${containerDefaults}`;
+
+  // Determine disabled state.
+  // If the disabled prop is passed, or if no href is provided (implying hasPage is false), then disable.
+const computedDisabled = disabled ?? false;
+  // Force disabled rendering as a <button> (i.e. not as an anchor).
+  const ComponentFinal =
+    computedDisabled
+      ? "button"
+      : ComponentProp || (href ? "a" : "button");
+
+  // Prepare additional props.
   const additionalProps = { ...props };
   if (ComponentFinal === "button") {
     additionalProps.disabled = computedDisabled;
   } else if (ComponentFinal === "a") {
+    // When rendering as an anchor, if disabled then remove href and add disabled styling.
     additionalProps.href = computedDisabled ? undefined : href;
     if (computedDisabled) {
-      className += " pointer-events-none opacity-50";
+      combinedClassNames += " pointer-events-none opacity-50";
     }
   }
-  
-  // Container default classes
-  const containerDefaults = "relative inline-flex items-center group";
-
-  const combinedClassNames =
-    variant === "underline"
-      ? `${className} ${variantClasses} transition-colors duration-300 ease-in-out ${containerDefaults} inline-flex items-center group`
-      : `${className} ${variantClasses} ${buttonClasses} ${containerDefaults}`;
 
   return (
     <ComponentFinal
@@ -77,7 +96,27 @@ export default async function Button({
       className={combinedClassNames}
       {...(ComponentFinal === "button" ? additionalProps : {})}
     >
+      {showIcon && position === "left" && (
+        <ButtonIcon
+          showIcon={showIcon}
+          element={element}
+          hoverOnly={hoverOnly}
+          animateIcon={animateIcon}
+          position={position}
+          iconCustomClass={iconCustomClass}
+        />
+      )}
       {children}
+      {showIcon && position === "right" && (
+        <ButtonIcon
+          showIcon={showIcon}
+          element={element}
+          hoverOnly={hoverOnly}
+          animateIcon={animateIcon}
+          position={position}
+          iconCustomClass={iconCustomClass}
+        />
+      )}
     </ComponentFinal>
   );
 }
