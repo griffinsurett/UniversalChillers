@@ -23,6 +23,11 @@ const buttonVariantDefaults = {
       "underline text-[var(--color-primary)] hover:text-[var(--color-secondary)]",
     buttonClasses: "",
   },
+  link: {
+    // Used for menu links: neutral text, on hover primary
+    variantClasses: "text-text hover:text-primary",
+    buttonClasses: "",
+  },
 };
 
 export default async function Button({
@@ -36,7 +41,7 @@ export default async function Button({
   disabled, // Explicit disabled prop
   ...props
 }) {
-  variant = variant || "primary";
+  variant = variant || "link";
   const { variantClasses, buttonClasses } =
     buttonVariantDefaults[variant] || buttonVariantDefaults.primary;
   
