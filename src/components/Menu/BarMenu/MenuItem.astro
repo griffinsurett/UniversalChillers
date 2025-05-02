@@ -1,37 +1,54 @@
 ---
 /*
-  Default Menu Item Component.
-  Reads its configuration from the passed-in menuItem and submenuItem objects.
+  MenuItem.astro
+  Uses our shared <Button> (with no changes) and overrides
+  the `link` variant’s text color when `active` is true.
 */
-const { 
-  item, 
-  depth = 0, 
-  menuItem,      // object: { component, class, submenuArrow }
-  submenuItem,   // object: { component, class, submenuArrow }
-  isHierarchical = true, 
+const {
+  item,
+  isHierarchical = true,
+  depth = 0,
+  menuItem,           // { component, class, submenuArrow }
+  submenuItem,        // { component, class, submenuArrow }
   breakpoint,
-  active = false  // new prop for active state
+  active = false,     // whether this route is active
 } = Astro.props;
-import SubMenu from './SubMenu.astro';
-const mainClass = menuItem && menuItem.class ? menuItem.class : "";
+
+import Button from "@/components/Button.jsx";
+import SubMenu from "./SubMenu.astro";
+
+// Does this item have children?
 const hasSub = isHierarchical && Array.isArray(item.children) && item.children.length > 0;
+
+// Base class from the menu config
+const baseClass = menuItem?.class || "";
+const arrow = menuItem?.submenuArrow || "▼";
 ---
-<li class={`relative hamburger-menu-item ${mainClass}`}>
-  <a 
-    href={item.slug} 
-    class={`flex items-center px-[var(--spacing-md)] ${active ? "text-[var(--color-primary)]" : "text-[var(--color-text)]"} hover:text-[var(--color-primary)]`}
+<li class="relative hamburger-menu-item">
+  <!--
+    Use the link variant, but append "!text-primary !font-bold"
+    when active. The `!` ensures these utilities win over the variant.
+  -->
+  <Button
+    as="a"
+    href={item.slug}
+    variant="link"
+    className={`flex items-center ${baseClass} ${
+      active ? "!text-primary !font-bold" : ""
+    }`}
   >
     {item.label}
     {hasSub && (
-      <span class="arrow ml-[var(--spacing-sm)] transition-transform duration-200">
-        {menuItem && menuItem.submenuArrow ? menuItem.submenuArrow : "▼"}
+      <span class="arrow ml-[var(--spacing-sm)] text-base transition-transform duration-200">
+        {arrow}
       </span>
     )}
-  </a>
+  </Button>
+
   {hasSub && (
-    <SubMenu 
-      items={item.children} 
-      depth={depth + 1} 
+    <SubMenu
+      items={item.children}
+      depth={depth + 1}
       menuItem={menuItem}
       submenuItem={submenuItem}
       isHierarchical={isHierarchical}
