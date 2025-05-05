@@ -7,6 +7,7 @@ import Footer from '@/components/Footer.astro';
 import Marketing from '@/layouts/Marketing.astro';
 import { SiteData } from '@/content/SiteData';
 import { resetSectionIds } from "@/utils/SectionUtils.js";
+import AnimationLayout from './AnimationLayout.astro';
 
 const {
   title = SiteData.title,
@@ -39,11 +40,13 @@ resetSectionIds();
   <slot name="head" />
 </head>
 <body class="m-0 p-0 w-full h-full">
-  <Header />
-  <main class="min-h-[80vh] bg-[var(--color-bg)] text-[var(--color-text)]">
-    <slot />
-  </main>
-  <Footer />
-  <!-- <Marketing /> -->
+  <AnimationLayout>
+    <Header />
+    <main class="min-h-[80vh] bg-[var(--color-bg)] text-[var(--color-text)]">
+      <slot />
+    </main>
+    <Footer />
+    <!-- <Marketing /> -->
+  </AnimationLayout>
 </body>
 </html>

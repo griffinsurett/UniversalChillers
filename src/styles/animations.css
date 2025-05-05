@@ -1,0 +1,120 @@
+/* src/styles/animations.css */
+@import "tailwindcss";
+
+/* 1️⃣ Scroll‑linked animations in supporting browsers */
+@layer utilities {
+  @supports (animation-timeline: view()) or (animation-timeline: scroll()) {
+    .animate-on-appear {
+      animation-name: fade-in-up;
+      animation-duration: 1s;
+      animation-timeline: view();
+      animation-range: entry 0% cover 45%;
+      animation-fill-mode: both;
+    }
+    .slide-down {
+      animation-name: slide-down;
+      animation-duration: 1s;
+      animation-timeline: view();
+      animation-range: entry 0% cover 45%;
+      animation-fill-mode: both;
+    }
+    .slide-in {
+      animation-name: slide-in;
+      animation-duration: 1s;
+      animation-timeline: view();
+      animation-range: entry 0% cover 45%;
+      animation-fill-mode: both;
+    }
+    .slide-up {
+      animation-name: slide-up;
+      animation-duration: 1s;
+      animation-timeline: view();
+      animation-range: entry 0% cover 45%;
+      animation-fill-mode: both;
+    }
+    .slide-left {
+      animation-name: slide-left;
+      animation-duration: 1s;
+      animation-timeline: view();
+      animation-range: entry 0% cover 45%;
+      animation-fill-mode: both;
+    }
+    .slide-right {
+      animation-name: slide-right;
+      animation-duration: 1s;
+      animation-timeline: view();
+      animation-range: entry 0% cover 45%;
+      animation-fill-mode: both;
+    }
+    .scale-up {
+      animation-name: scale-up;
+      animation-duration: 1s;
+      animation-timeline: view();
+      animation-range: entry 0% cover 45%;
+      animation-fill-mode: both;
+    }
+  }
+}
+
+/* 2️⃣ IntersectionObserver fallback when timeline isn’t supported */
+@layer utilities {
+  @supports not ((animation-timeline: view()) or (animation-timeline: scroll())) {
+    .animate-on-appear,
+    .slide-down,
+    .slide-in,
+    .slide-up,
+    .slide-left,
+    .slide-right,
+    .scale-up {
+      opacity: 0;
+      transform: translateY(1rem);
+    }
+
+    /* Once JS adds .visible, run the same keyframe animation */
+    .animate-on-appear.visible    { animation: fade-in-up 1s both; }
+    .slide-down.visible           { animation: slide-down 1s both; }
+    .slide-in.visible             { animation: slide-in 1s both; }
+    .slide-up.visible             { animation: slide-up 1s both; }
+    .slide-left.visible           { animation: slide-left 1s both; }
+    .slide-right.visible          { animation: slide-right 1s both; }
+    .scale-up.visible             { animation: scale-up 1s both; }
+  }
+}
+
+/* 3️⃣ Shared keyframes (for scroll‑linked only) */
+@layer utilities {
+  @keyframes fade-in-up {
+    from { opacity: 0; transform: translateY(1rem); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes slide-down {
+    from { opacity: 0; transform: translateY(-2rem); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes slide-in {
+    from { opacity: 0; transform: translateX(-2rem); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(2rem); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes slide-left {
+    from { opacity: 0; transform: translateX(-2rem); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes slide-right {
+    from { opacity: 0; transform: translateX(2rem); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes scale-up {
+    from {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+}

@@ -1,0 +1,31 @@
+---
+import "@/styles/animations.css";
+---
+<html lang="en">
+  <head>
+    <slot name="head" />
+  </head>
+  <body>
+    <slot />
+
+    <!-- Only run observer fallback when scroll‑timeline is NOT supported -->
+    <script is:inline client:load>
+      if (!CSS.supports('animation-timeline', 'view()')) {
+        console.log('Scroll timeline not supported, using IntersectionObserver fallback');
+        document.documentElement.classList.add('use-io');
+        const io = new IntersectionObserver((entries, obs) => {
+          entries.forEach(({ target, isIntersecting }) => {
+            if (isIntersecting) {
+              target.classList.add('visible');
+              obs.unobserve(target);
+            }
+          });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll(
+          '.animate-on-appear, .slide-down, .slide-in, .slide-up, .slide-left, .slide-right, .scale-up'
+        ).forEach(el => io.observe(el));
+      }
+    </script>
+  </body>
+</html>
