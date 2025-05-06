@@ -21,7 +21,7 @@ const { collection } = Astro.params;
 const meta = await getCollectionMeta(collection).catch(() => ({}));
 
 // 2) Choose layout relative spec
-const spec = meta.layout || "../../layouts/OtherPages.astro";
+const spec = meta.layout || "../../layouts/ExtendedLayout.astro";
 
 // 3) Glob‑register layouts
 const layoutImporters = import.meta.glob("../../layouts/*.astro");

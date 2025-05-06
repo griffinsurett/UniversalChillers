@@ -37,7 +37,7 @@ const meta = await getCollectionMeta(collection).catch(() => ({}));
 
 // 2) Default specifier (must match the glob keys)
 const spec =
-  meta.itemsLayout || meta.layout || "../../layouts/OtherPages.astro";
+  meta.itemsLayout || meta.layout || "../../layouts/ExtendedLayout.astro";
 
 // 3) Register all layouts two levels up
 const layoutImporters = import.meta.glob("../../layouts/*.astro");
