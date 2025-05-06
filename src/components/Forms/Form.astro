@@ -24,13 +24,9 @@ const {
   name = "generic-form",
   method = "post",
   action,
-  netlify = false,
-  honeypotName = "bot-field",
   formClass = "",
   submitClass = "w-full mt-[var(--spacing-sm)] justify-center cursor-pointer",
   submitLabel = "Submit",
-
-  // new banner props
   enableSuccessBanner = false,
   successBannerMessage = "Thank you for your submission!",
   successBannerClass = "p-[var(--spacing-sm)] bg-primary text-bg border border-[var(--color-border)]",
@@ -45,17 +41,7 @@ const {
   data-success-banner={enableSuccessBanner}
   data-success-message={successBannerMessage}
   data-success-class={successBannerClass}
-  {...(netlify
-    ? { "data-netlify": "true", "netlify-honeypot": honeypotName }
-    : {})}
 >
-  {netlify && (
-    <>
-      <input type="hidden" name="form-name" value={name} />
-      <input type="hidden" name={honeypotName} />
-    </>
-  )}
-
   <slot />
 
   {Astro.slots.has("submit") ? (
@@ -67,9 +53,6 @@ const {
   )}
 </form>
 
-{/**  
-  Inlined script to wire up *all* forms with data-success-banner="true"
-**/}
 <script is:inline>
   document.addEventListener("DOMContentLoaded", () => {
     document

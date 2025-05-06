@@ -1,8 +1,6 @@
 ---
-// src/pages/[collection]/index.astro
-import ExtendedLayout from "@/layouts/ExtendedLayout.astro";
+// /[collection]/index.astro
 import Section from "@/components/Section.astro";
-import SecondaryHero from "@/components/StaticSections/SecondaryHero.astro";
 import { collections } from "@/content/config";
 import { getCollectionMeta } from "@/utils/FetchMeta";
 import { capitalize } from "@/utils/ContentUtils";
@@ -20,36 +18,63 @@ export async function getStaticPaths() {
 }
 
 const { collection } = Astro.params;
-let meta = {};
-try {
-  meta = await getCollectionMeta(collection);
-} catch {}
+const meta = await getCollectionMeta(collection).catch(() => ({}));
+
+// 2) Choose layout relative spec
+const spec = meta.layout || "../../layouts/OtherPages.astro";
+
+// 3) Glob‑register layouts
+const layoutImporters = import.meta.glob("../../layouts/*.astro");
+
+// 4) Load the selected layout
+const importer = layoutImporters[spec];
+if (!importer) {
+  throw new Error(`Unknown layout specifier: ${spec}`);
+}
+const { default: Layout } = await importer();
+
+// 5) Build sections
+const sections = meta.sections?.length
+  ? meta.sections
+  : [
+      {
+        collection,
+        query: "getAll",
+        heading: { text: capitalize(collection), tagName: "h2" },
+        description: meta.description,
+      },
+    ];
+
+    console.log("robots", meta.robots);
 ---
-<ExtendedLayout title={capitalize(collection)} description={meta.description} keywords={meta.keywords} ogType={meta.ogType}>
-  <SecondaryHero title={capitalize(collection)} />
-  {meta.sections && meta.sections.length > 0 ? (
-    meta.sections.map((section, i) => (
+
+<Layout
+  collection={collection}
+  title={capitalize(collection)}
+  description={meta.description}
+  keywords={meta.keywords}
+  robots={meta.robots}
+  ogType={meta.ogType}
+>
+  {
+    sections.map((section, i) => (
       <Section
         key={i}
-        variant={section.variant}  
+        variant={section.variant}
         collection={section.collection}
         query={section.query}
         heading={section.heading}
         buttons={section.buttons}
+        description={section.description}
+        descriptionClass={section.descriptionClass}
         sectionClass={section.sectionClass}
+        contentClass={section.contentClass}
         itemsClass={section.itemsClass}
         itemClass={section.itemClass}
-        contentClass={section.contentClass}
         buttonsSectionClass={section.buttonsSectionClass}
         headingAreaClass={section.headingAreaClass}
+        {...section}
       />
     ))
-  ) : (
-    <Section
-      collection={collection}
-      query="getAll"
-      heading={{ text: capitalize(collection), tagName: "h2" }}
-      description={meta.description}
-    />
-  )}
-</ExtendedLayout>
+  }
+</Layout>

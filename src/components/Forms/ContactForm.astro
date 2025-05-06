@@ -1,23 +1,20 @@
 ---
-/* Uses the generic <Form> wrapper but keeps the same visual layout */
-  import Form      from "@/components/Forms/Form.astro";
+import Form      from "@/components/Forms/Form.astro";
 import TextInput from "@/components/Forms/Inputs/TextInput.astro";
 import Textarea  from "@/components/Forms/Inputs/Textarea.astro";
 import { getCurrentEntryId } from "@/utils/CurrentEntry";
 
 const {
-  inputClasses = "border border-[var(--color-border)] transition-default p-[var(--spacing-md)] w-full bg-light-opacity placeholder:text-[var(--color-bg)] text-bg outline-none focus:border-[var(--color-bg)] focus:ring-1 focus:ring-[var(--color-primary)] focus:bg-primary",
+  inputClasses   = "border border-[var(--color-border)] transition-default p-[var(--spacing-md)] w-full bg-light-opacity placeholder:text-[var(--color-bg)] text-bg outline-none focus:border-[var(--color-bg)] focus:ring-1 focus:ring-[var(--color-primary)] focus:bg-primary",
   wrapperClasses = "mb-[var(--spacing-sm)] w-full",
 } = Astro.props;
 
 // Extract current page identifier
 const currentPage = getCurrentEntryId(Astro);
-console.log("Current page:", currentPage);
 ---
 
 <Form
   name="contact-form"
-  netlify={true}
   enableSuccessBanner={true}
   successBannerMessage="Thank you for your message. We will get in touch with you shortly."
   successBannerClass="p-[var(--spacing-sm)] bg-primary text-bg border border-[var(--color-border)] bg-light-opacity"
@@ -31,7 +28,7 @@ console.log("Current page:", currentPage);
       <TextInput
         name="firstName"
         placeholder="First Name"
-        required={true}
+        required
         inputClass={inputClasses}
         wrapperClass={wrapperClasses}
       />
@@ -40,7 +37,7 @@ console.log("Current page:", currentPage);
       <TextInput
         name="lastName"
         placeholder="Last Name"
-        required={true}
+        required
         inputClass={inputClasses}
         wrapperClass={wrapperClasses}
       />
@@ -54,7 +51,7 @@ console.log("Current page:", currentPage);
         name="email"
         type="email"
         placeholder="you@example.com"
-        required={true}
+        required
         inputClass={inputClasses}
         wrapperClass={wrapperClasses}
       />
@@ -75,7 +72,7 @@ console.log("Current page:", currentPage);
     <Textarea
       name="message"
       placeholder="Tell us more about your needs…"
-      required={true}
+      required
       rows={5}
       inputClass={inputClasses}
       wrapperClass={wrapperClasses}

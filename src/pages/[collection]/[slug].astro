@@ -1,89 +1,90 @@
 ---
-// src/pages/[collection]/[slug].astro
+// collection/[slug].astro
 import { getCollection } from "astro:content";
-import ExtendedLayout from "@/layouts/ExtendedLayout.astro";
 import { Image } from "astro:assets";
 import Heading from "@/components/Heading.jsx";
 import Section from "@/components/Section.astro";
-import SecondaryHero from "@/components/StaticSections/SecondaryHero.astro";
 import { collections } from "@/content/config";
 import { getCollectionMeta } from "@/utils/FetchMeta";
 import { getCanonicalSlug } from "@/utils/ContentUtils";
 
-// Build all paths for items that end up with `hasPage: true`.
+// 1) Build static paths (unchanged)…
 export async function getStaticPaths() {
-  const collectionNames = Object.keys(collections);
-  let allPaths = [];
-  for (const collName of collectionNames) {
-    let meta = {};
-    try {
-      meta = await getCollectionMeta(collName);
-    } catch {}
+  const names = Object.keys(collections);
+  const paths = [];
+  for (const coll of names) {
+    const meta = await getCollectionMeta(coll).catch(() => ({}));
+    const entries = await getCollection(coll);
     const { itemsHasPage = true } = meta;
-    const entries = await getCollection(collName);
-    for (const entry of entries) {
-      if (typeof entry.data.hasPage === "undefined") {
-        entry.data.hasPage = itemsHasPage;
-      }
-    }
-    const pathsForColl = entries
-      .filter((entry) => entry.data.hasPage === true)
-      .map((entry) => {
-        const computedSlug = getCanonicalSlug(entry);
-        return {
-          params: { collection: collName, slug: computedSlug },
-          props: { collection: collName, entry },
-        };
+    entries.forEach((e) => {
+      if (e.data.hasPage === undefined) e.data.hasPage = itemsHasPage;
+    });
+    entries
+      .filter((e) => e.data.hasPage)
+      .forEach((entry) => {
+        paths.push({
+          params: { collection: coll, slug: getCanonicalSlug(entry) },
+          props: { collection: coll, entry },
+        });
       });
-    allPaths.push(...pathsForColl);
   }
-  return allPaths;
+  return paths;
 }
 
 const { collection, entry } = Astro.props;
 const { data, body } = entry;
-let meta = {};
-try {
-  meta = await getCollectionMeta(collection);
-} catch {}
-const sections = data.sections && data.sections.length > 0
+const meta = await getCollectionMeta(collection).catch(() => ({}));
+
+// 2) Default specifier (must match the glob keys)
+const spec =
+  meta.itemsLayout || meta.layout || "../../layouts/OtherPages.astro";
+
+// 3) Register all layouts two levels up
+const layoutImporters = import.meta.glob("../../layouts/*.astro");
+
+// 4) Lookup and import the chosen layout
+const importer = layoutImporters[spec];
+if (!importer) {
+  throw new Error(`Unknown layout specifier: ${spec}`);
+}
+const { default: Layout } = await importer();
+
+// 5) Resolve sections
+const sections = data.sections?.length
   ? data.sections
   : meta.itemsSections || [];
+
+  console.log("robots", data.robots);
 ---
-<ExtendedLayout title={data.title} description={data.description} keywords={data.keywords} ogType={data.ogType}>
-  <article>
-    <!-- Hero Section -->
-    <SecondaryHero title={data.title} />
-    <Heading tagName="h2" class="mb-[var(--spacing-md)]">
-      {data.title}
-    </Heading>
-    {data.description && <p class="mb-[var(--spacing-md)]">{data.description}</p>}
-    {data.featuredImage && (
-      <Image
-        src={data.featuredImage}
-        alt={data.title}
-        width={600}
-        height={400}
-        format="avif"
-        class="mb-[var(--spacing-md)]"
-      />
-    )}
-    {body && <p class="mb-[var(--spacing-md)]">{body}</p>}
-    {sections.map((section, i) => (
+
+<Layout
+  collection={collection}
+  entry={entry}
+  title={data.title}
+  description={data.description}
+  keywords={data.keywords}
+  ogType={data.ogType}
+  robots={data.robots} 
+>
+  {
+    sections.map((section, i) => (
       <Section
         key={i}
-        variant={section.variant}  
+        variant={section.variant}
         collection={section.collection}
         query={section.query}
         heading={section.heading}
+        description={section.description}
+        descriptionClass={section.descriptionClass}
         buttons={section.buttons}
         sectionClass={section.sectionClass}
+        contentClass={section.contentClass}
         itemsClass={section.itemsClass}
         itemClass={section.itemClass}
-        contentClass={section.contentClass}
         buttonsSectionClass={section.buttonsSectionClass}
         headingAreaClass={section.headingAreaClass}
+        {...section}
       />
-    ))}
-  </article>
-</ExtendedLayout>
+    ))
+  }
+</Layout>
