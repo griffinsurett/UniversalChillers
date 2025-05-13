@@ -22,9 +22,8 @@ import "@/styles/animations.css";
           });
         }, { threshold: 0.1 });
 
-        document.querySelectorAll(
-          '.animate-on-appear, .slide-down, .slide-in, .slide-up, .slide-left, .slide-right, .scale-up'
-        ).forEach(el => io.observe(el));
+        // Observe only elements with .load
+        document.querySelectorAll('.load').forEach(el => io.observe(el));
       }
     </script>
   </body>
