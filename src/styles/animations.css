@@ -1,7 +1,11 @@
 @import "tailwindcss";
 
+/* 1️⃣ Scroll‑linked animations in supporting browsers */
 @layer utilities {
-  /* All of these will animate immediately on insertion */
+   
+
+  @supports (animation-timeline: view()) or (animation-timeline: scroll()) {
+/* All of these will animate immediately on insertion */
   .animate-on-appear,
   .fade-in,
   .slide-down,
@@ -39,11 +43,6 @@
   .scale-up {
     animation-name: scale-up;
   }
-}
-
-/* 1️⃣ Scroll‑linked animations in supporting browsers */
-@layer utilities {
-  @supports (animation-timeline: view()) or (animation-timeline: scroll()) {
     .load.fade-in {
       animation-name: fade-in;
       animation-duration: 1s;
