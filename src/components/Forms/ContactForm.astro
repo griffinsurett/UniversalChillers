@@ -2,10 +2,11 @@
 import Form      from "@/components/Forms/Form.astro";
 import TextInput from "@/components/Forms/Inputs/TextInput.astro";
 import Textarea  from "@/components/Forms/Inputs/Textarea.astro";
+import { SiteData } from "@/content/SiteData";
 import { getCurrentEntryId } from "@/utils/CurrentEntry";
 
 const {
-  inputClasses   = "border border-[var(--color-border)] transition-default p-[var(--spacing-md)] w-full bg-light-opacity placeholder:text-[var(--color-bg)] text-bg outline-none focus:border-[var(--color-bg)] focus:ring-1 focus:ring-[var(--color-primary)] focus:bg-primary",
+  inputClasses   = "border border-[var(--color-border)] transition-default p-[var(--spacing-sm)] w-full bg-bg placeholder:text-[var(--color-text)] text-text outline-none",
   wrapperClasses = "mb-[var(--spacing-sm)] w-full",
 } = Astro.props;
 
@@ -26,6 +27,7 @@ const currentPage = getCurrentEntryId(Astro);
   <div class="flex flex-col lg:flex-row lg:space-x-[var(--spacing-sm)]">
     <div class="w-full lg:w-1/2">
       <TextInput
+      label="First Name"
         name="firstName"
         placeholder="First Name"
         required
@@ -35,6 +37,7 @@ const currentPage = getCurrentEntryId(Astro);
     </div>
     <div class="w-full lg:w-1/2">
       <TextInput
+        label="Last Name"
         name="lastName"
         placeholder="Last Name"
         required
@@ -48,6 +51,7 @@ const currentPage = getCurrentEntryId(Astro);
   <div class="flex flex-col lg:flex-row lg:space-x-[var(--spacing-sm)]">
     <div class="w-full lg:w-1/2">
       <TextInput
+        label="Email Address"
         name="email"
         type="email"
         placeholder="you@example.com"
@@ -58,6 +62,7 @@ const currentPage = getCurrentEntryId(Astro);
     </div>
     <div class="w-full lg:w-1/2">
       <TextInput
+        label="Phone Number"
         name="phone"
         type="tel"
         placeholder="123-456-7890"
@@ -70,6 +75,7 @@ const currentPage = getCurrentEntryId(Astro);
   <!-- Row 3 -->
   <div class="w-full">
     <Textarea
+      label="Message"
       name="message"
       placeholder="Tell us more about your needs…"
       required
@@ -78,4 +84,5 @@ const currentPage = getCurrentEntryId(Astro);
       wrapperClass={wrapperClasses}
     />
   </div>
+
 </Form>
