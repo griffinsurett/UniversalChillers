@@ -1,15 +1,22 @@
 // astro.config.mjs
 import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
-import react from '@astrojs/react';
 import mdx from '@astrojs/mdx';
+import react from '@astrojs/react';
+import { config as loadDotenv } from 'dotenv';
 
-import sitemap from '@astrojs/sitemap';
+// ① Only load .env when NODE_ENV !== 'production'
+if (process.env.NODE_ENV !== 'production') {
+  loadDotenv();
+}
+
+// ② Now process.env.PUBLIC_* is available:
+
 
 export default defineConfig({
-  site: 'https://koiroofandsolar-1nu38.kinsta.page/',
+  site: `https://${process.env.PUBLIC_SITE_DOMAIN}`,
   server: {
-    port: 9000,
+    port: Number(process.env.PUBLIC_DEV_PORT) || 5500,
   },
   vite: {
     plugins: [tailwindcss()],
@@ -17,15 +24,16 @@ export default defineConfig({
       rollupOptions: {
         output: {
           manualChunks(id) {
-            // Split React-related code into a separate chunk
-            if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) {
+            if (
+              id.includes('node_modules/react') ||
+              id.includes('node_modules/react-dom')
+            ) {
               return 'react-vendor';
             }
-            // Further customization can be added here for other libraries
           },
         },
       },
     },
   },
-  integrations: [mdx(), react(), sitemap()],
+  integrations: [mdx(), react()],
 });
