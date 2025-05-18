@@ -40,12 +40,14 @@ const {
   component: ItemComponent,
   heading,
   description,
+  descriptionClass: rawDescriptionClass = "",
   buttons,
   sectionClass: rawSectionClass,
   contentClass: rawContentClass,
   itemsClass: rawItemsClass,
   itemClass: rawItemClass,
-  buttonsSectionClass: rawButtonsSectionClass,
+  buttonsSectionClass:
+    rawButtonsSectionClass = "flex items-center justify-center",
   headingAreaClass: rawHeadingAreaClass,
   backgroundMedia: rawBackgroundMedia,
   topContentClass: rawTopContentClass = "",
@@ -57,7 +59,6 @@ const {
   ...props
 } = Astro.props;
 
-// helper to merge class names
 function mergeClass(...classes) {
   return classes.filter(Boolean).join(" ");
 }
@@ -72,13 +73,11 @@ const variantName = rawVariant ?? defaultSection.variant;
 // 3️⃣ Dynamically import SectionVariants if you actually have a variant
 let variantDefaults = {};
 if (variantName) {
-  // note the explicit “.js” extension so Vite can find it in production
   const variantsModule = await import("./SectionVariants.js");
-  // grab the matching variant or fallback to {}
   variantDefaults = variantsModule.SectionVariants?.[variantName] ?? {};
 }
 
-// 3️⃣ Merge all class props
+// 4️⃣ Merge all class props
 const sectionClass = mergeClass(
   variantDefaults.sectionClass,
   defaultSection.sectionClass,
@@ -120,13 +119,23 @@ const childSlotClass = mergeClass(
   rawChildSlotClass
 );
 
-// 4️⃣ Background media fallback
+// 🚀 description class merge
+const descriptionClass = mergeClass(
+  variantDefaults.descriptionClass,
+  defaultSection.descriptionClass,
+  rawDescriptionClass,
+  description && typeof description === "object" && description.class
+    ? description.class
+    : ""
+);
+
+// 5️⃣ Background media fallback
 const backgroundMedia =
   rawBackgroundMedia ??
   variantDefaults.backgroundMedia ??
   defaultSection.backgroundMedia;
 
-// 5️⃣ Placement props: override → variant → meta → fallback
+// 6️⃣ Placement props
 const itemPlacement =
   rawItemPlacement ||
   variantDefaults.itemPlacement ||
@@ -147,57 +156,48 @@ const buttonsPlacement =
 const itemPlacementArray = Array.isArray(itemPlacement)
   ? itemPlacement
   : itemPlacement
-  ? [itemPlacement]
-  : [];
+    ? [itemPlacement]
+    : [];
 const childPlacementArray = Array.isArray(childPlacement)
-  ? childPlacement
-  : childPlacement
-  ? [childPlacement]
+  ? rawChildPlacement
+    ? Array.isArray(rawChildPlacement)
+      ? rawChildPlacement
+      : [rawChildPlacement]
+    : []
   : [];
 const buttonsPlacementArray = Array.isArray(buttonsPlacement)
   ? buttonsPlacement
   : buttonsPlacement
-  ? [buttonsPlacement]
-  : [];
+    ? [buttonsPlacement]
+    : [];
 
-// 6️⃣ Generate section ID
+// 7️⃣ Generate section ID
 const sectionId = generateSectionId(
   collectionName,
   queryType,
   Astro.url.pathname
 );
 
-// 7️⃣ Heading & description
-const finalHeadingArray = resolveHeading(
-  heading,
-  meta.heading,
-  collectionName
-);
-const finalDescription = resolveDescription(
-  description,
-  meta.description
-);
+// 8️⃣ Heading & description
+const finalHeadingArray = resolveHeading(heading, meta.heading, collectionName);
+const finalDescription = resolveDescription(description, meta.description);
 
-// 8️⃣ Resolve item component + client
+// 9️⃣ Resolve item component + client
 const finalComponent = resolveComponent(
   ItemComponent,
   defaultSection.component
 );
 const finalClient = rawClient ?? defaultSection.client;
 
-// 9️⃣ Fetch dynamic items
+// 🔟 Fetch dynamic items
 let items = [];
 const isDynamic = Boolean(collectionName && queryType);
 if (isDynamic) {
-  items = await getSectionItems(
-    queryType,
-    collectionName,
-    Astro.url.pathname
-  );
+  items = await getSectionItems(queryType, collectionName, Astro.url.pathname);
   if (items.length === 0) return;
 }
 
-// 🔟 Buttons array
+// 1️⃣1️⃣ Buttons array
 const effectiveButtons =
   buttons && buttons.length > 0 ? buttons : defaultSection.buttons;
 const buttonsArray = resolveButtonsArray(
@@ -212,65 +212,168 @@ const itemsDefaultHasPage = meta.itemsHasPage ?? false;
 <section
   id={sectionId}
   data-collection={collectionName}
-  class={`${sectionClass} relative w-full ${
-    isDynamic
-      ? "py-[var(--spacing-lg)] lg:px-[var(--spacing-md)]"
-      : "lg:px-[var(--spacing-md)]"
-  }`}
+  class={`${sectionClass} relative w-full`}
   {...props}
 >
   {backgroundMedia && <BackgroundMedia backgroundMedia={backgroundMedia} />}
 
-  <div
-    class={`${contentClass} content-section relative z-10 w-3/4 ${
-      isDynamic ? "my-[var(--spacing-lg)]" : ""
-    }`}
-  >
-    <!-- === Top Content Wrapper === -->
+  <div class={`${contentClass} relative z-10 ${isDynamic ? "" : ""}`}>
     <div class={`top-content-section ${topContentClass}`}>
-      <!-- Heading Area -->
-      <div class={`section-heading-area ${headingAreaClass}`}>
-        {finalHeadingArray.map((head, i) => {
-          const headObj = typeof head === "string" ? { text: head } : head;
-          const Tag = headObj.tagName || "h2";
-          return (
-            <Heading key={i} tagName={Tag} className={headObj.class || ""}>
-              {headObj.text}
-            </Heading>
-          );
-        })}
-        {finalDescription && (
-          <p class={description?.class}>{finalDescription}</p>
-        )}
+      <div class={`section-heading-area  ${headingAreaClass}`}>
+        {
+          finalHeadingArray.map((head, i) => {
+            const headObj = typeof head === "string" ? { text: head } : head;
+            const Tag = headObj.tagName || "h2";
+            return (
+              <Heading key={i} tagName={Tag} className={headObj.class || ""}>
+                {headObj.text}
+              </Heading>
+            );
+          })
+        }
+
+        {finalDescription && <p class={descriptionClass}>{finalDescription}</p>}
+
+        {/* ︎︎🆕 Items in heading area (exclusive) */}
+        {
+          itemPlacementArray.includes("section-heading-area") && isDynamic && (
+            <>
+              <slot name="aboveItemsInjection" />
+              <ItemsTemplate
+                items={items}
+                collection={collectionName}
+                query={queryType}
+                itemsClass={itemsClass}
+                itemClass={itemClass}
+                ItemComponent={finalComponent}
+                HasPage={itemsDefaultHasPage}
+                pathname={Astro.url.pathname}
+                client={finalClient}
+              />
+              <slot name="belowItemsInjection" />
+            </>
+          )
+        }
       </div>
 
-      <!-- Child slot at top? -->
       {childPlacementArray.includes("top-content-section") && <slot />}
 
-      <!-- Items at top? -->
-      {itemPlacementArray.includes("top-content-section") && isDynamic && (
-        <>
-          <slot name="aboveItemsInjection" />
-          <ItemsTemplate
-            items={items}
-            collection={collectionName}
-            query={queryType}
-            itemsClass={itemsClass}
-            itemClass={itemClass}
-            ItemComponent={finalComponent}
-            HasPage={itemsDefaultHasPage}
-            pathname={Astro.url.pathname}
-            client={finalClient}
-          />
-          <slot name="belowItemsInjection" />
-        </>
-      )}
+      {/* ︎︎🆕 Items in top-content (only if not placed in heading) */}
+      {
+        itemPlacementArray.includes("top-content-section") &&
+          !itemPlacementArray.includes("section-heading-area") &&
+          isDynamic && (
+            <>
+              <slot name="aboveItemsInjection" />
+              <ItemsTemplate
+                items={items}
+                collection={collectionName}
+                query={queryType}
+                itemsClass={itemsClass}
+                itemClass={itemClass}
+                ItemComponent={finalComponent}
+                HasPage={itemsDefaultHasPage}
+                pathname={Astro.url.pathname}
+                client={finalClient}
+              />
+              <slot name="belowItemsInjection" />
+            </>
+          )
+      }
 
-      <!-- Buttons at top? (dynamic only) -->
-      {isDynamic &&
-        buttonsPlacementArray.includes("top-content-section") &&
+      {
+        isDynamic &&
+          buttonsPlacementArray.includes("top-content-section") &&
+          buttonsArray.length > 0 && (
+            <div class={buttonsSectionClass}>
+              {buttonsArray.map((btn, idx) => {
+                const defaults = {
+                  text: capitalize(collectionName),
+                  link: `/${collectionName}`,
+                  class: "",
+                  variant: "primary",
+                };
+                const props = { ...defaults, ...btn };
+                return (
+                  <Button
+                    key={idx}
+                    href={props.link}
+                    className={props.class}
+                    ariaLabel={props.text}
+                    variant={props.variant}
+                    showIcon={props.showIcon}
+                    iconProps={props.iconProps}
+                  >
+                    {props.text}
+                  </Button>
+                );
+              })}
+            </div>
+          )
+      }
+
+      {
+        !isDynamic &&
+          buttonsPlacementArray.includes("top-content-section") &&
+          buttonsArray.length > 0 && (
+            <div class={`${buttonsSectionClass} order-last`}>
+              {buttonsArray.map((btn, idx) => {
+                const defaults = {
+                  text: capitalize(collectionName),
+                  link: `/${collectionName}`,
+                  class: "",
+                  variant: "primary",
+                };
+                const props = { ...defaults, ...btn };
+                return (
+                  <Button
+                    key={idx}
+                    href={props.link}
+                    className={props.class}
+                    ariaLabel={props.text}
+                    variant={props.variant}
+                    showIcon={props.showIcon}
+                    iconProps={props.iconProps}
+                  >
+                    {props.text}
+                  </Button>
+                );
+              })}
+            </div>
+          )
+      }
+    </div>
+
+    {
+      /* ︎︎🆕 Default items in content-section (only if no heading/top placement) */
+    }
+    {
+      isDynamic &&
+        !itemPlacementArray.includes("top-content-section") &&
+        !itemPlacementArray.includes("section-heading-area") && (
+          <>
+            <slot name="aboveItemsInjection" />
+            <ItemsTemplate
+              items={items}
+              collection={collectionName}
+              query={queryType}
+              itemsClass={itemsClass}
+              itemClass={itemClass}
+              ItemComponent={finalComponent}
+              HasPage={itemsDefaultHasPage}
+              pathname={Astro.url.pathname}
+              client={finalClient}
+            />
+            <slot name="belowItemsInjection" />
+          </>
+        )
+    }
+
+    {
+      isDynamic &&
+        buttonsPlacementArray.includes("content-section") &&
         buttonsArray.length > 0 && (
-          <div class={buttonsSectionClass}>
+          <div class={`${buttonsSectionClass}`}>
             {buttonsArray.map((btn, idx) => {
               const defaults = {
                 text: capitalize(collectionName),
@@ -286,17 +389,20 @@ const itemsDefaultHasPage = meta.itemsHasPage ?? false;
                   className={props.class}
                   ariaLabel={props.text}
                   variant={props.variant}
+                  showIcon={props.showIcon}
+                  iconProps={props.iconProps}
                 >
                   {props.text}
                 </Button>
               );
             })}
           </div>
-        )}
+        )
+    }
 
-      <!-- Buttons at top? (static only) -->
-      {!isDynamic &&
-        buttonsPlacementArray.includes("top-content-section") &&
+    {
+      !isDynamic &&
+        buttonsPlacementArray.includes("content-section") &&
         buttonsArray.length > 0 && (
           <div class={`${buttonsSectionClass} order-last`}>
             {buttonsArray.map((btn, idx) => {
@@ -314,95 +420,23 @@ const itemsDefaultHasPage = meta.itemsHasPage ?? false;
                   className={props.class}
                   ariaLabel={props.text}
                   variant={props.variant}
+                  showIcon={props.showIcon}
+                  iconProps={props.iconProps}
                 >
                   {props.text}
                 </Button>
               );
             })}
           </div>
-        )}
-    </div>
+        )
+    }
 
-    <!-- === Main Items Block if not placed at top === -->
-    {!itemPlacementArray.includes("top-content-section") && isDynamic && (
-      <>
-        <slot name="aboveItemsInjection" />
-        <ItemsTemplate
-          items={items}
-          collection={collectionName}
-          query={queryType}
-          itemsClass={itemsClass}
-          itemClass={itemClass}
-          ItemComponent={finalComponent}
-          HasPage={itemsDefaultHasPage}
-          pathname={Astro.url.pathname}
-          client={finalClient}
-        />
-        <slot name="belowItemsInjection" />
-      </>
-    )}
-
-    <!-- Buttons in content-section? (dynamic only) -->
-    {isDynamic &&
-      buttonsPlacementArray.includes("content-section") &&
-      buttonsArray.length > 0 && (
-        <div class={buttonsSectionClass}>
-          {buttonsArray.map((btn, idx) => {
-            const defaults = {
-              text: capitalize(collectionName),
-              link: `/${collectionName}`,
-              class: "",
-              variant: "primary",
-            };
-            const props = { ...defaults, ...btn };
-            return (
-              <Button
-                key={idx}
-                href={props.link}
-                className={props.class}
-                ariaLabel={props.text}
-                variant={props.variant}
-              >
-                {props.text}
-              </Button>
-            );
-          })}
+    {
+      !childPlacementArray.includes("top-content-section") && (
+        <div class={childSlotClass}>
+          <slot />
         </div>
-      )}
-
-    <!-- Buttons in content-section? (static only) -->
-    {!isDynamic &&
-      buttonsPlacementArray.includes("content-section") &&
-      buttonsArray.length > 0 && (
-        <div class={`${buttonsSectionClass} order-last`}>
-          {buttonsArray.map((btn, idx) => {
-            const defaults = {
-              text: capitalize(collectionName),
-              link: `/${collectionName}`,
-              class: "",
-              variant: "primary",
-            };
-            const props = { ...defaults, ...btn };
-            return (
-              <Button
-                key={idx}
-                href={props.link}
-                className={props.class}
-                ariaLabel={props.text}
-                variant={props.variant}
-              >
-                {props.text}
-              </Button>
-            );
-          })}
-        </div>
-      )}
-
-    <!-- Final child slot if not already at top -->
-    {!childPlacementArray.includes("top-content-section") && (
-      <div class={childSlotClass}>
-        <slot />
-      </div>
-    )}
+      )
+    }
   </div>
 </section>
