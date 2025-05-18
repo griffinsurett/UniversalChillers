@@ -15,6 +15,10 @@ const {
   HasPage,
   pathname   = "",
   client,                   // "load" | "idle" | "visible" | undefined
+  sortBy = "date",        // "date" | "title" | "slug" | "id"
+  sortOrder = "desc",     // "asc" | "desc"
+  manualOrder = false,    // if true, use item.data.order exclusively
+
   ...rest
 } = Astro.props;
 
@@ -22,6 +26,29 @@ const {
 let items = initialItems || [];
 if (!initialItems && collection && query) {
   items = await queryItems(query, collection, pathname);
+}
+
+// ───── Apply sorting ─────
+if (manualOrder) {
+  items = [...items].sort((a, b) => (a.data.order || 0) - (b.data.order || 0));
+} else {
+  const sorted = [...items];
+  if (sortBy === "title") {
+    sorted.sort((a, b) =>
+      String(a.data.title || a.slug).localeCompare(String(b.data.title || b.slug))
+    );
+  } else if (sortBy === "slug" || sortBy === "id") {
+    sorted.sort((a, b) => String(a.slug).localeCompare(String(b.slug)));
+  } else {
+    // default: date-based; fallback to generation timestamp if available
+    sorted.sort((a, b) => {
+      const da = new Date(a.data.pubDate || a.data.date || a._generatedAt || 0);
+      const db = new Date(b.data.pubDate || b.data.date || b._generatedAt || 0);
+      return da.getTime() - db.getTime();
+    });
+  }
+  if (sortOrder === "desc") sorted.reverse();
+  items = sorted;
 }
 
 /* 2. Server‑side component (unchanged) */
@@ -49,13 +76,7 @@ function getItemProps(item) {
 }
 ---
 {items?.length ? (
-  <>
-    {/*
-      ────────────────────────────────────────────────
-      CLIENT‑SIDE ISLANDS
-      Each branch hard‑codes its hydration directive.
-      ────────────────────────────────────────────────
-    */}
+  <div>
     {client === "load" && (
       <ClientItemsTemplate
         client:load
@@ -92,11 +113,6 @@ function getItemProps(item) {
       />
     )}
 
-    {/*
-      ────────────────────────────────────────────────
-      STATIC‑ONLY PATH (no hydration)
-      ────────────────────────────────────────────────
-    */}
     {!client && (
       <ul class={itemsClass} {...rest}>
         {items.map((item) => (
@@ -111,7 +127,7 @@ function getItemProps(item) {
         ))}
       </ul>
     )}
-  </>
+  </div>
 ) : (
   <p>No items found.</p>
 )}

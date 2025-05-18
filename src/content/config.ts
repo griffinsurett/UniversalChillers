@@ -95,15 +95,16 @@ const baseSchema = ({ image }: { image: Function }) =>
     featuredImage: image().optional(),
     heading: headingSchema.optional(),
     description: descriptionSchema.optional(),
+    order: z.number().optional(),
     layout: z.string().optional(),
+    itemsLayout: z.string().optional(),
     keywords: z.array(z.string()).optional(),
-    robots: z.string().optional(), 
-    ogType: z.string().optional(),
+    ogType: z.string().optional(), // NEW: Include ogType in individual items too.
     hasPage: z.boolean().optional(),
     sections: z.array(sectionSchema).optional(),
     addToQuery: z.array(QueryItemSchema).optional(),
     tags: z.array(z.string()).optional(),
-    icon: image().optional(),
+    icon: z.string().optional(),
   });
 
 export const collections = {

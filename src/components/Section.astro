@@ -1,4 +1,5 @@
 ---
+// src/components/Section.astro
 /**
  * Section Component – Order of Importance for Heading and Description Values:
  *
@@ -13,11 +14,8 @@
  *    - If neither the Section props nor the meta file provide a value, automatically generate a default.
  *      For the heading, this fallback is the collection slug capitalized (e.g., "services" becomes "Services").
  *
- * Extended to support a background media object for background videos and images.
- * If a video is provided, it will be used as the background, with the background image as a poster/fallback.
- * Otherwise, the provided image is optimized using Astro's getImage.
+ * Extended to support sorting (sortBy, sortOrder) and manualOrder via frontmatter.
  */
-// src/components/Section.astro
 import Heading from "./Heading.jsx";
 import Button from "./Button.jsx";
 import ItemsTemplate from "./ItemsTemplate.astro";
@@ -56,6 +54,12 @@ const {
   buttonsPlacement: rawButtonsPlacement = "",
   childSlotClass: rawChildSlotClass = "",
   client: rawClient,
+
+  // NEW: grab raw sorting props
+  sortBy: rawSortBy,
+  sortOrder: rawSortOrder,
+  manualOrder: rawManualOrder,
+
   ...props
 } = Astro.props;
 
@@ -66,6 +70,12 @@ function mergeClass(...classes) {
 // 1️⃣ Load meta + defaults
 const meta = await resolveMetaProps(collectionName, queryType);
 const defaultSection = meta.defaultSection || {};
+
+// ─── Merge sorting props with defaultSection ───
+const sortBy = rawSortBy ?? defaultSection.sortBy ?? "date";
+const sortOrder = rawSortOrder ?? defaultSection.sortOrder ?? "desc";
+const manualOrder = rawManualOrder ?? defaultSection.manualOrder ?? false;
+// ────────────────────────────────────────────────
 
 // 2️⃣ Determine variant
 const variantName = rawVariant ?? defaultSection.variant;
@@ -161,9 +171,8 @@ const itemPlacementArray = Array.isArray(itemPlacement)
 const childPlacementArray = Array.isArray(childPlacement)
   ? childPlacement
   : childPlacement
-  ? [childPlacement]
-  : [];
-
+    ? [childPlacement]
+    : [];
 const buttonsPlacementArray = Array.isArray(buttonsPlacement)
   ? buttonsPlacement
   : buttonsPlacement
@@ -247,6 +256,9 @@ const itemsDefaultHasPage = meta.itemsHasPage ?? false;
                 ItemComponent={finalComponent}
                 HasPage={itemsDefaultHasPage}
                 pathname={Astro.url.pathname}
+                sortBy={sortBy}
+                sortOrder={sortOrder}
+                manualOrder={manualOrder}
                 client={finalClient}
               />
               <slot name="belowItemsInjection" />
@@ -273,6 +285,9 @@ const itemsDefaultHasPage = meta.itemsHasPage ?? false;
                 ItemComponent={finalComponent}
                 HasPage={itemsDefaultHasPage}
                 pathname={Astro.url.pathname}
+                sortBy={sortBy}
+                sortOrder={sortOrder}
+                manualOrder={manualOrder}
                 client={finalClient}
               />
               <slot name="belowItemsInjection" />
@@ -328,7 +343,7 @@ const itemsDefaultHasPage = meta.itemsHasPage ?? false;
                   <Button
                     key={idx}
                     href={props.link}
-                    className={props.class}
+                    class={props.class}
                     ariaLabel={props.text}
                     variant={props.variant}
                     showIcon={props.showIcon}
@@ -361,7 +376,9 @@ const itemsDefaultHasPage = meta.itemsHasPage ?? false;
               ItemComponent={finalComponent}
               HasPage={itemsDefaultHasPage}
               pathname={Astro.url.pathname}
-              client={finalClient}
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              manualOrder={manualOrder}
             />
             <slot name="belowItemsInjection" />
           </>
@@ -385,7 +402,7 @@ const itemsDefaultHasPage = meta.itemsHasPage ?? false;
                 <Button
                   key={idx}
                   href={props.link}
-                  className={props.class}
+                  class={props.class}
                   ariaLabel={props.text}
                   variant={props.variant}
                   showIcon={props.showIcon}
@@ -416,7 +433,7 @@ const itemsDefaultHasPage = meta.itemsHasPage ?? false;
                 <Button
                   key={idx}
                   href={props.link}
-                  className={props.class}
+                  class={props.class}
                   ariaLabel={props.text}
                   variant={props.variant}
                   showIcon={props.showIcon}
