@@ -159,12 +159,11 @@ const itemPlacementArray = Array.isArray(itemPlacement)
     ? [itemPlacement]
     : [];
 const childPlacementArray = Array.isArray(childPlacement)
-  ? rawChildPlacement
-    ? Array.isArray(rawChildPlacement)
-      ? rawChildPlacement
-      : [rawChildPlacement]
-    : []
+  ? childPlacement
+  : childPlacement
+  ? [childPlacement]
   : [];
+
 const buttonsPlacementArray = Array.isArray(buttonsPlacement)
   ? buttonsPlacement
   : buttonsPlacement
