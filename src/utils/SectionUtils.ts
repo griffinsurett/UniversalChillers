@@ -83,21 +83,6 @@ export function resolveDescription(
   return descObj.text || metaDescription;
 }
 
-// Merges the style-related props with defaults from meta.
-export function resolveSectionStyles(sectionProps: {
-  sectionClass?: string;
-  contentClass?: string;
-  itemsClass?: string;
-  buttonsSectionClass?: string;
-}, defaultSection: any) {
-  return {
-    finalSectionClass: sectionProps.sectionClass || defaultSection.sectionClass || "",
-    finalContentClass: sectionProps.contentClass || defaultSection.contentClass || "",
-    finalItemsClass: sectionProps.itemsClass || defaultSection.itemsClass || "",
-    finalButtonsSectionClass: sectionProps.buttonsSectionClass || defaultSection.buttonsSectionClass || "",
-  };
-}
-
 // Resolves the buttons array.
 export function resolveButtonsArray(
   buttons: any,
