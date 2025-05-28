@@ -11,7 +11,7 @@ export default function AccordionItem({
   const toggle = () => setOpen((prev) => !prev);
 
   return (
-    <li className={itemClass}>
+    <article className={itemClass}>
       {/* Header: clicking toggles open/closed */}
       <div
         onClick={toggle}
@@ -39,6 +39,6 @@ export default function AccordionItem({
       >
         {item.data.description ?? item.body}
       </div>
-    </li>
+    </article>
   );
 }

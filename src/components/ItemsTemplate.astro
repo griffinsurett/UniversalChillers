@@ -15,14 +15,14 @@ const {
   HasPage,
   pathname   = "",
   client,                   // "load" | "idle" | "visible" | undefined
-  sortBy = "date",        // "date" | "title" | "slug" | "id"
-  sortOrder = "desc",     // "asc" | "desc"
-  manualOrder = false,    // if true, use item.data.order exclusively
-
+  sortBy = "date",          // "date" | "title" | "slug" | "id"
+  sortOrder = "desc",       // "asc" | "desc"
+  manualOrder = false,      // if true, use item.data.order exclusively
+  slider = { enabled: false },
   ...rest
 } = Astro.props;
 
-/* 1. Build‑time data  */
+/* 1. Build‑time data */
 let items = initialItems || [];
 if (!initialItems && collection && query) {
   items = await queryItems(query, collection, pathname);
@@ -40,7 +40,6 @@ if (manualOrder) {
   } else if (sortBy === "slug" || sortBy === "id") {
     sorted.sort((a, b) => String(a.slug).localeCompare(String(b.slug)));
   } else {
-    // default: date-based; fallback to generation timestamp if available
     sorted.sort((a, b) => {
       const da = new Date(a.data.pubDate || a.data.date || a._generatedAt || 0);
       const db = new Date(b.data.pubDate || b.data.date || b._generatedAt || 0);
@@ -51,32 +50,40 @@ if (manualOrder) {
   items = sorted;
 }
 
-/* 2. Server‑side component (unchanged) */
-const isObjComponent = typeof ItemComponent === "object" && ItemComponent !== null;
-const RenderComponent = isObjComponent
-  ? ItemComponent.component
-  : ItemComponent || Card;
+/* 2. Server‑side dynamic import of your component */
+import { basename } from "path";
+
+let RenderComponent;
+if (typeof ItemComponent === "string") {
+  try {
+    // try .jsx first
+    const mod = await import(`./LoopComponents/${ItemComponent}.jsx`);
+    RenderComponent = mod.default;
+  } catch {
+    // fallback to .astro
+    const mod = await import(`./LoopComponents/${ItemComponent}.astro`);
+    RenderComponent = mod.default;
+  }
+} else if (typeof ItemComponent === "object" && ItemComponent !== null) {
+  RenderComponent = ItemComponent.component;
+} else {
+  RenderComponent = ItemComponent || Card;
+}
 
 /* 3. Serialisable key sent to the island */
 let componentKey = "Card";
 if (typeof ItemComponent === "string") {
   componentKey = ItemComponent;
-} else if (isObjComponent) {
+} else if (typeof ItemComponent === "object" && ItemComponent !== null) {
   const comp = ItemComponent.component;
   componentKey = typeof comp === "string" ? comp : comp?.name || "Card";
 } else if (typeof ItemComponent === "function") {
   componentKey = ItemComponent.name || "Card";
 }
-
-/* helper for { component, props } pattern */
-function getItemProps(item) {
-  if (!isObjComponent) return {};
-  const p = ItemComponent.props;
-  return typeof p === "function" ? p(item) : p || {};
-}
 ---
-{items?.length ? (
-  <div>
+
+{items.length ? (
+  <>
     {client === "load" && (
       <ClientItemsTemplate
         client:load
@@ -86,6 +93,8 @@ function getItemProps(item) {
         itemClass={itemClass}
         collectionName={collection}
         HasPage={HasPage}
+        slider={slider}
+        {...rest}
       />
     )}
 
@@ -98,6 +107,8 @@ function getItemProps(item) {
         itemClass={itemClass}
         collectionName={collection}
         HasPage={HasPage}
+        slider={slider}
+        {...rest}
       />
     )}
 
@@ -110,24 +121,26 @@ function getItemProps(item) {
         itemClass={itemClass}
         collectionName={collection}
         HasPage={HasPage}
+        slider={slider}
+        {...rest}
       />
     )}
 
     {!client && (
       <ul class={itemsClass} {...rest}>
         {items.map((item) => (
-          <RenderComponent
-            key={item.slug}
-            item={item}
-            itemClass={itemClass}
-            collectionName={collection}
-            HasPage={HasPage}
-            {...getItemProps(item)}
-          />
+         <li key={item.slug}>
+            <RenderComponent
+              item={item}
+              class={itemClass}
+              collectionName={collection}
+              HasPage={HasPage}
+            />
+          </li>
         ))}
       </ul>
     )}
-  </div>
+  </>
 ) : (
   <p>No items found.</p>
 )}

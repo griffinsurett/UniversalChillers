@@ -58,10 +58,21 @@ const sectionSchema = z.object({
   childPlacement: z.union([z.string(), z.array(z.string())]).optional(),
   buttonsPlacement: z.union([z.string(), z.array(z.string())]).optional(),
   childSlotClass: z.string().optional(),
-  client: z.enum(["load", "idle", "visible"]).optional(),
   manualOrder: z.boolean().optional(),
   sortBy: z.enum(["date", "title", "slug", "id"]).optional(),
   sortOrder: z.enum(["asc", "desc"]).optional(),
+  client: z.enum(["load", "idle", "visible"]).optional(),
+  slider: z
+    .object({
+      enabled: z.boolean(),
+      autoplay: z.boolean().optional(),
+      autoplaySpeed: z.number().optional(),
+      infinite: z.boolean().optional(),
+      slidesToShow: z.number().optional(),
+      slidesToScroll: z.number().optional(),
+      arrows: z.boolean().optional(),
+    })
+    .optional(),
 });
 
 export const QueryItemSchema = z.object({

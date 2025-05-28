@@ -54,8 +54,7 @@ const {
   buttonsPlacement: rawButtonsPlacement = "",
   childSlotClass: rawChildSlotClass = "",
   client: rawClient,
-
-  // NEW: grab raw sorting props
+  slider: rawSlider,
   sortBy: rawSortBy,
   sortOrder: rawSortOrder,
   manualOrder: rawManualOrder,
@@ -205,6 +204,15 @@ if (isDynamic) {
   if (items.length === 0) return;
 }
 
+// 1️⃣1️⃣ Slider merge from metadata
+// Use the slider from props if provided, otherwise fall back to defaultSection.slider, or finally `{ enabled: false }`.
+const sliderConfig =
+  rawSlider != null
+    ? rawSlider
+    : defaultSection.slider != null
+      ? defaultSection.slider
+      : { enabled: false };
+
 // 1️⃣1️⃣ Buttons array
 const effectiveButtons =
   buttons && buttons.length > 0 ? buttons : defaultSection.buttons;
@@ -260,6 +268,7 @@ const itemsDefaultHasPage = meta.itemsHasPage ?? false;
                 sortOrder={sortOrder}
                 manualOrder={manualOrder}
                 client={finalClient}
+                slider={sliderConfig}
               />
               <slot name="belowItemsInjection" />
             </>
@@ -289,6 +298,7 @@ const itemsDefaultHasPage = meta.itemsHasPage ?? false;
                 sortOrder={sortOrder}
                 manualOrder={manualOrder}
                 client={finalClient}
+                slider={sliderConfig}
               />
               <slot name="belowItemsInjection" />
             </>
@@ -380,6 +390,7 @@ const itemsDefaultHasPage = meta.itemsHasPage ?? false;
               sortOrder={sortOrder}
               manualOrder={manualOrder}
               client={finalClient}
+              slider={sliderConfig}
             />
             <slot name="belowItemsInjection" />
           </>
