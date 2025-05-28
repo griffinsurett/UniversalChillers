@@ -65,6 +65,7 @@ const sectionSchema = z.object({
   slider: z
     .object({
       enabled: z.boolean(),
+      hideScrollbar: z.boolean().optional(), 
       autoplay: z.boolean().optional(),
       autoplaySpeed: z.number().optional(),
       infinite: z.boolean().optional(),
@@ -108,16 +109,21 @@ const baseSchema = ({ image }: { image: Function }) =>
     featuredImage: image().optional(),
     heading: headingSchema.optional(),
     description: descriptionSchema.optional(),
-    order: z.number().optional(),
     layout: z.string().optional(),
-    itemsLayout: z.string().optional(),
     keywords: z.array(z.string()).optional(),
-    ogType: z.string().optional(), // NEW: Include ogType in individual items too.
+    robots: z.string().optional(),
+    ogType: z.string().optional(),
     hasPage: z.boolean().optional(),
     sections: z.array(sectionSchema).optional(),
     addToQuery: z.array(QueryItemSchema).optional(),
     tags: z.array(z.string()).optional(),
-    icon: z.string().optional(),
+    icon: image().optional(),
+    heroMedia: z
+      .object({
+        image: image().optional(),
+        video: z.string().optional(),
+      })
+      .optional(),
   });
 
 export const collections = {

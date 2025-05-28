@@ -5,11 +5,11 @@ import Heading from "../Heading";
 /**
  * A list item with an icon, colored icon background, heading, and description.
  */
-export default function ListItem({ item, collectionName, HasPage }) {
+export default function ListItem({ item, itemClass, collectionName, HasPage }) {
   const effectiveHasPage =
     item.data.hasPage !== undefined ? item.data.hasPage : HasPage;
   return (
-    <article className={`flex items-start space-x-[var(--spacing-md)]`}>
+    <article className={`flex items-start space-x-[var(--spacing-md)] ${itemClass}`}>
       <div className={`flex-shrink-0 p-[var(--spacing-sm)] rounded-full`}>
         {item.data.icon && (
           <img

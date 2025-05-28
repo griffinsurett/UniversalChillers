@@ -6,11 +6,11 @@ import Button from "../Button.jsx";
  * otherwise the default provided via Section meta) to decide
  * whether to render the "View More" button.
  */
-export default function Card({ item, collectionName, HasPage }) {
+export default function Card({ item, itemClass, collectionName, HasPage }) {
   const effectiveHasPage =
     item.data.hasPage !== undefined ? item.data.hasPage : HasPage;
   return (
-    <article className="card p-[var(--spacing-sm)]">
+    <article className={`card p-[var(--spacing-sm)] ${itemClass}`}>
       <h3 className="mb-[var(--spacing-sm)] text-[var(--color-text)]">{item.data.title}</h3>
       <p className="mb-[var(--spacing-sm)]">{item.data.description || item.body}</p>
       {effectiveHasPage && (
