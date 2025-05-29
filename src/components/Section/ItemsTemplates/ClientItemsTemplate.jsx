@@ -34,13 +34,13 @@ export default function ClientItemsTemplate({
 
   // ─── Dynamic import of the correct component ───
   // Vite will statically include every file under ./LoopComponents
-  const modules = import.meta.glob("./LoopComponents/*.{jsx,astro}");
+const modules = import.meta.glob("../../LoopComponents/*.{jsx,astro}");
   const Comp = useMemo(() => {
-    const jsxPath = `./LoopComponents/${componentKey}.jsx`;
+const jsxPath = `../../LoopComponents/${componentKey}.jsx`;
     if (modules[jsxPath]) {
       return lazy(modules[jsxPath]);
     }
-    const astroPath = `./LoopComponents/${componentKey}.astro`;
+const astroPath = `../../LoopComponents/${componentKey}.astro`;
     if (modules[astroPath]) {
       return lazy(modules[astroPath]);
     }

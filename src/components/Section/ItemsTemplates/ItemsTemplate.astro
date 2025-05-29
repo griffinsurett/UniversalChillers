@@ -1,6 +1,6 @@
 ---
 /* ─────────── src/components/ItemsTemplate.astro ─────────── */
-import Card from "./LoopComponents/Card.jsx";
+import Card from "@/components/LoopComponents/Card";
 import { queryItems } from "@/utils/CollectionQueryUtils.js";
 import ClientItemsTemplate from "./ClientItemsTemplate.jsx";
 
@@ -59,11 +59,11 @@ let RenderComponent;
 if (typeof ItemComponent === "string") {
   try {
     // try .jsx first
-    const mod = await import(`./LoopComponents/${ItemComponent}.jsx`);
+    const mod = await import(`../../LoopComponents/${ItemComponent}.jsx`);
     RenderComponent = mod.default;
   } catch {
     // fallback to .astro
-    const mod = await import(`./LoopComponents/${ItemComponent}.astro`);
+    const mod = await import(`../../LoopComponents/${ItemComponent}.astro`);
     RenderComponent = mod.default;
   }
 } else if (typeof ItemComponent === "object" && ItemComponent !== null) {
