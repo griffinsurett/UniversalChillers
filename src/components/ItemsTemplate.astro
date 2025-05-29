@@ -9,15 +9,15 @@ const {
   collection,
   query,
   items: initialItems,
-  ItemComponent,            // function | string | { component, props }
+  ItemComponent, // function | string | { component, props }
   itemsClass = "",
-  itemClass  = "",
+  itemClass = "",
   HasPage,
-  pathname   = "",
-  client,                   // "load" | "idle" | "visible" | undefined
-  sortBy = "date",          // "date" | "title" | "slug" | "id"
-  sortOrder = "desc",       // "asc" | "desc"
-  manualOrder = false,      // if true, use item.data.order exclusively
+  pathname = "",
+  client, // "load" | "idle" | "visible" | undefined
+  sortBy = "date", // "date" | "title" | "slug" | "id"
+  sortOrder = "desc", // "asc" | "desc"
+  manualOrder = false, // if true, use item.data.order exclusively
   slider = { enabled: false },
   ...rest
 } = Astro.props;
@@ -35,7 +35,9 @@ if (manualOrder) {
   const sorted = [...items];
   if (sortBy === "title") {
     sorted.sort((a, b) =>
-      String(a.data.title || a.slug).localeCompare(String(b.data.title || b.slug))
+      String(a.data.title || a.slug).localeCompare(
+        String(b.data.title || b.slug)
+      )
     );
   } else if (sortBy === "slug" || sortBy === "id") {
     sorted.sort((a, b) => String(a.slug).localeCompare(String(b.slug)));
@@ -82,65 +84,68 @@ if (typeof ItemComponent === "string") {
 }
 ---
 
-{items.length ? (
-  <>
-    {client === "load" && (
-      <ClientItemsTemplate
-        client:load
-        items={items}
-        componentKey={componentKey}
-        itemsClass={itemsClass}
-        itemClass={itemClass}
-        collectionName={collection}
-        HasPage={HasPage}
-        slider={slider}
-        {...rest}
-      />
-    )}
+{
+  items.length ? (
+    <>
+      {client === "load" && (
+        <ClientItemsTemplate
+          client:load
+          items={items}
+          componentKey={componentKey}
+          itemsClass={itemsClass}
+          itemClass={itemClass}
+          collectionName={collection}
+          HasPage={HasPage}
+          slider={slider}
+          {...rest}
+        />
+      )}
 
-    {client === "visible" && (
-      <ClientItemsTemplate
-        client:visible
-        items={items}
-        componentKey={componentKey}
-        itemsClass={itemsClass}
-        itemClass={itemClass}
-        collectionName={collection}
-        HasPage={HasPage}
-        slider={slider}
-        {...rest}
-      />
-    )}
+      {client === "visible" && (
+        <ClientItemsTemplate
+          client:visible
+          items={items}
+          componentKey={componentKey}
+          itemsClass={itemsClass}
+          itemClass={itemClass}
+          collectionName={collection}
+          HasPage={HasPage}
+          slider={slider}
+          {...rest}
+        />
+      )}
 
-    {client === "idle" && (
-      <ClientItemsTemplate
-        client:idle
-        items={items}
-        componentKey={componentKey}
-        itemsClass={itemsClass}
-        itemClass={itemClass}
-        collectionName={collection}
-        HasPage={HasPage}
-        slider={slider}
-        {...rest}
-      />
-    )}
+      {client === "idle" && (
+        <ClientItemsTemplate
+          client:idle
+          items={items}
+          componentKey={componentKey}
+          itemsClass={itemsClass}
+          itemClass={itemClass}
+          collectionName={collection}
+          HasPage={HasPage}
+          slider={slider}
+          {...rest}
+        />
+      )}
 
-    {!client && (
-      <ul class={itemsClass} {...rest}>
-        {items.map((item) => (
-         <li key={item.slug}>
-            <RenderComponent
-              item={item}
-              class={itemClass}
-              collectionName={collection}
-              HasPage={HasPage}
-            />
-          </li>
-        ))}
-      </ul>
-    )}
-  </>
-) : (
-  <p>No items found.</p>
-)}
+      {!client && (
+        <ul class={itemsClass} {...rest}>
+          {items.map((item) => (
+            <li class="contents">
+              <RenderComponent
+                key={item.slug}
+                item={item}
+                class={itemClass}
+                collectionName={collection}
+                HasPage={HasPage}
+              />
+            </li>
+          ))}
+        </ul>
+      )}
+    </>
+  ) : (
+    <p>No items found.</p>
+  )
+}

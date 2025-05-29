@@ -49,6 +49,6 @@ Feel free to check [our documentation](https://docs.astro.build) or jump into ou
 # Greactstro
 
 # start by installing 
-npm install astro@latest react@latest react-dom@latest @astrojs/mdx@latest @astrojs/react@latest tailwindcss@latest @tailwindcss/vite@latest @types/react@latest @types/react-dom@latest
+npm install astro@latest react@latest react-dom@latest @astrojs/mdx@latest @astrojs/react@latest tailwindcss@latest @tailwindcss/vite@latest @types/react@latest @types/react-dom@latest dotenv
 
 npx astro dev --host

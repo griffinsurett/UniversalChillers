@@ -72,7 +72,7 @@ export default function ClientItemsTemplate({
   ) : (
     <ul className={itemsClass}>
       {sorted.map((item) => (
-      <li key={item.slug}>
+      <li className="contents">
         <Comp
           item={item}
           collectionName={collectionName}
