@@ -4,11 +4,16 @@ import SecondaryHero from "@/components/Section/StaticSections/SecondaryHero.ast
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { SiteData, ContactData } from "@/content/SiteData";
 import { formatPhoneNumber } from "@/utils/ContentUtils";
+import Section from "@/components/Section/Section.astro";
 
 const effectiveDate = "May 14, 2025";
 ---
 <BaseLayout title="Cookie Policy" description={`How ${SiteData.title} uses cookies.`}>
-  <SecondaryHero title="Cookie Policy" />
+  <Section
+  variant="secondaryHero"
+  heading={[{ text: "Cookie Policy", tagName: "h1", class: "h1 text-bg" }]}
+  description=""
+/>
 
   <section class="prose mx-auto py-[var(--spacing-lg)] px-[var(--spacing-lg)] w-9/10 lg:w-8/10">
     <p>
