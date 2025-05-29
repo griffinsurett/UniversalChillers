@@ -1,0 +1,39 @@
+---
+/*
+  Renders a list of menu items recursively.
+  Uses the menuItem override object for main menu items.
+*/
+import { normalizePath } from "@/utils/ContentUtils";
+
+const { 
+  items = [], 
+  class: extraClass = '', 
+  listClass = '', // NEW prop for ul classes
+  menuItem,         // object: { component, class }
+  submenuItem,      // object: { component, class }
+  isHierarchical = true, 
+  breakpoint
+} = Astro.props;
+
+// Normalize current path for active comparison.
+const currentPath = normalizePath(Astro.url.pathname);
+
+import DefaultMenuItem from './MenuItem.astro';
+const RenderComponent = menuItem && menuItem.component ? menuItem.component : DefaultMenuItem;
+---
+<ul class={`list-none m-0 p-0 ${listClass} ${extraClass}`}>
+  {items.map((item) => {
+    const normalizedSlug = normalizePath(item.slug);
+    return (
+      <RenderComponent 
+        item={item} 
+        depth={0} 
+        menuItem={menuItem}
+        submenuItem={submenuItem}
+        isHierarchical={isHierarchical}
+        breakpoint={breakpoint}
+        active={currentPath === normalizedSlug}
+      />
+    );
+  })}
+</ul>

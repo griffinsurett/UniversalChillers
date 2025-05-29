@@ -1,0 +1,41 @@
+---
+// src/components/Video.astro
+import { getImage } from 'astro:assets';
+
+const {
+  /** URL or import for your video file */
+  src: videoSrc,
+  /** URL or import for your poster image */
+  poster: posterSrc,
+  /** Optional image‐transform options for getImage */
+  posterOptions = {
+    width: 1280,
+    format: 'webp',
+    quality: 50,
+    placeholder: 'blur'
+  },
+  /** Any other <video> props: controls, muted, autoplay, loop, class, etc. */
+  ...videoProps
+} = Astro.props;
+
+// Optimize the poster if one was provided
+let optimizedPoster;
+if (posterSrc) {
+  optimizedPoster = await getImage({ src: posterSrc }, posterOptions);
+}
+---
+
+<video
+  src={videoSrc}
+  poster={optimizedPoster?.src || posterSrc}
+  {...videoProps}
+  playsinline
+  preload="metadata"
+  class="aspect-video"
+>
+  <source src={videoSrc} type="video/mp4" />
+  <!-- Fallback for very old browsers -->
+  <p>Your browser doesn’t support HTML5 video. 
+    <a href={videoSrc}>Download the video</a>.
+  </p>
+</video>

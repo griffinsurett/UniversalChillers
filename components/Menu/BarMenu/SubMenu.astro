@@ -1,0 +1,41 @@
+---
+/*
+  Renders a submenu for a menu item.
+  It first checks for submenuItem; if not provided, falls back to menuItem.
+*/
+import { normalizePath } from "@/utils/ContentUtils";
+
+const { 
+  items = [], 
+  depth = 1, 
+  menuItem,      // main menu configuration (fallback)
+  submenuItem,   // submenu configuration
+  isHierarchical = true, 
+  breakpoint
+} = Astro.props;
+
+import DefaultMenuItem from './MenuItem.astro';
+const RenderComponent = submenuItem && submenuItem.component 
+  ? submenuItem.component 
+  : (menuItem && menuItem.component ? menuItem.component : DefaultMenuItem);
+const finalSubmenuClass = submenuItem && submenuItem.class ? submenuItem.class : (menuItem && menuItem.class ? menuItem.class : "");
+
+// Normalize current path.
+const currentPath = normalizePath(Astro.url.pathname);
+---
+<ul class={`absolute ${depth === 1 ? 'top-full left-0' : 'top-0 left-full'} ${finalSubmenuClass} shadow-lg z-[250] list-none min-w-max w-auto bg-bg hidden transition duration-200`}>
+  {items.map((item) => {
+    const normalizedSlug = normalizePath(item.slug);
+    return (
+      <RenderComponent 
+        item={item} 
+        depth={depth} 
+        menuItem={menuItem}
+        submenuItem={submenuItem}
+        isHierarchical={isHierarchical}
+        breakpoint={breakpoint}
+        active={currentPath === normalizedSlug}
+      />
+    );
+  })}
+</ul>

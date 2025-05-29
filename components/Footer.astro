@@ -1,0 +1,16 @@
+---
+import { buildMenuQueries } from "@/utils/ArrayQueryUtils";
+import Menu from "./Menu/BarMenu/NavMenu.astro";
+
+const FooterMenu = [
+  { id: "privacy", label: "Privacy Policy", slug: "/privacy-policy", weight: 10 },
+  { id: "cookie", label: "Cookie Policy", slug: "/cookie-policy", weight: 20 },
+  { id: "contact", label: "Contact Us", slug: "/contact-us", weight: 30 },
+];
+---
+<footer class="p-[var(--spacing-md)]">
+  <Menu items={await buildMenuQueries({ FooterMenu })} />
+  <p class="mt-[var(--spacing-md)] text-[var(--font-size-sm)]">
+    &copy; {new Date().getFullYear()} Cleanomatic. All rights reserved.
+  </p>
+</footer>

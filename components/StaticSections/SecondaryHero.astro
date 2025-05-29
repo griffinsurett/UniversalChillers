@@ -1,0 +1,20 @@
+---
+// src/components/StaticSections/SecondaryHero.astro
+import Section from "../Section.astro";
+const { title } = Astro.props; // The hero title passed in as a prop
+import HeroBg from "@/assets/background.svg";
+---
+<Section
+  backgroundMedia={{
+    image: {
+      src: HeroBg,
+      imageClass: "filter brightness-50 bg-cover bg-center xl:bg-fixed",
+    },
+    overlayClass: "bg-black opacity-50",
+  }}
+  heading={[{ text: title, tagName: "h1", class: "h1 text-bg" }]}
+  description=""
+  sectionClass="flex items-center justify-center"
+  contentClass="container mx-auto text-center"
+>
+</Section>
