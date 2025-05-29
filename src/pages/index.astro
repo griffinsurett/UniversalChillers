@@ -6,7 +6,15 @@ import PrimaryHero from "@/components/Section/StaticSections/PrimaryHero.astro";
 ---
 <ExtendedLayout title="Welcome to Astro!" description="Your gateway to amazing projects.">
   <!-- Hero Section -->
-  <PrimaryHero title="Welcome to Astro!" />
+<Section
+  variant="primaryHero"
+  heading={{ text: "Homepage", tagName: "h1" }}
+  description="Welcome to Astro!"
+  buttons={[
+    { text: "See Our CTA", link: "/contact-us", variant: "secondary" },
+    { text: "Learn More About Us", link: "/about-us" },
+  ]}
+/>
 
   <!-- Services -->
   <Section

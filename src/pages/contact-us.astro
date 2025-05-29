@@ -1,12 +1,18 @@
 ---
 // src/pages/contact-us.astro
-import SecondaryHero from "@/components/StaticSections/SecondaryHero.astro";
+import SecondaryHero from "@/components/Section/StaticSections/SecondaryHero.astro";
 import ExtendedLayout from "../layouts/ExtendedLayout.astro";
 import { ContactData } from "@/content/SiteData";
-import ContactForm from "@/components/Forms/ContactForm.astro";
+import ContactForm from "@/components/Form/Forms/ContactForm.astro";
+import Section from "@/components/Section/Section.astro";
 ---
 <ExtendedLayout title="Contact Us" description="Get in touch with Cleanomatic">
-  <SecondaryHero title="Contact Us" description="Get in touch with Cleanomatic" />
+  <Section
+  variant="secondaryHero"
+  heading={[{ text: "Contact Us", tagName: "h1", class: "h1 text-bg" }]}
+  description="Get in touch with Cleanomatic"
+/>
+
   <section class="p-[var(--spacing-lg)]">
     <h1>Contact Us</h1>
     <p>
