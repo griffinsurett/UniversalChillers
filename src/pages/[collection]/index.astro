@@ -21,11 +21,10 @@ const { collection } = Astro.params;
 const meta = await getCollectionMeta(collection).catch(() => ({}));
 
 // 2) Choose layout relative spec
-const spec = meta.layout || "../../layouts/ExtendedLayout.astro";
+const spec = meta.layout || "../../layouts/PageLayouts/CollectionsLayout.astro";
 
 // 3) Glob‑register layouts
-const layoutImporters = import.meta.glob("../../layouts/*.astro");
-
+const layoutImporters = import.meta.glob("../../layouts/**/*.astro");
 // 4) Load the selected layout
 const importer = layoutImporters[spec];
 if (!importer) {
@@ -45,7 +44,7 @@ const sections = meta.sections?.length
       },
     ];
 
-    console.log("robots", meta.robots);
+console.log("robots", meta.robots);
 ---
 
 <Layout
