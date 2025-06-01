@@ -1,5 +1,4 @@
 // src/components/ListItem.jsx
-import React from "react";
 import Heading from "../Heading";
 
 /**
