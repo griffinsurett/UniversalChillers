@@ -1,7 +1,7 @@
 // src/utils/SectionUtils.ts
 import { getCollectionMeta } from "./FetchMeta";
 import { capitalize } from "./ContentUtils";
-import { queryItems } from "./CollectionQueryUtils.server";
+import { queryItems } from "./CollectionQueryUtils";
 
 /**
  * Generate a unique section ID of form:
