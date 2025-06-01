@@ -1,21 +1,36 @@
 ---
-// src/components/LoopComponents/MenuItem.astro
-
-// (NO imports from astro:content or CollectionQueryUtils here)
+import { getCollection } from "astro:content";
+import { normalizeRef } from "@/utils/ContentUtils";
+// import SubMenu from "@/components/Submenu.astro";
 
 const { item, itemClass = "" } = Astro.props;
-import SubMenu from "@/components/SubMenu.astro";
 
-// We no longer compute `hasChildren` here.  Instead, we always render <SubMenu>,
-//  letting it be empty when there are no children.
+// Derive the last slug segment from item.data.link (e.g. "/about-us/services" → "services")
+const thisSlug =
+  item.data.link
+    .split("/")
+    .filter(Boolean) // ["about-us","services"]
+    .pop() || "";
+
+// 1) Fetch all menuItems
+const allMenuItems = await getCollection("menuItems");
+
+// 2) Normalize our current slug
+const normalizedThis = normalizeRef(thisSlug);
+
+// 3) Filter for any menuItem whose `parent` matches `normalizedThis`
+const childItems = allMenuItems.filter((child) => {
+  if (!child.data.parent) return false;
+  return normalizeRef(child.data.parent) === normalizedThis;
+});
+
+const hasChildren = childItems.length > 0;
 ---
 
-<li class={`relative menu-item ${itemClass}`}>
+<div class={`relative menu-item ${itemClass}`}>
   <a
     href={item.data.link}
-    class="flex items-center space-x-[var(--spacing-xs)]
-           text-md text-primary hover:text-secondary
-           transition-colors duration-200 font-bold"
+    class="flex items-center space-x-[var(--spacing-xs)] text-md text-primary hover:text-secondary transition-colors duration-200 font-bold"
     rel="noopener noreferrer"
   >
     {item.data.icon && (
@@ -27,15 +42,16 @@ import SubMenu from "@/components/SubMenu.astro";
     )}
     <span>{item.data.title}</span>
 
-    <!-- Always show the “▼” arrow.  If SubMenu renders no children, you’ll get no dropdown. -->
-    <span
-      class="submenu-arrow ml-1 transform transition-transform duration-200 group-hover:rotate-180"
-      aria-hidden="true"
-    >
-      ▼
-    </span>
+    {hasChildren && (
+      <span
+        class="submenu-arrow ml-1 transform transition-transform duration-200 group-hover:rotate-180"
+        aria-hidden="true"
+      >
+        ▼
+      </span>
+    )}
   </a>
 
-  <!-- SubMenu is just an <ItemsTemplate query="children" …> under the hood -->
-  <SubMenu parentLink={item.data.link} />
-</li>
+  <!-- Delegate all submenu rendering to SubMenu. -->
+  <!-- {hasChildren && <SubMenu parentLink={item.data.link} />} -->
+</div>
