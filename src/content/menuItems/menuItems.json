@@ -54,5 +54,13 @@
     "weight": 3,
     "openInNewTab": false,
     "parent": "services"
+  },
+  {
+    "id": "book",
+    "title": "Book",
+    "link": "/book",
+    "weight": 3,
+    "openInNewTab": false,
+    "parent": "blog"
   }
 ]
