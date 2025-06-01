@@ -134,7 +134,7 @@ if (typeof ItemComponent === "string") {
           {items.map((item) => (
             <li class="contents">
               <RenderComponent
-                key={item.slug}
+                key={item.slug || item.data.slug || item.id}
                 item={item}
                 class={itemClass}
                 collectionName={collection}
@@ -146,6 +146,10 @@ if (typeof ItemComponent === "string") {
       )}
     </>
   ) : (
-    <p>No items found.</p>
+    /* Log a warning in the server console, but render nothing to the browser: */
+    (() => {
+      console.warn(`ItemsTemplate: no items found for collection="${collection}" query="${query}" pathname="${pathname}"`);
+      return "";
+    })()
   )
 }

@@ -82,6 +82,19 @@ p {
 .hide-scrollbar::-webkit-scrollbar {
   display: none;             /* Chrome, Safari, Opera */
 }
+
+/* hierarchical menu css */
+/* 1) Show only the direct .submenu child of a hovered .menu-item */
+.menu-item:hover > .submenu {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* 2) Rotate only the arrow inside the hovered <a> (direct child) */
+.menu-item:hover > a > .submenu-arrow {
+  transform: rotate(180deg);
+}
+
 }
 
 @keyframes fade-in-up {

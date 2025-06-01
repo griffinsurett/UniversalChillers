@@ -1,0 +1,58 @@
+[
+  {
+    "id": "home",
+    "title": "Home",
+    "link": "/",
+    "weight": 0,
+    "openInNewTab": false,
+    "menu": "mainMenu"
+  },
+  {
+    "id": "about-us",
+    "title": "About Us",
+    "link": "/about-us",
+    "weight": 1,
+    "openInNewTab": false,
+    "menu": "mainMenu"
+  },
+  {
+    "id": "privacy-policy",
+    "title": "Privacy Policy",
+    "link": "/privacy-policy",
+    "weight": 0,
+    "openInNewTab": false,
+    "menu": "footerMenu"
+  },
+  {
+    "id": "cookie-policy",
+    "title": "Cookie Policy",
+    "link": "/cookie-policy",
+    "weight": 1,
+    "openInNewTab": false,
+    "menu": "footerMenu"
+  },
+  {
+    "id": "contact-us",
+    "title": "Contact Us",
+    "link": "/contact-us",
+    "weight": 2,
+    "openInNewTab": false,
+    "menu": ["mainMenu", "footerMenu"]
+  },
+   {
+    "id": "services",
+    "title": "Services",
+    "link": "services",
+    "parent": "about-us",
+    "weight": 2,
+    "openInNewTab": false
+  },
+  {
+    "id": "blog",
+    "title": "Blog",
+    "link": "/blog",
+    "weight": 3,
+    "openInNewTab": false,
+    "parent": "services"
+  }
+]

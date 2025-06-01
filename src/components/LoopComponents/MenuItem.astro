@@ -1,0 +1,51 @@
+---
+// src/components/LoopComponents/MenuItem.astro
+
+import SubMenu from "@/components/SubMenu.astro";
+import { queryItems } from "@/utils/CollectionQueryUtils.js";
+
+const { item, itemClass = "" } = Astro.props;
+
+// DEBUG: inspect what Astro loaded
+console.log("MenuItem data =", JSON.stringify(item.data, null, 2));
+
+// Derive the last slug segment from item.data.link (e.g. "/about-us/services" → "services")
+const thisSlug =
+  item.data.link
+    .split("/")
+    .filter(Boolean) // ["about-us","services"]
+    .pop() || "";
+
+// Fetch any children under thisSlug; if length > 0, we know there’s a submenu
+const childItems = await queryItems("children", "menuItems", thisSlug);
+const hasChildren = childItems.length > 0;
+---
+
+<div class={`relative menu-item ${itemClass}`}>
+  <a
+    href={item.data.link}
+    class="flex items-center space-x-[var(--spacing-xs)] text-md text-primary hover:text-secondary transition-colors duration-200 font-bold"
+    rel="noopener noreferrer"
+  >
+    {item.data.icon ? (
+      <img
+        src={item.data.icon}
+        alt=""
+        class="w-5 h-5 bg-[var(--color-accent)] rounded-full"
+      />
+    ) : null}
+    <span>{item.data.title}</span>
+
+    {hasChildren && (
+      <span
+        class="submenu-arrow ml-1 transform transition-transform duration-200 group-hover:rotate-180"
+        aria-hidden="true"
+      >
+        ▼
+      </span>
+    )}
+  </a>
+
+  <!-- Delegate all submenu rendering to SubMenu. -->
+  {hasChildren && <SubMenu parentLink={item.data.link} />}
+</div>

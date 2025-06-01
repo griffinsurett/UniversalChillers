@@ -1,5 +1,5 @@
 ---
-// collection/[slug].astro
+// src/pages/[collection]/[slug].astro
 import { getCollection } from "astro:content";
 import { Image } from "astro:assets";
 import Heading from "@/components/Heading.jsx";
@@ -8,17 +8,25 @@ import { collections } from "@/content/config";
 import { getCollectionMeta } from "@/utils/FetchMeta";
 import { getCanonicalSlug } from "@/utils/ContentUtils";
 
-// 1) Build static paths (unchanged)…
+// 1) Build static paths, skipping "menus" and "menuItems"
 export async function getStaticPaths() {
   const names = Object.keys(collections);
-  const paths = [];
+  const paths: Array<{ params: { collection: string; slug: string }; props: any }> = [];
+
   for (const coll of names) {
+    // Skip the built‑in menus and menuItems collections
+    if (coll === "menus" || coll === "menuItems") {
+      continue;
+    }
+
     const meta = await getCollectionMeta(coll).catch(() => ({}));
     const entries = await getCollection(coll);
     const { itemsHasPage = true } = meta;
+
     entries.forEach((e) => {
       if (e.data.hasPage === undefined) e.data.hasPage = itemsHasPage;
     });
+
     entries
       .filter((e) => e.data.hasPage)
       .forEach((entry) => {
@@ -28,6 +36,7 @@ export async function getStaticPaths() {
         });
       });
   }
+
   return paths;
 }
 
@@ -35,7 +44,7 @@ const { collection, entry } = Astro.props;
 const { data, body } = entry;
 const meta = await getCollectionMeta(collection).catch(() => ({}));
 
-// 2) Default specifier (must match the glob keys)
+// 2) Default layout specifier (must match the glob keys)
 const spec =
   meta.itemsLayout || meta.layout || "../../layouts/ExtendedLayout.astro";
 
@@ -50,16 +59,14 @@ if (!importer) {
 const { default: Layout } = await importer();
 
 // 5) Resolve sections
-const sections = data.sections?.length
-  ? data.sections
-  : meta.itemsSections || [];
+const sections = data.sections?.length ? data.sections : meta.itemsSections || [];
 
-  let Content = null;
-  if (typeof entry.render === 'function') {
-    const rendered = await entry.render();
-    Content = rendered.Content;
-  }
-  console.log("robots", data.robots);
+let Content = null;
+if (typeof entry.render === "function") {
+  const rendered = await entry.render();
+  Content = rendered.Content;
+}
+console.log("robots", data.robots);
 ---
 
 <Layout
@@ -69,28 +76,26 @@ const sections = data.sections?.length
   description={data.description}
   keywords={data.keywords}
   ogType={data.ogType}
-  robots={data.robots} 
+  robots={data.robots}
 >
-{Content && <Content />}
-  {
-    sections.map((section, i) => (
-      <Section
-        key={i}
-        variant={section.variant}
-        collection={section.collection}
-        query={section.query}
-        heading={section.heading}
-        description={section.description}
-        descriptionClass={section.descriptionClass}
-        buttons={section.buttons}
-        sectionClass={section.sectionClass}
-        contentClass={section.contentClass}
-        itemsClass={section.itemsClass}
-        itemClass={section.itemClass}
-        buttonsSectionClass={section.buttonsSectionClass}
-        headingAreaClass={section.headingAreaClass}
-        {...section}
-      />
-    ))
-  }
+  {Content && <Content />}
+  {sections.map((section, i) => (
+    <Section
+      key={i}
+      variant={section.variant}
+      collection={section.collection}
+      query={section.query}
+      heading={section.heading}
+      description={section.description}
+      descriptionClass={section.descriptionClass}
+      buttons={section.buttons}
+      sectionClass={section.sectionClass}
+      contentClass={section.contentClass}
+      itemsClass={section.itemsClass}
+      itemClass={section.itemClass}
+      buttonsSectionClass={section.buttonsSectionClass}
+      headingAreaClass={section.headingAreaClass}
+      {...section}
+    />
+  ))}
 </Layout>

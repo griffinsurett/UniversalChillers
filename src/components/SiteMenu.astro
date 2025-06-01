@@ -1,0 +1,82 @@
+---
+// src/components/SiteMenu.astro
+import { buildAllMenuItems } from "@/utils/MenuBuilder";
+import MenuItem from "./MenuItem.astro";
+
+type RawItem = {
+  id: string;
+  label: string;
+  slug: string;
+  parent: string | null;
+  weight: number;
+  openInNewTab: boolean;
+  menu: string | string[];
+};
+
+// We expect the caller to pass exactly one of the IDs from menus.json,
+// e.g. <SiteMenu menuId="mainMenu" />
+const { menuId } = Astro.props as { menuId: string };
+
+// 1) Build the full flat list of (static + injected) menu items
+const rawItems: RawItem[] = await buildAllMenuItems();
+
+// If you want to debug, uncomment this line to see exactly what buildAllMenuItems() returned:
+// console.log("SiteMenu → allItems:", JSON.stringify(rawItems, null, 2));
+
+// 2) Convert into a lookup map (id → node object with children[] array)
+type NodeWithChildren = Omit<RawItem, "menu"> & { children: NodeWithChildren[]; menu: string | string[]; };
+const idToNode = {} as Record<string, NodeWithChildren>;
+rawItems.forEach((it) => {
+  idToNode[it.id] = { ...it, children: [] };
+});
+
+// 3) Helper: does this item “belong” (directly or via a parent) to our menuId?
+function belongsToMenu(item: RawItem): boolean {
+  // If the item explicitly lists menuId
+  if (typeof item.menu === "string") {
+    if (item.menu === menuId) return true;
+  } else if (Array.isArray(item.menu)) {
+    if (item.menu.includes(menuId)) return true;
+  }
+  // Otherwise, if it has a parent, check the parent recursively
+  if (item.parent) {
+    const p = rawItems.find((x) => x.id === item.parent);
+    if (p) return belongsToMenu(p);
+  }
+  return false;
+}
+
+// 4) Filter only those items that belong to this menuId
+const filtered = rawItems.filter((it) => belongsToMenu(it));
+
+// If you want to debug why nothing is showing, uncomment this console.warn
+if (filtered.length === 0) {
+  console.warn(`[SiteMenu] No items found for menuId="${menuId}". Did you (1) include at least one item whose "menu" = "${menuId}" in menuItems.json or via addToMenu?`);
+}
+
+// 5) Sort the filtered array by weight (ascending, default to 0)
+filtered.sort((a, b) => (a.weight ?? 0) - (b.weight ?? 0));
+
+// 6) Build parent→children links (but only among items that passed belongsToMenu)
+filtered.forEach((it) => {
+  if (it.parent && idToNode[it.parent]) {
+    idToNode[it.parent].children.push(idToNode[it.id]);
+  }
+});
+
+// 7) The “roots” are those filtered items with no parent (or whose parent isn't also in `filtered`)
+const treeRoots = filtered
+  .map((it) => idToNode[it.id])
+  .filter((node) => !node.parent || !filtered.find((f) => f.id === node.parent));
+---
+<nav>
+  {treeRoots.length > 0 ? (
+    <ul class="list-none m-0 p-0 flex gap-[var(--spacing-md)]">
+      {treeRoots.map((node) => (
+        <MenuItem node={node} />
+      ))}
+    </ul>
+  ) : (
+    <p class="text-red-500">⚠️ No menu items found for "{menuId}"</p>
+  )}
+</nav>

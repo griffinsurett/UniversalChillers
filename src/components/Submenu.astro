@@ -1,0 +1,31 @@
+---
+// src/components/LoopComponents/SubMenu.astro
+
+import ItemsTemplate from "@/components/Section/ItemsTemplates/ItemsTemplate.astro";
+import MenuItem from "@/components/LoopComponents/MenuItem.astro";
+
+// The parentLink prop should be the full href (e.g. "/about-us/services")
+// We only want the final “slug” segment to feed into query="children"
+const { parentLink } = Astro.props;
+
+// Derive exactly the last URL segment (e.g. "services" from "/about-us/services")
+const thisSlug =
+  parentLink
+    .split("/")
+    .filter(Boolean) // ["about-us","services"]
+    .pop() ?? // "services"
+  ""; // fallback if somehow empty
+
+// If there are no children under thisSlug, ItemsTemplate will render nothing.
+// We apply exactly the same classes you had before for positioning.
+---
+
+<ItemsTemplate
+  collection="menuItems"
+  query="children"
+  pathname={thisSlug}
+  itemsClass="submenu absolute left-0 top-full w-40 bg-white shadow-lg opacity-0 pointer-events-none transition-opacity duration-200 ease-in-out z-[100]"
+  itemClass="px-4 py-2 hover:bg-gray-100"
+  ItemComponent={MenuItem}
+  HasPage={false}
+/>
