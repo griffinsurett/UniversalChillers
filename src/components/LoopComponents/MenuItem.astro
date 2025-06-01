@@ -1,7 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import { normalizeRef } from "@/utils/ContentUtils";
-// import SubMenu from "@/components/Submenu.astro";
+import Submenu from "@/components/Submenu.astro";
 
 const { item, itemClass = "" } = Astro.props;
 
@@ -53,5 +53,5 @@ const hasChildren = childItems.length > 0;
   </a>
 
   <!-- Delegate all submenu rendering to SubMenu. -->
-  <!-- {hasChildren && <SubMenu parentLink={item.data.link} />} -->
+{hasChildren && <Submenu parentLink={item.data.link} />}
 </div>
