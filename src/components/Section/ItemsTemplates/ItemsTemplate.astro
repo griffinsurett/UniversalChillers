@@ -1,7 +1,7 @@
 ---
 /* ─────────── src/components/ItemsTemplate.astro ─────────── */
 import Card from "@/components/LoopComponents/Card";
-import { queryItems } from "@/utils/CollectionQueryUtils.ts";
+import { queryItems } from "@/utils/CollectionQueryUtils.server.js";
 import ClientItemsTemplate from "./ClientItemsTemplate.jsx";
 
 const {
@@ -148,7 +148,9 @@ if (typeof ItemComponent === "string") {
   ) : (
     /* Log a warning in the server console, but render nothing to the browser: */
     (() => {
-      console.warn(`ItemsTemplate: no items found for collection="${collection}" query="${query}" pathname="${pathname}"`);
+      console.warn(
+        `ItemsTemplate: no items found for collection="${collection}" query="${query}" pathname="${pathname}"`
+      );
       return "";
     })()
   )

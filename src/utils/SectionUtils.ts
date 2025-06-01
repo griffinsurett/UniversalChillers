@@ -1,7 +1,7 @@
 // src/utils/SectionUtils.ts
 import { getCollectionMeta } from "./FetchMeta";
 import { capitalize } from "./ContentUtils";
-import { queryItems } from "./CollectionQueryUtils";
+import { queryItems } from "./CollectionQueryUtils.server";
 
 /**
  * Generate a unique section ID of form:
@@ -24,15 +24,11 @@ export function generateSectionId(
   pagePath: string
 ): string {
   // derive the last segment of the path, or "home"
-  const pageSlug =
-    pagePath
-      .split("/")
-      .filter(Boolean)
-      .pop() || "home";
+  const pageSlug = pagePath.split("/").filter(Boolean).pop() || "home";
 
   // fallback to "static" or "default" when undefined
   const sectionSlug = collectionName || "static";
-  const queryName   = queryType      || "default";
+  const queryName = queryType || "default";
 
   return `${sectionSlug}-${queryName}-${pageSlug}`;
 }
@@ -42,7 +38,12 @@ export async function resolveMetaProps(
   collectionName: string,
   queryType: string
 ) {
-  let meta = { heading: null, description: "", hasPage: false, itemsHasPage: true };
+  let meta = {
+    heading: null,
+    description: "",
+    hasPage: false,
+    itemsHasPage: true,
+  };
   if (collectionName && queryType) {
     const {
       heading: metaHeading,
@@ -51,7 +52,13 @@ export async function resolveMetaProps(
       itemsHasPage = true,
       ...restMeta
     } = await getCollectionMeta(collectionName);
-    meta = { heading: metaHeading, description: metaDesc, hasPage, itemsHasPage, ...restMeta };
+    meta = {
+      heading: metaHeading,
+      description: metaDesc,
+      hasPage,
+      itemsHasPage,
+      ...restMeta,
+    };
   }
   return meta;
 }
@@ -94,7 +101,8 @@ export function resolveButtonsArray(
     return buttons;
   }
   const isCollectionRootPage =
-    currentPath === `/${collectionName}` || currentPath === `/${collectionName}/`;
+    currentPath === `/${collectionName}` ||
+    currentPath === `/${collectionName}/`;
   if (metaHasPage && !isCollectionRootPage) {
     return [
       {
@@ -122,7 +130,8 @@ import { componentMapping } from "@/utils/ComponentMapping";
 export function resolveComponent(ItemComponent: any, defaultComponent: any) {
   let finalComponent = ItemComponent || defaultComponent;
   if (typeof finalComponent === "string") {
-    finalComponent = componentMapping[finalComponent] || componentMapping["Card"];
+    finalComponent =
+      componentMapping[finalComponent] || componentMapping["Card"];
   }
   return finalComponent;
 }

@@ -1,7 +1,7 @@
 ---
 // src/components/LoopComponents/MenuItem.astro
 import SubMenu from "@/components/Submenu.astro";
-import { queryItems } from "@/utils/CollectionQueryUtils.ts";
+import { queryItems } from "@/utils/CollectionQueryUtils.server";
 
 const { item, itemClass = "" } = Astro.props;
 
@@ -26,23 +26,27 @@ const hasChildren = childItems.length > 0;
     class="flex items-center space-x-[var(--spacing-xs)] text-md text-primary hover:text-secondary transition-colors duration-200 font-bold"
     rel="noopener noreferrer"
   >
-    {item.data.icon ? (
-      <img
-        src={item.data.icon}
-        alt=""
-        class="w-5 h-5 bg-[var(--color-accent)] rounded-full"
-      />
-    ) : null}
+    {
+      item.data.icon ? (
+        <img
+          src={item.data.icon}
+          alt=""
+          class="w-5 h-5 bg-[var(--color-accent)] rounded-full"
+        />
+      ) : null
+    }
     <span>{item.data.title}</span>
 
-    {hasChildren && (
-      <span
-        class="submenu-arrow ml-1 transform transition-transform duration-200 group-hover:rotate-180"
-        aria-hidden="true"
-      >
-        ▼
-      </span>
-    )}
+    {
+      hasChildren && (
+        <span
+          class="submenu-arrow ml-1 transform transition-transform duration-200 group-hover:rotate-180"
+          aria-hidden="true"
+        >
+          ▼
+        </span>
+      )
+    }
   </a>
 
   <!-- Delegate all submenu rendering to SubMenu. -->
