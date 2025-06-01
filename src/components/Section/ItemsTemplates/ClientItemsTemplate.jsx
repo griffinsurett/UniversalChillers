@@ -33,55 +33,73 @@ export default function ClientItemsTemplate({
   }
 
   // ─── Dynamic import of the correct component ───
-  // Vite will statically include every file under ./LoopComponents
-const modules = import.meta.glob("../../LoopComponents/*.{jsx}");
+  // ONLY glob .jsx files (no .astro):
+  //
+  // From this file’s location (src/components/ClientItemsTemplate.jsx),
+  // we need to reach src/components/LoopComponents/*.jsx
+  const modules = import.meta.glob("../../LoopComponents/*.jsx");
+
   const Comp = useMemo(() => {
-const jsxPath = `../../LoopComponents/${componentKey}.jsx`;
+    // Build the relative path for the requested React component:
+    // e.g. if componentKey = "ListItem", jsxPath = "../../LoopComponents/ListItem.jsx"
+    const jsxPath = `../../LoopComponents/${componentKey}.jsx`;
+
+    // If that file actually exists, lazy-load it.
     if (modules[jsxPath]) {
       return lazy(modules[jsxPath]);
     }
-const astroPath = `../../LoopComponents/${componentKey}.astro`;
-    if (modules[astroPath]) {
-      return lazy(modules[astroPath]);
+
+    // OPTIONAL: fallback to Card.jsx if you want a default:
+    const fallbackPath = "../../LoopComponents/Card.jsx";
+    if (modules[fallbackPath]) {
+      return lazy(modules[fallbackPath]);
     }
-    // fallback to Card
-    return lazy(modules["./LoopComponents/Card.jsx"]);
+
+    // If there’s no .jsx matching componentKey (and no fallback), render nothing:
+    return null;
   }, [componentKey]);
 
-  // ─── Render ───
-  const content = slider.enabled ? (
-    <Carousel
-      items={sorted}
-      slidesToShow={slider.slidesToShow}
-      slidesToScroll={slider.slidesToScroll}
-      infinite={slider.infinite}
-      autoplay={slider.autoplay}
-      autoplaySpeed={slider.autoplaySpeed}
-      arrows={slider.arrows}
-      containerClass={itemsClass}
-      itemClass={itemClass}
-      renderItem={(item) => (
-        <Comp
-          key={item.slug}
-          item={item}
-          collectionName={collectionName}
-          HasPage={HasPage}
-        />
-      )}
-    />
-  ) : (
-    <ul className={itemsClass}>
-      {sorted.map((item) => (
-      <li className="contents">
-        <Comp
-          item={item}
-          collectionName={collectionName}
-          HasPage={HasPage}
-        />
-      </li>
-      ))}
-    </ul>
-  );
+  // If we didn’t find a valid React component, bail out (render nothing client-side)
+  if (!Comp) {
+    return null;
+  }
 
-  return <Suspense fallback={<div>Loading…</div>}>{content}</Suspense>;
+  // ─── Render ───
+  return (
+    <Suspense fallback={<div>Loading…</div>}>
+      {slider.enabled ? (
+        <Carousel
+          items={sorted}
+          slidesToShow={slider.slidesToShow}
+          slidesToScroll={slider.slidesToScroll}
+          infinite={slider.infinite}
+          autoplay={slider.autoplay}
+          autoplaySpeed={slider.autoplaySpeed}
+          arrows={slider.arrows}
+          containerClass={itemsClass}
+          itemClass={itemClass}
+          renderItem={(item) => (
+            <Comp
+              key={item.slug}
+              item={item}
+              collectionName={collectionName}
+              HasPage={HasPage}
+            />
+          )}
+        />
+      ) : (
+        <ul className={itemsClass}>
+          {sorted.map((item) => (
+            <li className="contents" key={item.slug}>
+              <Comp
+                item={item}
+                collectionName={collectionName}
+                HasPage={HasPage}
+              />
+            </li>
+          ))}
+        </ul>
+      )}
+    </Suspense>
+  );
 }
