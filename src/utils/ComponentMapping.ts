@@ -1,7 +1,7 @@
 // src/utils/ComponentMapping.ts
 
 // Eagerly import all .jsx and .astro files from the LoopComponents directory
-const modules = import.meta.glob('../components/LoopComponents/*.jsx', { eager: true });
+const modules = import.meta.glob('../components/LoopComponents/*.{jsx,astro}', { eager: true });
 
 // Build a mapping from the component file name (without extension) to its default export
 const componentMapping: Record<string, any> = {};
