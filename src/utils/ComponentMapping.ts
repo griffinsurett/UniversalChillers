@@ -1,17 +1,18 @@
 // src/utils/ComponentMapping.ts
 
-// Eagerly import all .jsx and .astro files from the LoopComponents directory
-const modules = import.meta.glob('../components/LoopComponents/*.{jsx,astro}', { eager: true });
+// Only import React/JSX components—do NOT include .astro files here
+const modules = import.meta.glob(
+  '../components/LoopComponents/*.jsx',
+  { eager: true }
+);
 
-// Build a mapping from the component file name (without extension) to its default export
 const componentMapping: Record<string, any> = {};
 
 for (const path in modules) {
-  // Extract the file name from the path; for example, "../components/LoopComponents/ServiceCard.astro" becomes "ServiceCard"
-  const match = path.match(/\/([^\/]+)\.(jsx|astro)$/);
+  const match = path.match(/\/([^\/]+)\.jsx$/);
   if (match) {
-    const fileName = match[1];
-    componentMapping[fileName] = modules[path].default;
+    const fileName = match[1]; // e.g. "AccordionItem", "ListItem", "Card", etc.
+    componentMapping[fileName] = (modules[path] as any).default;
   }
 }
 
