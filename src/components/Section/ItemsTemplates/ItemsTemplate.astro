@@ -1,23 +1,23 @@
 ---
-/* ─────────── src/components/ItemsTemplate.astro ─────────── */
+// src/components/Section/ItemsTemplates/ItemsTemplate.astro
+
 import Card from "@/components/LoopComponents/Card";
 import { queryItems } from "@/utils/CollectionQueryUtils.js";
 import ClientItemsTemplate from "./ClientItemsTemplate.jsx";
 
 const {
-  /* incoming props */
   collection,
   query,
   items: initialItems,
-  ItemComponent, // function | string | { component, props }
+  ItemComponent,     // <-- now can be { component, props }
   itemsClass = "",
   itemClass = "",
   HasPage,
   pathname = "",
-  client, // "load" | "idle" | "visible" | undefined
-  sortBy = "date", // "date" | "title" | "slug" | "id"
-  sortOrder = "desc", // "asc" | "desc"
-  manualOrder = false, // if true, use item.data.order exclusively
+  client,
+  sortBy = "date",
+  sortOrder = "desc",
+  manualOrder = false,
   slider = { enabled: false },
   ...rest
 } = Astro.props;
@@ -28,16 +28,14 @@ if (!initialItems && collection && query) {
   items = await queryItems(query, collection, pathname);
 }
 
-// ───── Apply sorting ─────
+/* 2. Sorting (unchanged) */
 if (manualOrder) {
   items = [...items].sort((a, b) => (a.data.order || 0) - (b.data.order || 0));
 } else {
   const sorted = [...items];
   if (sortBy === "title") {
     sorted.sort((a, b) =>
-      String(a.data.title || a.slug).localeCompare(
-        String(b.data.title || b.slug)
-      )
+      String(a.data.title || a.slug).localeCompare(String(b.data.title || b.slug))
     );
   } else if (sortBy === "slug" || sortBy === "id") {
     sorted.sort((a, b) => String(a.slug).localeCompare(String(b.slug)));
@@ -52,31 +50,57 @@ if (manualOrder) {
   items = sorted;
 }
 
-/* 2. Server‑side dynamic import of your component */
+/* 3. Resolve RenderComponent + componentProps */
 import { basename } from "path";
 
 let RenderComponent;
+let componentProps = {};
+
 if (typeof ItemComponent === "string") {
   try {
-    // try .jsx first
     const mod = await import(`../../LoopComponents/${ItemComponent}.jsx`);
     RenderComponent = mod.default;
   } catch {
-    // fallback to .astro
     const mod = await import(`../../LoopComponents/${ItemComponent}.astro`);
     RenderComponent = mod.default;
   }
-} else if (typeof ItemComponent === "object" && ItemComponent !== null) {
-  RenderComponent = ItemComponent.component;
+} else if (
+  typeof ItemComponent === "object" &&
+  ItemComponent !== null &&
+  ItemComponent.component
+) {
+  // ItemComponent = { component: <string|function>, props: { … } }
+  const candidate = ItemComponent.component;
+  if (typeof candidate === "string") {
+    try {
+      const mod = await import(`../../LoopComponents/${candidate}.jsx`);
+      RenderComponent = mod.default;
+    } catch {
+      const mod = await import(`../../LoopComponents/${candidate}.astro`);
+      RenderComponent = mod.default;
+    }
+  } else if (typeof candidate === "function") {
+    RenderComponent = candidate;
+  } else {
+    RenderComponent = Card;
+  }
+
+  componentProps = ItemComponent.props || {};
+} else if (typeof ItemComponent === "function") {
+  RenderComponent = ItemComponent;
 } else {
-  RenderComponent = ItemComponent || Card;
+  RenderComponent = Card;
 }
 
-/* 3. Serialisable key sent to the island */
+/* 4. Figure out a unique key name for client islands, etc. */
 let componentKey = "Card";
 if (typeof ItemComponent === "string") {
   componentKey = ItemComponent;
-} else if (typeof ItemComponent === "object" && ItemComponent !== null) {
+} else if (
+  typeof ItemComponent === "object" &&
+  ItemComponent !== null &&
+  ItemComponent.component
+) {
   const comp = ItemComponent.component;
   componentKey = typeof comp === "string" ? comp : comp?.name || "Card";
 } else if (typeof ItemComponent === "function") {
@@ -84,74 +108,72 @@ if (typeof ItemComponent === "string") {
 }
 ---
 
-{
-  items.length ? (
-    <>
-      {client === "load" && (
-        <ClientItemsTemplate
-          client:load
-          items={items}
-          componentKey={componentKey}
-          itemsClass={itemsClass}
-          itemClass={itemClass}
-          collectionName={collection}
-          HasPage={HasPage}
-          slider={slider}
-          {...rest}
-        />
-      )}
+{items.length ? (
+  <>
+    {client === "load" && (
+      <ClientItemsTemplate
+        client:load
+        items={items}
+        componentKey={componentKey}
+        itemsClass={itemsClass}
+        itemClass={itemClass}
+        collectionName={collection}
+        HasPage={HasPage}
+        slider={slider}
+        {...rest}
+      />
+    )}
 
-      {client === "visible" && (
-        <ClientItemsTemplate
-          client:visible
-          items={items}
-          componentKey={componentKey}
-          itemsClass={itemsClass}
-          itemClass={itemClass}
-          collectionName={collection}
-          HasPage={HasPage}
-          slider={slider}
-          {...rest}
-        />
-      )}
+    {client === "visible" && (
+      <ClientItemsTemplate
+        client:visible
+        items={items}
+        componentKey={componentKey}
+        itemsClass={itemsClass}
+        itemClass={itemClass}
+        collectionName={collection}
+        HasPage={HasPage}
+        slider={slider}
+        {...rest}
+      />
+    )}
 
-      {client === "idle" && (
-        <ClientItemsTemplate
-          client:idle
-          items={items}
-          componentKey={componentKey}
-          itemsClass={itemsClass}
-          itemClass={itemClass}
-          collectionName={collection}
-          HasPage={HasPage}
-          slider={slider}
-          {...rest}
-        />
-      )}
+    {client === "idle" && (
+      <ClientItemsTemplate
+        client:idle
+        items={items}
+        componentKey={componentKey}
+        itemsClass={itemsClass}
+        itemClass={itemClass}
+        collectionName={collection}
+        HasPage={HasPage}
+        slider={slider}
+        {...rest}
+      />
+    )}
 
-      {!client && (
-        <ul class={itemsClass} {...rest}>
-          {items.map((item) => (
-            <li class="contents">
-              <RenderComponent
-                key={item.slug || item.data.slug || item.id}
-                item={item}
-                class={itemClass}
-                collectionName={collection}
-                HasPage={HasPage}
-              />
-            </li>
-          ))}
-        </ul>
-      )}
-    </>
-  ) : (
-    /* Log a warning in the server console, but render nothing to the browser: */
-    (() => {
-      console.warn(
-        `ItemsTemplate: no items found for collection="${collection}" query="${query}" pathname="${pathname}"`
-      );
-      return "";
-    })()
-  )
-}
+    {!client && (
+      <ul class={itemsClass} {...rest}>
+        {items.map((item) => (
+          <li class="contents">
+            <RenderComponent
+              key={item.slug || item.data.slug || item.id}
+              item={item}
+              class={itemClass}
+              collectionName={collection}
+              HasPage={HasPage}
+              {...componentProps}  
+            />
+          </li>
+        ))}
+      </ul>
+    )}
+  </>
+) : (
+  (() => {
+    console.warn(
+      `ItemsTemplate: no items found for collection="${collection}" query="${query}" pathname="${pathname}"`
+    );
+    return "";
+  })()
+)}

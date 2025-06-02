@@ -1,0 +1,65 @@
+---
+import { getCollection } from "astro:content";
+import { normalizeRef }  from "@/utils/ContentUtils";
+
+const {
+  item,
+
+  /* styling / behavior for THIS <MenuItem> */
+  itemClass    = "",
+  linkClass    = "",
+  hierarchical = false,
+
+  /* entire submenu object passed from Menu.astro (or inherited) */
+  submenu = {
+    component: null,
+    itemsClass: "",
+    subMenuItem: {
+      component: null,
+      props: {
+        itemClass: "",
+        linkClass: "",
+        hierarchical: true,
+        subMenuItem: null, // can go deeper
+      },
+    },
+  },
+} = Astro.props;
+
+/* 1) Determine if this item has children */
+const thisSlug       = item.data.link.split("/").filter(Boolean).pop() || "";
+const allMenuItems   = await getCollection("menuItems");
+const normalizedThis = normalizeRef(thisSlug);
+
+const childItems = allMenuItems.filter(c => {
+  if (!c.data.parent) return false;
+  return normalizeRef(c.data.parent) === normalizedThis;
+});
+const hasChildren = hierarchical && childItems.length > 0;
+
+/* 2) Pick which “submenu” component to render */
+const SubmenuComponent = submenu.component;
+---
+
+<li class={`relative menu-item ${itemClass}`}>
+  <a href={item.data.link} class={linkClass} rel="noopener noreferrer">
+    {item.data.icon && (
+      <img src={item.data.icon} alt="" class="w-5 h-5 bg-[var(--color-accent)] rounded-full" />
+    )}
+    <span>{item.data.title}</span>
+
+    {hasChildren && (
+      <span class="submenu-arrow text-sm ml-1 transform transition-transform duration-200">
+        ▼
+      </span>
+    )}
+  </a>
+
+  {hasChildren && (
+    /* 3) Render whatever component we chose for submenus */
+    <SubmenuComponent
+      parentLink={item.data.link}
+      submenu={submenu}
+    />
+  )}
+</li>

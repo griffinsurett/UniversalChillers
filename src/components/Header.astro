@@ -1,13 +1,13 @@
 ---
-// src/components/Header.astro
-
 import { SiteData } from "@/content/SiteData";
 import { Image } from "astro:assets";
-import ItemsTemplate from "@/components/Section/ItemsTemplates/ItemsTemplate.astro";
-import MenuItem from "@/components/LoopComponents/MenuItem.astro";
+import Menu      from "@/components/Menu/Menu.astro";
+import MenuItem  from "@/components/Menu/MenuItem.astro";
+import Submenu  from "@/components/Menu/Submenu.astro"; // your custom submenu component
 ---
+
 <header class="flex justify-between items-center p-[var(--spacing-md)] bg-white">
-  <!-- Left side: logo / site identity -->
+  <!-- Logo / site identity -->
   <a href="/" class="flex items-center">
     <Image
       src={SiteData.logo.src}
@@ -24,16 +24,40 @@ import MenuItem from "@/components/LoopComponents/MenuItem.astro";
     </div>
   </a>
 
-  <!-- Right side: render only those menuItems whose frontmatter menu includes "mainMenu" -->
+  <!-- main menu: now with a custom “submenu.component” -->
   <nav>
-    <ItemsTemplate
-      collection="menuItems"
-      query="relatedItem:menus:mainMenu"
-      sortOrder="asc"
-      ItemComponent={MenuItem}
-      itemsClass="flex gap-[var(--spacing-md)]"
-      itemClass=""
-      HasPage={false}
-    />
+  <Menu
+  collection="menuItems"
+  query="relatedItem:menus:mainMenu"
+  sortOrder="asc"
+  itemsClass="hidden md:flex gap-[var(--spacing-md)]"
+
+  menuItem={{
+    component: MenuItem,
+    props: {
+      itemClass:    "px-2 py-1 text-blue-600 hover:text-blue-800",
+      linkClass:    "flex items-center space-x-[var(--spacing-xs)] font-bold transition-colors duration-200",
+      hierarchical: true,
+    },
+  }}
+
+  submenu={{
+    /* just override the UL classes; keep the default Submenu.astro component */
+    component: Submenu,
+    itemsClass:
+      "submenu absolute left-0 top-full w-56 bg-gray-50 border border-gray-200 shadow-lg opacity-0 pointer-events-none transition-opacity duration-200 ease-in-out z-[100]",
+    /* nested items still inherit same MenuItem props */
+    subMenuItem: {
+      component: MenuItem,
+      props: {
+        itemClass:    "px-4 py-2 hover:bg-gray-100 text-blue-600 hover:text-blue-800",
+        linkClass:    "flex items-center space-x-[var(--spacing-xs)] font-medium transition-colors duration-200",
+        hierarchical: true,
+        subMenuItem:  null,
+      },
+    },
+  }}
+/>
+
   </nav>
 </header>

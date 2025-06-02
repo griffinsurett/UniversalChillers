@@ -1,0 +1,43 @@
+---
+import ItemsTemplate from "@/components/Section/ItemsTemplates/ItemsTemplate.astro";
+import MenuItem      from "./MenuItem.astro";
+
+const {
+  parentLink,
+
+  /* a nested portion of the “submenu” object */
+  submenu = {
+    component: MenuItem,
+    itemsClass: "",
+    subMenuItem: {
+      component: MenuItem,
+      props: {
+        itemClass: "",
+        linkClass: "",
+        hierarchical: true,
+        subMenuItem: null, // for even deeper levels
+      },
+    },
+  },
+} = Astro.props;
+
+/* derive “services”, “blog”, etc. */
+const thisSlug = parentLink.split("/").filter(Boolean).pop() ?? "";
+---
+
+<ItemsTemplate
+  collection="menuItems"
+  query="children"
+  pathname={thisSlug}
+
+  ItemComponent={{
+    component: submenu.subMenuItem.component ?? MenuItem,
+    props: {
+      ...submenu.subMenuItem.props,
+      submenu: submenu, /* pass same object deeper */
+    },
+  }}
+  itemsClass={submenu.itemsClass}
+  itemClass=""
+  HasPage={false}
+/>

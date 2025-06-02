@@ -1,0 +1,87 @@
+---
+import ItemsTemplate from "@/components/Section/ItemsTemplates/ItemsTemplate.astro";
+import MenuItem      from "./MenuItem.astro";
+import DefaultSubmenu from "./Submenu.astro";
+
+const {
+  collection    = "menuItems",
+  query         = "relatedItem:menus:mainMenu",
+  itemsClass    = "flex gap-[var(--spacing-md)]",
+  sortOrder     = "asc",
+  HasPage       = false,
+
+  /* ————————— First‑level config ————————— */
+  menuItem = {
+    component: MenuItem,
+    props: {
+      itemClass:    "",
+      linkClass:    "",
+      hierarchical: false,
+    },
+  },
+
+  /* —————— Everything about submenus —————— */
+  submenu = null, // if null ⇢ default below
+} = Astro.props;
+
+/* ────────────────────────────────────────── */
+/* Build a “finalSubmenu” if caller omitted it */
+/* ────────────────────────────────────────── */
+let finalSubmenu = submenu;
+if (!finalSubmenu) {
+  finalSubmenu = {
+    /* 1) which component to render for any submenu? */
+    component: DefaultSubmenu,
+
+    /* 2) classes for that <ul> (wrapper) */
+    itemsClass:
+      "submenu absolute left-0 top-full w-40 bg-white shadow-lg opacity-0 pointer-events-none transition-opacity duration-200 ease-in-out z-[100]",
+
+    /* 3) how each nested <MenuItem> looks/behaves */
+    subMenuItem: {
+      component: menuItem.component,
+      props:     { ...menuItem.props },
+    },
+  };
+}
+
+/* ────────────────────────────────────────── */
+/* Build the props that top‑level <MenuItem> will receive */
+/* ────────────────────────────────────────── */
+const menuItemProps = {
+  ...menuItem.props,
+  submenu: finalSubmenu,
+};
+---
+
+<nav>
+  <!-- 📱 Mobile version (stacked) -->
+  <div class="block md:hidden">
+    <ItemsTemplate
+      collection={collection}
+      query={query}
+      sortOrder={sortOrder}
+      HasPage={HasPage}
+      itemsClass="flex flex-col space-y-[var(--spacing-sm)]"
+      ItemComponent={{
+        component: menuItem.component,
+        props:      menuItemProps,
+      }}
+    />
+  </div>
+
+  <!-- 🖥 Desktop version -->
+  <div class={itemsClass}>
+    <ItemsTemplate
+      collection={collection}
+      query={query}
+      sortOrder={sortOrder}
+      HasPage={HasPage}
+      itemsClass={itemsClass}
+      ItemComponent={{
+        component: menuItem.component,
+        props:      menuItemProps,
+      }}
+    />
+  </div>
+</nav>
