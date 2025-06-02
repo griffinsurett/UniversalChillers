@@ -1,11 +1,11 @@
 ---
 import ItemsTemplate from "@/components/Section/ItemsTemplates/ItemsTemplate.astro";
-import MenuItem      from "./MenuItem.astro";
+import MenuItem from "./MenuItem.astro";
 
 const {
   parentLink,
 
-  /* a nested portion of the “submenu” object */
+  /* same object we got from MenuItem above */
   submenu = {
     component: MenuItem,
     itemsClass: "",
@@ -15,13 +15,13 @@ const {
         itemClass: "",
         linkClass: "",
         hierarchical: true,
-        subMenuItem: null, // for even deeper levels
+        subMenuItem: null,
       },
     },
   },
 } = Astro.props;
 
-/* derive “services”, “blog”, etc. */
+// Derive “services”, “blog”, etc. from that parentLink
 const thisSlug = parentLink.split("/").filter(Boolean).pop() ?? "";
 ---
 
@@ -29,12 +29,11 @@ const thisSlug = parentLink.split("/").filter(Boolean).pop() ?? "";
   collection="menuItems"
   query="children"
   pathname={thisSlug}
-
   ItemComponent={{
     component: submenu.subMenuItem.component ?? MenuItem,
     props: {
       ...submenu.subMenuItem.props,
-      submenu: submenu, /* pass same object deeper */
+      submenu: submenu /* pass our object further for deeper nesting */,
     },
   }}
   itemsClass={submenu.itemsClass}

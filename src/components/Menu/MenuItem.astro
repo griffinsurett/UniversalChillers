@@ -1,50 +1,55 @@
 ---
 import { getCollection } from "astro:content";
 import { normalizeRef }  from "@/utils/ContentUtils";
+import SubMenu from "./Submenu.astro";
 
 const {
   item,
 
-  /* styling / behavior for THIS <MenuItem> */
+  /* THIS <MenuItem>’s styling/behavior (level‑1 or level‑n) */
   itemClass    = "",
   linkClass    = "",
   hierarchical = false,
 
-  /* entire submenu object passed from Menu.astro (or inherited) */
+  /* The full “submenu” object (component + itemsClass + subMenuItem) */
   submenu = {
     component: null,
     itemsClass: "",
     subMenuItem: {
       component: null,
       props: {
-        itemClass: "",
-        linkClass: "",
+        itemClass:    "",
+        linkClass:    "",
         hierarchical: true,
-        subMenuItem: null, // can go deeper
+        subMenuItem:  null,
       },
     },
   },
 } = Astro.props;
 
-/* 1) Determine if this item has children */
-const thisSlug       = item.data.link.split("/").filter(Boolean).pop() || "";
-const allMenuItems   = await getCollection("menuItems");
-const normalizedThis = normalizeRef(thisSlug);
+// 1) Find children if any
+const thisSlug = item.data.link.split("/").filter(Boolean).pop() || "";
+const allMenuItems = await getCollection("menuItems");
 
-const childItems = allMenuItems.filter(c => {
+const normalizedThis = normalizeRef(thisSlug);
+const childItems = allMenuItems.filter((c) => {
   if (!c.data.parent) return false;
   return normalizeRef(c.data.parent) === normalizedThis;
 });
 const hasChildren = hierarchical && childItems.length > 0;
 
-/* 2) Pick which “submenu” component to render */
-const SubmenuComponent = submenu.component;
+// 2) “submenu.component” is the nested‐<ul> component (default or overridden)
+const SubmenuComponent = submenu.component || SubMenu;
 ---
 
 <li class={`relative menu-item ${itemClass}`}>
   <a href={item.data.link} class={linkClass} rel="noopener noreferrer">
     {item.data.icon && (
-      <img src={item.data.icon} alt="" class="w-5 h-5 bg-[var(--color-accent)] rounded-full" />
+      <img
+        src={item.data.icon}
+        alt=""
+        class="w-5 h-5 bg-[var(--color-accent)] rounded-full"
+      />
     )}
     <span>{item.data.title}</span>
 
@@ -56,7 +61,6 @@ const SubmenuComponent = submenu.component;
   </a>
 
   {hasChildren && (
-    /* 3) Render whatever component we chose for submenus */
     <SubmenuComponent
       parentLink={item.data.link}
       submenu={submenu}
