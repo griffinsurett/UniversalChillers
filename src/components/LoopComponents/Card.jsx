@@ -15,7 +15,7 @@ export default function Card({ item, itemClass, collectionName, HasPage }) {
       <p className="mb-[var(--spacing-sm)]">{item.data.description || item.body}</p>
       {effectiveHasPage && (
         <Button href={`/${collectionName}/${item.slug}`}>
-          View More
+          View More Card
         </Button>
       )}
     </article>

@@ -1,111 +1,38 @@
 ---
-// src/components/Section/ItemsTemplates/ItemsTemplate.astro
-
-import Card from "@/components/LoopComponents/Card";
 import { queryItems } from "@/utils/CollectionQueryUtils.js";
+import { sortItems } from "@/utils/sortItems.js";
 import ClientItemsTemplate from "./ClientItemsTemplate.jsx";
+import { resolveSSRComponent } from "@/utils/resolveItemComponent.js";
 
 const {
   collection,
   query,
   items: initialItems,
-  ItemComponent,     // <-- now can be { component, props }
+  ItemComponent,     // string | { component, props } | function
   itemsClass = "",
   itemClass = "",
   HasPage,
   pathname = "",
   client,
-  sortBy = "date",
-  sortOrder = "desc",
-  manualOrder = false,
+  sortBy,
+  sortOrder,
+  manualOrder,
   slider = { enabled: false },
   ...rest
 } = Astro.props;
 
-/* 1. Build‑time data */
+/* 1. Fetch items */
 let items = initialItems || [];
 if (!initialItems && collection && query) {
   items = await queryItems(query, collection, pathname);
 }
 
-/* 2. Sorting (unchanged) */
-if (manualOrder) {
-  items = [...items].sort((a, b) => (a.data.order || 0) - (b.data.order || 0));
-} else {
-  const sorted = [...items];
-  if (sortBy === "title") {
-    sorted.sort((a, b) =>
-      String(a.data.title || a.slug).localeCompare(String(b.data.title || b.slug))
-    );
-  } else if (sortBy === "slug" || sortBy === "id") {
-    sorted.sort((a, b) => String(a.slug).localeCompare(String(b.slug)));
-  } else {
-    sorted.sort((a, b) => {
-      const da = new Date(a.data.pubDate || a.data.date || a._generatedAt || 0);
-      const db = new Date(b.data.pubDate || b.data.date || b._generatedAt || 0);
-      return da.getTime() - db.getTime();
-    });
-  }
-  if (sortOrder === "desc") sorted.reverse();
-  items = sorted;
-}
+/* 2. Sort via shared helper */
+items = sortItems(items, sortBy, sortOrder, manualOrder);
 
-/* 3. Resolve RenderComponent + componentProps */
-import { basename } from "path";
-
-let RenderComponent;
-let componentProps = {};
-
-if (typeof ItemComponent === "string") {
-  try {
-    const mod = await import(`../../LoopComponents/${ItemComponent}.jsx`);
-    RenderComponent = mod.default;
-  } catch {
-    const mod = await import(`../../LoopComponents/${ItemComponent}.astro`);
-    RenderComponent = mod.default;
-  }
-} else if (
-  typeof ItemComponent === "object" &&
-  ItemComponent !== null &&
-  ItemComponent.component
-) {
-  // ItemComponent = { component: <string|function>, props: { … } }
-  const candidate = ItemComponent.component;
-  if (typeof candidate === "string") {
-    try {
-      const mod = await import(`../../LoopComponents/${candidate}.jsx`);
-      RenderComponent = mod.default;
-    } catch {
-      const mod = await import(`../../LoopComponents/${candidate}.astro`);
-      RenderComponent = mod.default;
-    }
-  } else if (typeof candidate === "function") {
-    RenderComponent = candidate;
-  } else {
-    RenderComponent = Card;
-  }
-
-  componentProps = ItemComponent.props || {};
-} else if (typeof ItemComponent === "function") {
-  RenderComponent = ItemComponent;
-} else {
-  RenderComponent = Card;
-}
-
-/* 4. Figure out a unique key name for client islands, etc. */
-let componentKey = "Card";
-if (typeof ItemComponent === "string") {
-  componentKey = ItemComponent;
-} else if (
-  typeof ItemComponent === "object" &&
-  ItemComponent !== null &&
-  ItemComponent.component
-) {
-  const comp = ItemComponent.component;
-  componentKey = typeof comp === "string" ? comp : comp?.name || "Card";
-} else if (typeof ItemComponent === "function") {
-  componentKey = ItemComponent.name || "Card";
-}
+/* 3. Resolve SSR component */
+const { RenderComponent, componentKey, componentProps } =
+  await resolveSSRComponent(ItemComponent);
 ---
 
 {items.length ? (
@@ -114,11 +41,15 @@ if (typeof ItemComponent === "string") {
       <ClientItemsTemplate
         client:load
         items={items}
-        componentKey={componentKey}
+        alreadySorted={true}
+        ItemComponent={{ component: componentKey, props: componentProps }}
         itemsClass={itemsClass}
         itemClass={itemClass}
         collectionName={collection}
         HasPage={HasPage}
+        sortBy={sortBy}
+        sortOrder={sortOrder}
+        manualOrder={manualOrder}
         slider={slider}
         {...rest}
       />
@@ -128,11 +59,15 @@ if (typeof ItemComponent === "string") {
       <ClientItemsTemplate
         client:visible
         items={items}
-        componentKey={componentKey}
+        alreadySorted={true}
+        ItemComponent={{ component: componentKey, props: componentProps }}
         itemsClass={itemsClass}
         itemClass={itemClass}
         collectionName={collection}
         HasPage={HasPage}
+        sortBy={sortBy}
+        sortOrder={sortOrder}
+        manualOrder={manualOrder}
         slider={slider}
         {...rest}
       />
@@ -142,11 +77,15 @@ if (typeof ItemComponent === "string") {
       <ClientItemsTemplate
         client:idle
         items={items}
-        componentKey={componentKey}
+        alreadySorted={true}
+        ItemComponent={{ component: componentKey, props: componentProps }}
         itemsClass={itemsClass}
         itemClass={itemClass}
         collectionName={collection}
         HasPage={HasPage}
+        sortBy={sortBy}
+        sortOrder={sortOrder}
+        manualOrder={manualOrder}
         slider={slider}
         {...rest}
       />
@@ -155,14 +94,12 @@ if (typeof ItemComponent === "string") {
     {!client && (
       <ul class={itemsClass} {...rest}>
         {items.map((item) => (
-          <li class="contents">
+          <li class="contents" key={item.slug || item.data.slug || item.id}>
             <RenderComponent
-              key={item.slug || item.data.slug || item.id}
               item={item}
-              class={itemClass}
               collectionName={collection}
               HasPage={HasPage}
-              {...componentProps}  
+              {...componentProps}
             />
           </li>
         ))}

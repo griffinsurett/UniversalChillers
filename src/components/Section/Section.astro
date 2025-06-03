@@ -27,7 +27,6 @@ import {
   resolveDescription,
   resolveButtonsArray,
   getSectionItems,
-  resolveComponent,
 } from "@/utils/SectionUtils";
 import { capitalize } from "@/utils/ContentUtils";
 
@@ -71,8 +70,8 @@ const meta = await resolveMetaProps(collectionName, queryType);
 const defaultSection = meta.defaultSection || {};
 
 // ─── Merge sorting props with defaultSection ───
-const sortBy = rawSortBy ?? defaultSection.sortBy ?? "date";
-const sortOrder = rawSortOrder ?? defaultSection.sortOrder ?? "desc";
+const sortBy = rawSortBy ?? defaultSection.sortBy;
+const sortOrder = rawSortOrder ?? defaultSection.sortOrder;
 const manualOrder = rawManualOrder ?? defaultSection.manualOrder ?? false;
 // ────────────────────────────────────────────────
 
@@ -190,10 +189,7 @@ const finalHeadingArray = resolveHeading(heading, meta.heading, collectionName);
 const finalDescription = resolveDescription(description, meta.description);
 
 // 9️⃣ Resolve item component + client
-const finalComponent = resolveComponent(
-  ItemComponent,
-  defaultSection.component
-);
+const finalComponent = ItemComponent ?? defaultSection.component;
 const finalClient = rawClient ?? defaultSection.client;
 
 // 🔟 Fetch dynamic items

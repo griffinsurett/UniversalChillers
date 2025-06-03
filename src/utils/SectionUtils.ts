@@ -124,14 +124,3 @@ export async function getSectionItems(
 ) {
   return await queryItems(queryType, collectionName, currentPath);
 }
-
-// Resolves the component to render using an external auto-imported mapping.
-import { componentMapping } from "@/utils/ComponentMapping";
-export function resolveComponent(ItemComponent: any, defaultComponent: any) {
-  let finalComponent = ItemComponent || defaultComponent;
-  if (typeof finalComponent === "string") {
-    finalComponent =
-      componentMapping[finalComponent] || componentMapping["Card"];
-  }
-  return finalComponent;
-}

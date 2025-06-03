@@ -54,22 +54,6 @@ const menuItemProps = {
 ---
 
 <nav>
-  <!-- Mobile (stacked) -->
-  <div class="block md:hidden">
-    <ItemsTemplate
-      collection={collection}
-      query={query}
-      sortOrder={sortOrder}
-      HasPage={HasPage}
-      itemsClass="flex flex-col space-y-[var(--spacing-sm)]"
-      ItemComponent={{
-        component: menuItem.component,
-        props:      menuItemProps,
-      }}
-    />
-  </div>
-
-  <!-- Desktop -->
   <div class={itemsClass}>
     <ItemsTemplate
       collection={collection}

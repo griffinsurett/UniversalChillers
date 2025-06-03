@@ -1,15 +1,16 @@
-// src/components/ClientItemsTemplate.jsx
-import React, { lazy, Suspense, useMemo } from "react";
+import React, { useMemo, lazy, Suspense } from "react";
 import Carousel from "./Carousel";
+import { sortItems } from "@/utils/sortItems.js";
 
 export default function ClientItemsTemplate({
-  items = [],
-  sortBy = "date",
-  sortOrder = "desc",
-  manualOrder = false,
-  componentKey = "Card",
-  itemClass = "",
+  items,
+  sortBy,
+  sortOrder,
+  manualOrder,
+  alreadySorted = false,
+  ItemComponent: { componentKey, componentProps },
   itemsClass = "",
+  itemClass = "",
   collectionName,
   HasPage,
   slider = {
@@ -22,49 +23,31 @@ export default function ClientItemsTemplate({
     arrows: true,
   },
 }) {
-  // ─── Sort items ───
-  const sorted = [...items];
-  if (manualOrder) {
-    sorted.sort((a, b) => (a.data.order || 0) - (b.data.order || 0));
-  } else {
-    // placeholder for other sort logic
-    sorted.sort(() => 0);
-    if (sortOrder === "desc") sorted.reverse();
-  }
+  // 1. Sort via shared helper (wrapped in useMemo so it only recalculates when dependencies change)
+  const sorted = useMemo(() => {
+    return alreadySorted
+      ? items
+      : sortItems(items, sortBy, sortOrder, manualOrder);
+  }, [items, sortBy, sortOrder, manualOrder, alreadySorted]);
 
-  // ─── Dynamic import of the correct component ───
-  // ONLY glob .jsx files (no .astro):
-  //
-  // From this file’s location (src/components/ClientItemsTemplate.jsx),
-  // we need to reach src/components/LoopComponents/*.jsx
+  // 2. Resolve React component via lazy-loading
   const modules = import.meta.glob("../../LoopComponents/*.jsx");
-
   const Comp = useMemo(() => {
-    // Build the relative path for the requested React component:
-    // e.g. if componentKey = "ListItem", jsxPath = "../../LoopComponents/ListItem.jsx"
     const jsxPath = `../../LoopComponents/${componentKey}.jsx`;
-
-    // If that file actually exists, lazy-load it.
     if (modules[jsxPath]) {
       return lazy(modules[jsxPath]);
     }
-
-    // OPTIONAL: fallback to Card.jsx if you want a default:
     const fallbackPath = "../../LoopComponents/Card.jsx";
-    if (modules[fallbackPath]) {
-      return lazy(modules[fallbackPath]);
-    }
-
-    // If there’s no .jsx matching componentKey (and no fallback), render nothing:
-    return null;
+    return lazy(modules[fallbackPath]);
   }, [componentKey]);
 
-  // If we didn’t find a valid React component, bail out (render nothing client-side)
   if (!Comp) {
     return null;
   }
 
-  // ─── Render ───
+  console.log(alreadySorted, items, sorted);
+
+  // 3. Render either a Carousel or a static <ul>
   return (
     <Suspense fallback={<div>Loading…</div>}>
       {slider.enabled ? (
@@ -84,6 +67,7 @@ export default function ClientItemsTemplate({
               item={item}
               collectionName={collectionName}
               HasPage={HasPage}
+              {...componentProps}
             />
           )}
         />
@@ -95,6 +79,7 @@ export default function ClientItemsTemplate({
                 item={item}
                 collectionName={collectionName}
                 HasPage={HasPage}
+                {...componentProps}
               />
             </li>
           ))}
