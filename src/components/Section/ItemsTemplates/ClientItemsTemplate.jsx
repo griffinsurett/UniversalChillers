@@ -1,14 +1,15 @@
-import React, { useMemo, lazy, Suspense } from "react";
+// src/components/Section/ItemsTemplates/ClientItemsTemplate.jsx
+import React, { lazy, Suspense, useMemo } from "react";
 import Carousel from "./Carousel";
+import { resolveCSRComponent } from "@/utils/resolveItemComponent.js";
 import { sortItems } from "@/utils/sortItems.js";
 
 export default function ClientItemsTemplate({
-  items,
+  items = [],
   sortBy,
   sortOrder,
   manualOrder,
-  alreadySorted = false,
-  ItemComponent: { componentKey, componentProps },
+  ItemComponent = "Card",
   itemsClass = "",
   itemClass = "",
   collectionName,
@@ -24,13 +25,15 @@ export default function ClientItemsTemplate({
   },
 }) {
   // 1. Sort via shared helper (wrapped in useMemo so it only recalculates when dependencies change)
-  const sorted = useMemo(() => {
-    return alreadySorted
-      ? items
-      : sortItems(items, sortBy, sortOrder, manualOrder);
-  }, [items, sortBy, sortOrder, manualOrder, alreadySorted]);
+  const sorted = useMemo(
+    () => sortItems(items, sortBy, sortOrder, manualOrder),
+    [items, sortBy, sortOrder, manualOrder]
+  );
 
-  // 2. Resolve React component via lazy-loading
+  // 2. Resolve componentKey + props
+  const { componentKey, componentProps } = resolveCSRComponent(ItemComponent);
+
+  // 3. Lazy‑load the React component from LoopComponents/<componentKey>.jsx
   const modules = import.meta.glob("../../LoopComponents/*.jsx");
   const Comp = useMemo(() => {
     const jsxPath = `../../LoopComponents/${componentKey}.jsx`;
@@ -38,16 +41,17 @@ export default function ClientItemsTemplate({
       return lazy(modules[jsxPath]);
     }
     const fallbackPath = "../../LoopComponents/Card.jsx";
-    return lazy(modules[fallbackPath]);
+    if (modules[fallbackPath]) {
+      return lazy(modules[fallbackPath]);
+    }
+    return null;
   }, [componentKey]);
 
   if (!Comp) {
-    return null;
+    return null; // nothing to render if component wasn’t found
   }
 
-  console.log(alreadySorted, items, sorted);
-
-  // 3. Render either a Carousel or a static <ul>
+  // 4. Render either a carousel or a static <ul>
   return (
     <Suspense fallback={<div>Loading…</div>}>
       {slider.enabled ? (
