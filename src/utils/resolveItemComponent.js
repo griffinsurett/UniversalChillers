@@ -2,7 +2,7 @@
  * Shared helper: given whatever the caller passed as “ItemComponent”
  * (string, object, or function), normalise it and hand back:
  *
- *  • componentKey   – the inferred filename (e.g. "Card", "ListItem")
+ *  • componentKey   – inferred filename (e.g. "Card", "ListItem")
  *  • componentProps – extra props supplied by the caller
  *  • originalFn     – the function reference itself, if any
  */
@@ -18,8 +18,8 @@ function getKeyAndProps(ItemComponent) {
     typeof ItemComponent === "object" &&
     ItemComponent.component
   ) {
-    const candidate   = ItemComponent.component;
-    componentProps    = ItemComponent.props || {};
+    const candidate    = ItemComponent.component;
+    componentProps     = ItemComponent.props || {};
     if (typeof candidate === "string") {
       componentKey = candidate;
     } else if (typeof candidate === "function") {
@@ -39,25 +39,32 @@ function getKeyAndProps(ItemComponent) {
 export async function resolveSSRComponent(ItemComponent) {
   const { componentKey, componentProps, originalFn } = getKeyAndProps(ItemComponent);
 
+  /* 1️⃣ Caller passed a React/Astro component directly */
   if (originalFn) {
     return { RenderComponent: originalFn, componentKey, componentProps };
   }
 
-  /* Try <componentKey>.jsx → <componentKey>.astro → Card.jsx */
-  const paths = [
-    `../components/LoopComponents/${componentKey}.jsx`,
-    `../components/LoopComponents/${componentKey}.astro`,
-    `../components/LoopComponents/Card.jsx`,
-  ];
+  /* 2️⃣ Let Vite figure out chunk paths for us */
+  const jsxMods   = import.meta.glob("../components/LoopComponents/*.jsx");
+  const astroMods = import.meta.glob("../components/LoopComponents/*.astro");
 
-  for (const p of paths) {
-    try {
-      const mod = await import(p);
-      return { RenderComponent: mod.default, componentKey, componentProps };
-    } catch (_) { /* continue */ }
+  const wantedJsx   = `../components/LoopComponents/${componentKey}.jsx`;
+  const wantedAstro = `../components/LoopComponents/${componentKey}.astro`;
+  const fallbackJsx = `../components/LoopComponents/Card.jsx`;
+
+  const importer =
+    jsxMods[wantedJsx]   ||
+    astroMods[wantedAstro] ||
+    jsxMods[fallbackJsx];
+
+  if (!importer) {
+    throw new Error(
+      `resolveSSRComponent: no component "${componentKey}" (looked for .jsx and .astro)`
+    );
   }
 
-  throw new Error(`resolveSSRComponent: could not resolve ${componentKey}`);
+  const mod = await importer();          // Vite rewrites to hashed chunk path in build
+  return { RenderComponent: mod.default, componentKey, componentProps };
 }
 
 /* ─────────────────────────── 2. CSR (React) ─────────────────────────── */
@@ -67,7 +74,7 @@ import { lazy } from "react";
 export function resolveCSRComponent(ItemComponent) {
   const { componentKey, componentProps, originalFn } = getKeyAndProps(ItemComponent);
 
-  /* Caller passed a React function component directly → wrap in lazy() */
+  /* Direct React component → wrap with lazy() */
   if (originalFn) {
     return {
       LazyComponent: lazy(() => Promise.resolve({ default: originalFn })),
@@ -76,13 +83,13 @@ export function resolveCSRComponent(ItemComponent) {
     };
   }
 
-  /* Dynamically import ONLY .jsx files (Astro components are SSR-only) */
+  /* Dynamically import JSX modules only (Astro files are SSR-only) */
   const modules = import.meta.glob("../components/LoopComponents/*.jsx");
 
   const wanted   = `../components/LoopComponents/${componentKey}.jsx`;
   const fallback = "../components/LoopComponents/Card.jsx";
 
-  let importer = modules[wanted] || modules[fallback];
+  const importer = modules[wanted] || modules[fallback];
   if (!importer) {
     throw new Error(`resolveCSRComponent: no JSX module found for ${componentKey}`);
   }
