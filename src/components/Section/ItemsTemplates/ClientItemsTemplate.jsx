@@ -1,3 +1,4 @@
+// ClientItemsTemplate.jsx
 import React, { Suspense, useMemo } from "react";
 import Carousel from "./Carousel";
 import { resolveCSRComponent } from "@/utils/resolveItemComponent.js";
