@@ -1,5 +1,4 @@
-// src/components/Section/ItemsTemplates/ClientItemsTemplate.jsx
-import React, { lazy, Suspense, useMemo } from "react";
+import React, { Suspense, useMemo } from "react";
 import Carousel from "./Carousel";
 import { resolveCSRComponent } from "@/utils/resolveItemComponent.js";
 import { sortItems } from "@/utils/sortItems.js";
@@ -24,34 +23,21 @@ export default function ClientItemsTemplate({
     arrows: true,
   },
 }) {
-  // 1. Sort via shared helper (wrapped in useMemo so it only recalculates when dependencies change)
+  /* 1. Sort once unless deps change */
   const sorted = useMemo(
     () => sortItems(items, sortBy, sortOrder, manualOrder),
-    [items, sortBy, sortOrder, manualOrder]
+    [items, sortBy, sortOrder, manualOrder],
   );
 
-  // 2. Resolve componentKey + props
-  const { componentKey, componentProps } = resolveCSRComponent(ItemComponent);
+  /* 2. Get a ready-made React.lazy component + extra props */
+  const { LazyComponent: Comp, componentProps } = useMemo(
+    () => resolveCSRComponent(ItemComponent),
+    [ItemComponent],
+  );
 
-  // 3. Lazy‑load the React component from LoopComponents/<componentKey>.jsx
-  const modules = import.meta.glob("../../LoopComponents/*.jsx");
-  const Comp = useMemo(() => {
-    const jsxPath = `../../LoopComponents/${componentKey}.jsx`;
-    if (modules[jsxPath]) {
-      return lazy(modules[jsxPath]);
-    }
-    const fallbackPath = "../../LoopComponents/Card.jsx";
-    if (modules[fallbackPath]) {
-      return lazy(modules[fallbackPath]);
-    }
-    return null;
-  }, [componentKey]);
+  if (!Comp) return null;
 
-  if (!Comp) {
-    return null; // nothing to render if component wasn’t found
-  }
-
-  // 4. Render either a carousel or a static <ul>
+  /* 3. Render either carousel or plain list */
   return (
     <Suspense fallback={<div>Loading…</div>}>
       {slider.enabled ? (

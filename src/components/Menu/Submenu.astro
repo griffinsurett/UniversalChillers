@@ -1,11 +1,13 @@
 ---
 import ItemsTemplate from "@/components/Section/ItemsTemplates/ItemsTemplate.astro";
-import MenuItem from "./MenuItem.astro";
+import MenuItem      from "./MenuItem.astro";
 
 const {
-  parentLink,
+  /* Supplied by parent MenuItem */
+  parentId,
+  childItems = [],
 
-  /* same object we got from MenuItem above */
+  /* Submenu descriptor passed down the chain */
   submenu = {
     component: MenuItem,
     itemsClass: "",
@@ -20,23 +22,22 @@ const {
     },
   },
 } = Astro.props;
-
-// Derive “services”, “blog”, etc. from that parentLink
-const thisSlug = parentLink.split("/").filter(Boolean).pop() ?? "";
 ---
 
-<ItemsTemplate
-  collection="menuItems"
-  query="children"
-  pathname={thisSlug}
-  ItemComponent={{
-    component: submenu.subMenuItem.component ?? MenuItem,
-    props: {
-      ...submenu.subMenuItem.props,
-      submenu: submenu /* pass our object further for deeper nesting */,
-    },
-  }}
-  itemsClass={submenu.itemsClass}
-  itemClass=""
-  HasPage={false}
-/>
+{childItems.length ? (
+  <ItemsTemplate
+    items={childItems}
+    itemsClass={`submenu ${submenu.itemsClass}`}
+    itemClass=""
+    role="menu"
+    /* Render each child with the correct component/props */
+    ItemComponent={{
+      component: submenu.subMenuItem.component ?? MenuItem,
+      props: {
+        ...submenu.subMenuItem.props,
+        submenu,               
+      },
+    }}
+    HasPage={false}
+  />
+) : null}

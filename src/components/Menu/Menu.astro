@@ -1,7 +1,7 @@
 ---
 import ItemsTemplate   from "@/components/Section/ItemsTemplates/ItemsTemplate.astro";
 import MenuItem        from "./MenuItem.astro";
-import DefaultSubmenu   from "./Submenu.astro";
+import DefaultSubmenu  from "./Submenu.astro";
 
 const {
   collection    = "menuItems",
@@ -17,14 +17,12 @@ const {
       linkClass:    "",
       hierarchical: false,
       submenu: {
-        // if you don’t pass a submenu object, we’ll clone this as the default
         component: DefaultSubmenu,
-        itemsClass:
-          "submenu absolute left-0 top-full w-40 bg-white shadow-lg opacity-0 pointer-events-none transition-opacity duration-200 ease-in-out z-[100]",
+        itemsClass: "",
         subMenuItem: {
           component: MenuItem,
           props: {
-            itemClass:    "", 
+            itemClass:    "",
             linkClass:    "",
             hierarchical: true,
             subMenuItem:  null,
@@ -35,36 +33,38 @@ const {
   },
 } = Astro.props;
 
-// If caller didn’t supply menuItem.props.submenu, we fill in these defaults:
-let finalSubmenu = menuItem.props.submenu || {
-  component: DefaultSubmenu,
-  itemsClass:
-    "submenu absolute left-0 top-full w-40 bg-white shadow-lg opacity-0 pointer-events-none transition-opacity duration-200 ease-in-out z-[100]",
-  subMenuItem: {
-    component: menuItem.component,
-    props: { ...menuItem.props },
-  },
-};
+/* ————————————————————————————————————————————————————————————————
+   Build a canonical “submenu” object so every top-level <MenuItem>
+   receives the same defaults.
+—————————————————————————————————————————————————————————————— */
+const finalSubmenu =
+  menuItem.props.submenu || {
+    component: DefaultSubmenu,
+    itemsClass: "",
+    subMenuItem: {
+      component: menuItem.component,
+      props: { ...menuItem.props },
+    },
+  };
 
-// Build “menuItemProps” so that each top‑level <MenuItem> gets “submenu” baked in.
 const menuItemProps = {
   ...menuItem.props,
   submenu: finalSubmenu,
 };
 ---
 
-<nav>
-  <div class={itemsClass}>
-    <ItemsTemplate
-      collection={collection}
-      query={query}
-      sortOrder={sortOrder}
-      HasPage={HasPage}
-      itemsClass={itemsClass}
-      ItemComponent={{
-        component: menuItem.component,
-        props:      menuItemProps,
-      }}
-    />
-  </div>
+<nav aria-label="Main">
+  <!-- ItemsTemplate outputs a <ul>; we pass role="menubar" straight through -->
+  <ItemsTemplate
+    collection={collection}
+    query={query}
+    sortOrder={sortOrder}
+    HasPage={HasPage}
+    itemsClass={itemsClass}
+    role="menubar"
+    ItemComponent={{
+      component: menuItem.component,
+      props:     menuItemProps,
+    }}
+  />
 </nav>

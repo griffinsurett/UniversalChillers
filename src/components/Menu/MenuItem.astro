@@ -1,60 +1,69 @@
 ---
-import { getCollection } from "astro:content";
 import { normalizeRef }  from "@/utils/ContentUtils";
-import SubMenu from "./Submenu.astro";
+import { allMenuItems }  from "./menu-data";
+import Submenu           from "./Submenu.astro";
 
 const {
   item,
-
-  /* THIS <MenuItem>’s styling/behavior (level‑1 or level‑n) */
-  itemClass    = "",
-  linkClass    = "",
+  itemClass = "",
+  linkClass = "",
   hierarchical = false,
-
-  /* The full “submenu” object (component + itemsClass + subMenuItem) */
+  /* full submenu descriptor */
   submenu = {
     component: null,
     itemsClass: "",
     subMenuItem: {
       component: null,
       props: {
-        itemClass:    "",
-        linkClass:    "",
+        itemClass: "",
+        linkClass: "",
         hierarchical: true,
-        subMenuItem:  null,
+        subMenuItem: null,
       },
     },
   },
 } = Astro.props;
 
-// 1) Find children if any
-const thisSlug = item.data.link.split("/").filter(Boolean).pop() || "";
-const allMenuItems = await getCollection("menuItems");
+/* Stable identifier */
+const thisId = item.data.id ?? normalizeRef(item.data.link);
 
-const normalizedThis = normalizeRef(thisSlug);
-const childItems = allMenuItems.filter((c) => {
-  if (!c.data.parent) return false;
-  return normalizeRef(c.data.parent) === normalizedThis;
-});
+/* Children (cached list, no DB hit) */
+const childItems = allMenuItems.filter(
+  (c) => c.data.parent && normalizeRef(c.data.parent) === thisId,
+);
+
 const hasChildren = hierarchical && childItems.length > 0;
 
-// 2) “submenu.component” is the nested‐<ul> component (default or overridden)
-const SubmenuComponent = submenu.component || SubMenu;
+/* Resolve submenu component */
+const SubmenuComponent = submenu.component ?? Submenu;
 ---
 
-<li class={`relative menu-item ${itemClass}`}>
-  <a href={item.data.link} class={linkClass} rel="noopener noreferrer">
+<li
+  role="none"
+  class={`group relative menu-item ${itemClass}`}
+>
+  <a
+    href={item.data.link}
+    class={linkClass}
+    rel="noopener noreferrer"
+    role="menuitem"
+    aria-haspopup={hasChildren ? "true" : undefined}
+  >
     {item.data.icon && (
       <img
         src={item.data.icon}
         alt=""
         class="w-5 h-5 bg-[var(--color-accent)] rounded-full"
+        aria-hidden="true"
       />
     )}
     <span>{item.data.title}</span>
 
     {hasChildren && (
-      <span class="submenu-arrow text-sm ml-1 transform transition-transform duration-200">
+      <span
+        class="submenu-arrow ml-1 text-sm transform transition-transform duration-200"
+        aria-hidden="true"
+      >
         ▼
       </span>
     )}
@@ -62,7 +71,8 @@ const SubmenuComponent = submenu.component || SubMenu;
 
   {hasChildren && (
     <SubmenuComponent
-      parentLink={item.data.link}
+      parentId={thisId}
+      childItems={childItems}
       submenu={submenu}
     />
   )}
