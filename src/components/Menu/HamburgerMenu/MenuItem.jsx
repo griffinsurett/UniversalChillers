@@ -44,11 +44,11 @@ export default function MobileMenuItem({
           <span>{item.data.title}</span>
           <span
             className={`transform transition-transform duration-200 ${
-              open ? "rotate-90" : ""
+              open ? "rotate-180" : ""
             }`}
             aria-hidden="true"
           >
-            ▶
+            ▼
           </span>
         </button>
       ) : (
