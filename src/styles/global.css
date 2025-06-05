@@ -101,10 +101,14 @@ p {
   transform: rotate(180deg);
 }
 
-.menu-item:focus-within > .submenu,
-.menu-item:focus-within > a > .submenu-arrow {
+/* Show the submenu (no rotation) */
+.menu-item:focus-within > .submenu {
   opacity: 1;
   pointer-events: auto;
+}
+
+/* Only rotate the little “▼” arrow, not the submenu text */
+.menu-item:focus-within > a > .submenu-arrow {
   transform: rotate(180deg);
 }
 }
