@@ -1,9 +1,10 @@
 // src/components/Menu/HamburgerMenu/MenuItem.jsx
-
 import React, { useState } from "react";
 import { getChildItems } from "@/utils/menuUtils.js";
-import { sortItems } from "@/utils/sortItems.js"; 
 import ClientItemsTemplate from "@/components/Section/ItemsTemplates/ClientItemsTemplate.jsx";
+
+// ↓↓↓ Import shared Button
+import Button from "@/components/Button/Button.jsx";
 
 export default function MobileMenuItem({
   item,
@@ -28,7 +29,10 @@ export default function MobileMenuItem({
   return (
     <div className={`w-full ${itemClass}`}>
       {hasKids ? (
-        <button
+        // ── REPLACE plain <button> WITH <Button as="button"> ──
+        <Button
+          as="button"
+          variant="link"
           tabIndex={0}
           onClick={() => setOpen((prev) => !prev)}
           onKeyDown={(e) => {
@@ -50,10 +54,12 @@ export default function MobileMenuItem({
           >
             ▼
           </span>
-        </button>
+        </Button>
       ) : (
-        <a
-          tabIndex={0}
+        // ── LEAF NODE: still using <Button as="a"> ──
+        <Button
+          as="a"
+          variant="link"
           href={item.data.link}
           className={`flex w-full items-center justify-start ${linkClass}`}
           onClick={() => {
@@ -62,8 +68,8 @@ export default function MobileMenuItem({
             if (box) box.checked = false;
           }}
         >
-          <span>{item.data.title}</span>
-        </a>
+          {item.data.title}
+        </Button>
       )}
 
       {hasKids && open && (

@@ -5,6 +5,9 @@ import { allMenuItems } from "./menu-data";
 import Submenu from "./Submenu.astro";
 import { getChildItems } from "@/utils/menuUtils.js";
 
+// ↓↓↓ Import your shared Button
+import Button from "@/components/Button/Button.jsx";
+
 const {
   item,
   itemClass = "",
@@ -29,20 +32,23 @@ const {
 /* 1) Compute this item’s stable ID */
 const thisId = item.data.id ?? normalizeRef(item.data.link);
 
-/* 2) DRY’d‐out: find all direct children via our helper */
+/* 2) Find direct children via helper */
 const childItems = getChildItems(thisId, allMenuItems);
 const hasChildren = hierarchical && childItems.length > 0;
 
 /* 3) Resolve submenu component */
 const SubmenuComponent = submenu.component ?? Submenu;
 ---
-<li role="none" class={ `group relative menu-item ${itemClass}` }>
-  <a
+<li role="none" class={`group relative menu-item ${itemClass}`}>
+  {/** ── REPLACE <a> WITH <Button as="a"> ── **/}
+  <Button
+    variant="link"
+    as="a"
     href={item.data.link}
-    class={ linkClass }
+    class={linkClass}
     rel="noopener noreferrer"
     role="menuitem"
-    aria-haspopup={ hasChildren ? "true" : undefined }
+    aria-haspopup={hasChildren ? "true" : undefined}
     tabindex="0"
   >
     {item.data.icon && (
@@ -63,7 +69,7 @@ const SubmenuComponent = submenu.component ?? Submenu;
         ▼
       </span>
     )}
-  </a>
+  </Button>
 
   {hasChildren && (
     <SubmenuComponent

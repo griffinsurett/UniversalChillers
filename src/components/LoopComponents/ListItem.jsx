@@ -11,12 +11,26 @@ export default function ListItem({ item, itemClass, collectionName, HasPage }) {
   return (
     <article className={`flex items-start space-x-[var(--spacing-md)] ${itemClass}`}>
       <div className={`flex-shrink-0 p-[var(--spacing-sm)] rounded-full`}>
-        {item.data.icon && (
-          <img
-            src={item.data.icon}
-            alt="Icon"
-            className={`w-8 h-8 bg-[var(--color-accent)] rounded-full`}
-          />
+          {item.data.icon && (
+          // If icon is something that looks like a URL (starts with “/”, “http”, or ends in “.svg”/“.png”), render <img>.
+          // Otherwise assume it’s an emoji/string and render it in a <span>.
+          /^(\/|https?:\/\/).+|.+\.(svg|png|jpg|jpeg|webp)$/i.test(item.data.icon) ? (
+            <img
+              src={item.data.icon}
+              alt=""
+              className={`w-8 h-8 bg-[var(--color-accent)] rounded-full`}
+            />
+          ) : (
+            <span
+              className={`inline-flex items-center justify-center w-8 h-8 text-xl bg-[var(--color-accent)] text-bg rounded-full`}
+              aria-hidden="true"
+            >
+              {item.data.icon}
+            </span>
+          )
+        )}
+        {!item.data.icon && (
+          <div className={`w-8 h-8 bg-[var(--color-accent)] rounded-full`} />
         )}
         {!item.data.icon && (
           <div className={`w-8 h-8 bg-[var(--color-accent)] rounded-full`} />
