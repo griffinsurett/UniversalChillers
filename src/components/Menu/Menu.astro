@@ -1,70 +1,277 @@
 ---
-import ItemsTemplate   from "@/components/Section/ItemsTemplates/ItemsTemplate.astro";
-import MenuItem        from "./MenuItem.astro";
-import DefaultSubmenu  from "./Submenu.astro";
+// src/components/Menu/Menu.astro
+import ItemsTemplate       from "@/components/Section/ItemsTemplates/ItemsTemplate.astro";
+import { queryItems }      from "@/utils/CollectionQueryUtils.js";
+import { sortItems }       from "@/utils/sortItems.js";
+import MenuItem            from "./MenuItem.astro";
+import Submenu             from "./Submenu.astro";
+import HamburgerMenu       from "./HamburgerMenu/HamburgerMenu.jsx";
+
+// ✨ We still import “getCollection” server-side if you ever need to reference ALL “menuItems”
+//    for child lookups inside MenuItem.astro (but in this particular file we don’t need it directly).
+// import { getCollection } from "astro:content";
 
 const {
+  // ——————— Configuration Props ————————
   collection    = "menuItems",
+  // Only fetch items whose frontmatter “menu” field contains “mainMenu”
   query         = "relatedItem:menus:mainMenu",
-  itemsClass    = "flex gap-[var(--spacing-md)]",
+
+  sortBy        = undefined,
   sortOrder     = "asc",
+  manualOrder   = false,
   HasPage       = false,
 
-  menuItem = {
-    component: MenuItem,
-    props: {
-      itemClass:    "",
-      linkClass:    "",
-      hierarchical: false,
-      submenu: {
-        component: DefaultSubmenu,
-        itemsClass: "",
-        subMenuItem: {
-          component: MenuItem,
-          props: {
-            itemClass:    "",
-            linkClass:    "",
-            hierarchical: true,
-            subMenuItem:  null,
+  responsive    = false,
+  breakpoint    = "(max-width: 767px)",
+  hamburgerOnly = false,
+
+  // ——————— Desktop Menu Defaults ———————
+  desktop = {
+    itemsClass: "flex gap-[var(--spacing-md)]",
+    itemClass : "",
+    menuItem: {
+      component: MenuItem,
+      props: {
+        itemClass:    "",
+        linkClass:    "",
+        hierarchical: false,
+        submenu: {
+          component: Submenu,
+          itemsClass: "",
+          subMenuItem: {
+            component: MenuItem,
+            props: {
+              itemClass:    "",
+              linkClass:    "",
+              hierarchical: true,
+              subMenuItem:  null,
+            },
           },
         },
       },
     },
   },
+
+  // ——————— Mobile/Hamburger Defaults ———————
+  mobile = {
+    itemsClass: "",
+    itemClass : "",
+    menuItem: {
+      component: null,
+      props: {
+        itemClass:    "",
+        linkClass:    "",
+        hierarchical: true,
+        submenu: {
+          component: null,
+          itemsClass: "",
+          subMenuItem: {
+            component: null,
+            props: {
+              itemClass:    "",
+              linkClass:    "",
+              hierarchical: true,
+              subMenuItem:  null,
+            },
+          },
+        },
+      },
+    },
+    shared:     {},
+    cfg:        {},
+    checkboxId: "hamburger-menu-toggle",
+  },
 } = Astro.props;
 
-/* ————————————————————————————————————————————————————————————————
-   Build a canonical “submenu” object so every top-level <MenuItem>
-   receives the same defaults.
-—————————————————————————————————————————————————————————————— */
-const finalSubmenu =
-  menuItem.props.submenu || {
-    component: DefaultSubmenu,
+// ───────────────────────────────────────────────────────────────────────────────
+// 1) Fetch **all** “mainMenu” entries (roots + descendants stamped with menu: "mainMenu")
+// ───────────────────────────────────────────────────────────────────────────────
+let allMenuEntries = [];
+if (collection && query) {
+  allMenuEntries = await queryItems(query, collection, Astro.url.pathname);
+}
+
+// ───────────────────────────────────────────────────────────────────────────────
+// 2) Sort the flat array exactly as you do for desktop, so mobile and desktop ordering match
+// ───────────────────────────────────────────────────────────────────────────────
+let sortedMobileItems = allMenuEntries;
+if (Array.isArray(allMenuEntries)) {
+  sortedMobileItems = sortItems(allMenuEntries, sortBy, sortOrder, manualOrder);
+}
+
+// ───────────────────────────────────────────────────────────────────────────────
+// 3) Compute “roots” for the desktop menu (only items with no `data.parent`)
+//    These are the only items we want at top level in the SSR desktop nav.
+// ───────────────────────────────────────────────────────────────────────────────
+const desktopRoots = sortedMobileItems.filter((i) => !i.data.parent);
+
+// ───────────────────────────────────────────────────────────────────────────────
+// 4) Build desktop submenu descriptor (unchanged from before)
+// ───────────────────────────────────────────────────────────────────────────────
+function buildFinalSubmenu(desktopMenuItem) {
+  const rawSubs = desktopMenuItem.props.submenu;
+  if (rawSubs) return rawSubs;
+  return {
+    component: Submenu,
     itemsClass: "",
     subMenuItem: {
-      component: menuItem.component,
-      props: { ...menuItem.props },
+      component: desktopMenuItem.component,
+      props: { ...desktopMenuItem.props },
     },
   };
-
-const menuItemProps = {
-  ...menuItem.props,
-  submenu: finalSubmenu,
+}
+const finalDesktopSubmenu = buildFinalSubmenu(desktop.menuItem);
+const desktopMenuItemProps = {
+  ...desktop.menuItem.props,
+  submenu: finalDesktopSubmenu,
 };
 ---
 
-<nav aria-label="Main">
-  <!-- ItemsTemplate outputs a <ul>; we pass role="menubar" straight through -->
-  <ItemsTemplate
-    collection={collection}
-    query={query}
-    sortOrder={sortOrder}
-    HasPage={HasPage}
-    itemsClass={itemsClass}
-    role="menubar"
-    ItemComponent={{
-      component: menuItem.component,
-      props:     menuItemProps,
-    }}
-  />
-</nav>
+{/**
+  ────────────────────────────────────────────────
+  NON‐RESPONSIVE (desktop‐only) version:
+  Show just “desktopRoots” in a single <ItemsTemplate>.
+  ────────────────────────────────────────────────
+*/}
+{(!responsive) && (
+  <nav aria-label="Main">
+    <ItemsTemplate
+      items        ={desktopRoots}
+      collection   ={collection}
+      query        ={query}
+      sortBy       ={sortBy}
+      sortOrder    ={sortOrder}
+      manualOrder  ={manualOrder}
+      HasPage      ={HasPage}
+      itemsClass   ={desktop.itemsClass}
+      itemClass    ={desktop.itemClass}
+      ItemComponent={{
+        component: desktop.menuItem.component,
+        props:     desktopMenuItemProps,
+      }}
+      role="menubar"
+    />
+  </nav>
+)}
+
+{/**
+  ────────────────────────────────────────────────
+  RESPONSIVE (desktop + mobile) version:
+    • Keep exactly the same SSR desktop (hidden on md↓).  
+    • Show hamburger (visible on md↓) that receives the full flat list “sortedMobileItems”.  
+  ────────────────────────────────────────────────
+*/}
+{responsive && !hamburgerOnly && (
+  <>
+    {/* ——— Desktop (SSR) — Visible on md↑ ——— */}
+    <div class="hidden md:block">
+      <nav aria-label="Main">
+        <ItemsTemplate
+          items        ={desktopRoots}
+          collection   ={collection}
+          query        ={query}
+          sortBy       ={sortBy}
+          sortOrder    ={sortOrder}
+          manualOrder  ={manualOrder}
+          HasPage      ={HasPage}
+          itemsClass   ={desktop.itemsClass}
+          itemClass    ={desktop.itemClass}
+          ItemComponent={{
+            component: desktop.menuItem.component,
+            props:     desktopMenuItemProps,
+          }}
+          role="menubar"
+        />
+      </nav>
+    </div>
+
+    {/* ——— Mobile Hamburger — Visible on md↓ ——— */}
+    <div class="block md:hidden items-center">
+      <input
+        type="checkbox"
+        id={mobile.checkboxId}
+        class="hidden"
+      />
+      <label
+        for={mobile.checkboxId}
+        class="cursor-pointer p-2"
+        aria-label="Toggle menu"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-6 w-6 text-primary"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </label>
+
+      <HamburgerMenu
+        client:media={breakpoint}
+        checkboxId={mobile.checkboxId}
+
+        //-- Pass the full flat list of “mainMenu” items (roots + all descendants)
+        allItems={sortedMobileItems}
+
+        shared={{
+          collection,
+          query,
+          sortOrder,
+          HasPage,
+        }}
+        cfg={{
+          itemsClass: mobile.itemsClass,
+          menuItem:   mobile.menuItem,
+        }}
+      />
+    </div>
+  </>
+)}
+
+{responsive && hamburgerOnly && (
+  <div class="block md:hidden flex items-center">
+    <input
+      type="checkbox"
+      id={mobile.checkboxId}
+      class="hidden"
+    />
+    <label
+      for={mobile.checkboxId}
+      class="cursor-pointer p-2"
+      aria-label="Toggle menu"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="h-6 w-6 text-primary"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </label>
+
+    <HamburgerMenu
+      client:media={breakpoint}
+      checkboxId={mobile.checkboxId}
+
+      allItems={sortedMobileItems}
+
+      shared={{
+        collection,
+        query,
+        sortOrder,
+        HasPage,
+      }}
+      cfg={{
+        itemsClass: mobile.itemsClass,
+        menuItem:   mobile.menuItem,
+      }}
+    />
+  </div>
+)}

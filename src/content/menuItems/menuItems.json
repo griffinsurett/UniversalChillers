@@ -45,7 +45,8 @@
     "link": "services",
     "parent": "about-us",
     "weight": 2,
-    "openInNewTab": false
+    "openInNewTab": false,
+    "menu": "mainMenu"
   },
   {
     "id": "blog",
@@ -53,7 +54,8 @@
     "link": "/blog",
     "weight": 3,
     "openInNewTab": false,
-    "parent": "services"
+    "parent": "services",
+    "menu": "mainMenu"
   },
   {
     "id": "book",
@@ -61,6 +63,8 @@
     "link": "/book",
     "weight": 3,
     "openInNewTab": false,
-    "parent": "blog"
+    "parent": "blog",
+    "menu": "mainMenu"
+
   }
 ]

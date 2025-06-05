@@ -1,15 +1,14 @@
 ---
-// Header.astro
 import { SiteData } from "@/content/SiteData";
-import { Image } from "astro:assets";
-import Menu from "@/components/Menu/Menu.astro";
-import MenuItem from "@/components/Menu/MenuItem.astro";
-import Submenu from "@/components/Menu/Submenu.astro"; // your custom submenu component
+import { Image }   from "astro:assets";
+import Menu        from "@/components/Menu/Menu.astro";
+import MenuItem    from "@/components/Menu/MenuItem.astro";
+import Submenu     from "@/components/Menu/Submenu.astro";
+
+import MobileMenuItem from "@/components/Menu/HamburgerMenu/MenuItem.jsx";
 ---
 
-<header
-  class="flex justify-between items-center p-[var(--spacing-md)] bg-white"
->
+<header class="flex justify-between items-center p-[var(--spacing-md)] bg-white">
   <!-- Logo / site identity -->
   <a href="/" class="flex items-center">
     <Image
@@ -27,18 +26,35 @@ import Submenu from "@/components/Menu/Submenu.astro"; // your custom submenu co
     </div>
   </a>
 
-    <Menu
-      collection="menuItems"
-      query="relatedItem:menus:mainMenu"
-      sortOrder="asc"
-      itemsClass="hidden md:flex gap-[var(--spacing-md)]"
-      menuItem={{
+  <!--
+    Now call our new responsive Menu.astro. We pass in:
+      • responsive = true
+      • breakpoint = "(max-width: 767px)"
+      • hamburgerOnly = false (so both variants show)
+      • desktop  = { same desktop‐props as before }
+      • mobile   = { mobile‐specific props + MobileMenuItem + MobileSubmenu }
+
+    If you ever want “hamburgerOnly” on small screens, set `hamburgerOnly={true}`.
+  -->
+  <Menu
+    collection="menuItems"
+    query="relatedItem:menus:mainMenu"
+    sortOrder="asc"
+
+    responsive={true}
+    breakpoint="(max-width: 767px)"
+    hamburgerOnly={false}
+
+    desktop={{
+      itemsClass: "hidden md:flex gap-[var(--spacing-md)]",
+      itemClass : "",
+      menuItem: {
         component: MenuItem,
         props: {
           itemClass: "px-2 py-1 text-primary hover:text-secondary",
           linkClass:
             "flex items-center space-x-[var(--spacing-xs)] font-bold transition-colors duration-200",
-          hierarchical: true, // will look for children
+          hierarchical: true,
           submenu: {
             component: Submenu,
             itemsClass:
@@ -51,11 +67,68 @@ import Submenu from "@/components/Menu/Submenu.astro"; // your custom submenu co
                 linkClass:
                   "flex items-center space-x-[var(--spacing-xs)] font-medium transition-colors duration-200",
                 hierarchical: true,
-                subMenuItem: null, // you can nest a deeper override here if required
+                subMenuItem: null,
               },
             },
           },
         },
-      }}
-    />
+      },
+    }}
+
+    mobile={{
+      itemsClass: "flex flex-col gap-[var(--spacing-md)]",
+      itemClass : "p-[var(--spacing-sm)]",
+
+      menuItem: {
+        component: MobileMenuItem,
+        props: {
+          itemClass:    "p-[var(--spacing-sm)] text-lg text-primary",
+          linkClass:    "w-full text-left",
+          hierarchical: true,
+          submenu: {
+            component: MobileMenuItem, // reuse for nested
+            itemsClass: "ml-4 border-l border-gray-200",
+            subMenuItem: {
+              component: MobileMenuItem,
+              props: {
+                itemClass:    "p-[var(--spacing-sm)] text-base text-primary",
+                linkClass:    "w-full text-left",
+                hierarchical: true,
+                subMenuItem:  null,
+              },
+            },
+          },
+        },
+      },
+
+      shared: { collection: "menuItems", query: "relatedItem:menus:mainMenu", sortOrder: "asc", HasPage: true },
+
+      cfg: {
+        itemsClass: "flex flex-col space-y-[var(--spacing-sm)]",
+        menuItem:    {
+          component: MobileMenuItem,
+          props: {
+            itemClass: "p-[var(--spacing-sm)] text-lg text-primary",
+            linkClass: "w-full text-left",
+            hierarchical: true,
+            submenu: {
+              component: MobileMenuItem,
+              itemsClass: "ml-4 border-l border-gray-200",
+              subMenuItem: {
+                component: MobileMenuItem,
+                props: {
+                  itemClass:    "p-[var(--spacing-sm)] text-base text-primary",
+                  linkClass:    "w-full text-left",
+                  hierarchical: true,
+                  subMenuItem:  null,
+                },
+              },
+            },
+          },
+        },
+      },
+
+      checkboxId: "hamburger-menu-toggle",
+    }}
+  />
 </header>

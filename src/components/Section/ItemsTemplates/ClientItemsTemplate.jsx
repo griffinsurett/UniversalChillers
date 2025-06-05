@@ -15,7 +15,7 @@ export default function ClientItemsTemplate({
   collectionName,
   HasPage,
   slider = {
-    enabled: true,
+    enabled: false,
     autoplay: true,
     autoplaySpeed: 3000,
     infinite: false,
@@ -67,6 +67,7 @@ export default function ClientItemsTemplate({
           {sorted.map((item) => (
             <li className="contents" key={item.slug}>
               <Comp
+                key={item.slug}
                 item={item}
                 collectionName={collectionName}
                 HasPage={HasPage}

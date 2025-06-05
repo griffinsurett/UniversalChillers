@@ -1,7 +1,10 @@
 ---
-import { normalizeRef }  from "@/utils/ContentUtils";
-import { allMenuItems }  from "./menu-data";
-import Submenu           from "./Submenu.astro";
+// src/components/Menu/MenuItem.astro
+
+import { normalizeRef } from "@/utils/ContentUtils";
+import { allMenuItems } from "./menu-data";
+import Submenu from "./Submenu.astro";
+import { getChildItems } from "@/utils/menuUtils.js";
 
 const {
   item,
@@ -24,30 +27,24 @@ const {
   },
 } = Astro.props;
 
-/* Stable identifier */
+/* 1) Compute this item’s stable ID */
 const thisId = item.data.id ?? normalizeRef(item.data.link);
 
-/* Children (cached list, no DB hit) */
-const childItems = allMenuItems.filter(
-  (c) => c.data.parent && normalizeRef(c.data.parent) === thisId,
-);
-
+/* 2) DRY’d‐out: find all direct children via our helper */
+const childItems = getChildItems(thisId, allMenuItems);
 const hasChildren = hierarchical && childItems.length > 0;
 
-/* Resolve submenu component */
+/* 3) Resolve submenu component */
 const SubmenuComponent = submenu.component ?? Submenu;
 ---
-
-<li
-  role="none"
-  class={`group relative menu-item ${itemClass}`}
->
+<li role="none" class={ `group relative menu-item ${itemClass}` }>
   <a
     href={item.data.link}
-    class={linkClass}
+    class={ linkClass }
     rel="noopener noreferrer"
     role="menuitem"
-    aria-haspopup={hasChildren ? "true" : undefined}
+    aria-haspopup={ hasChildren ? "true" : undefined }
+    tabindex="0"
   >
     {item.data.icon && (
       <img
