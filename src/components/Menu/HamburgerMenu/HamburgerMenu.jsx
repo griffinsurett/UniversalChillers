@@ -12,6 +12,8 @@ export default function HamburgerMenu({
 }) {
   const { itemsClass = "", menuItem = {} } = cfg;
   const finalMenuItemComponent = menuItem.component || MobileMenuItem;
+  const sortBy = shared.sortBy ?? undefined;
+  const sortOrder = shared.sortOrder ?? undefined;
 
   const finalMenuItemProps = {
     itemClass:
@@ -81,6 +83,8 @@ export default function HamburgerMenu({
             }}
             itemsClass="flex flex-col items-center space-y-6 text-lg"
             itemClass=""
+            sortBy={sortBy}
+            sortOrder={sortOrder}
           />
         </Suspense>
       </nav>

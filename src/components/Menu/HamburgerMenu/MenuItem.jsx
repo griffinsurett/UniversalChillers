@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { getChildItems } from "@/utils/menuUtils.js";
+import { sortItems } from "@/utils/sortItems.js"; 
 import ClientItemsTemplate from "@/components/Section/ItemsTemplates/ClientItemsTemplate.jsx";
 
 export default function MobileMenuItem({
