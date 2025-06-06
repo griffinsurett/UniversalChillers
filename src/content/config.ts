@@ -104,6 +104,11 @@ export const AddToMenuFields = z.object({
 export const ItemsAddToMenuFields = z.object({
   ...MenuReferenceField,
   ...BaseMenuFields,
+  // NEW: if true, preserve the collection’s own parent–child structure
+  respectHierarchy: z
+    .boolean()
+    .optional()
+    .default(false),
 });
 
 // ————————————————————————————————

@@ -14,18 +14,14 @@ import HamburgerMenu       from "./HamburgerMenu/HamburgerMenu.jsx";
 const {
   // ——————— Configuration Props ————————
   collection    = "menuItems",
-  // Only fetch items whose frontmatter “menu” field contains “mainMenu”
   query         = "relatedItem:menus:mainMenu",
-
   sortBy        = undefined,
   sortOrder     = "asc",
   manualOrder   = false,
   HasPage       = false,
-
   responsive    = false,
   breakpoint    = "(max-width: 767px)",
   hamburgerOnly = false,
-
   // ——————— Desktop Menu Defaults ———————
   desktop = {
     itemsClass: "flex gap-[var(--spacing-md)]",

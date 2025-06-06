@@ -3,11 +3,11 @@
 import { getImage } from 'astro:assets';
 
 const {
-  /** URL or import for your video file */
   src: videoSrc,
-  /** URL or import for your poster image */
   poster: posterSrc,
-  /** Optional image‐transform options for getImage */
+  autoplay = false,
+  loop = false,
+  muted = false,
   posterOptions = {
     width: 1280,
     format: 'webp',
@@ -24,17 +24,18 @@ if (posterSrc) {
   optimizedPoster = await getImage({ src: posterSrc }, posterOptions);
 }
 ---
-
 <video
   src={videoSrc}
   poster={optimizedPoster?.src || posterSrc}
   {...videoProps}
   playsinline
   preload="metadata"
-  class="aspect-video"
+  autoplay={autoplay}
+  loop={loop}
+  muted={muted}
+  class=`aspect-video`
 >
   <source src={videoSrc} type="video/mp4" />
-  <!-- Fallback for very old browsers -->
   <p>Your browser doesn’t support HTML5 video. 
     <a href={videoSrc}>Download the video</a>.
   </p>
