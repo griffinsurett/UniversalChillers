@@ -14,24 +14,6 @@ defaultSection:
   # manualOrder: true
   sortOrder: "desc"
   component: "ListItem"
-sections:
-  - collection: "services"
-    query: "getAll"
-  - collection: "projects"
-    query: "related"
-    heading: "Related Projects"
-  - collection: "testimonials"
-    query: "related"
-    heading: "Client Testimonials"
-    description: "Hear what our clients have say about our work."
-    buttons: [
-      {
-        text: "Read Testimonials",
-        variant: "primary",
-      }
-    ]
-  - collection: "clients"
-    query: "related"
 itemsSections:
   - collection: "projects"
     query: "related"
@@ -69,3 +51,23 @@ addItemsToQuery: [
   }
 ]
 ---
+import Section from '@/components/Section/Section.astro'
+
+<Section collection="services" query="getAll" />
+
+<Section
+  collection="projects"
+  query="related"
+  heading="Related Projects"
+/>
+
+<Section
+  collection="testimonials"
+  query="related"
+  heading="Client Testimonials"
+/>
+
+<Section
+  collection="clients"
+  query="related"
+/>

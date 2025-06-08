@@ -1,39 +1,47 @@
 ---
-// /[collection]/index.astro
+// src/pages/[collection]/index.astro
+
 import Section from "@/components/Section/Section.astro";
 import { collections } from "@/content/config";
 import { getCollectionMeta } from "@/utils/FetchMeta";
 import { capitalize } from "@/utils/ContentUtils";
 
+// 1) Static paths
 export async function getStaticPaths() {
-  const collectionNames = Object.keys(collections);
-  const allPaths = [];
-  for (const collName of collectionNames) {
-    const meta = await getCollectionMeta(collName);
+  const names = Object.keys(collections);
+  const paths = [];
+
+  for (const coll of names) {
+    const meta = await getCollectionMeta(coll).catch(() => ({}));
     if (meta.hasPage !== false) {
-      allPaths.push({ params: { collection: collName } });
+      paths.push({ params: { collection: coll } });
     }
   }
-  return allPaths;
+
+  return paths;
 }
 
+// 2) Load this collection’s meta
 const { collection } = Astro.params;
 const meta = await getCollectionMeta(collection).catch(() => ({}));
 
-// 2) Choose layout relative spec
-const spec = meta.layout || "../../layouts/ExtendedLayout.astro";
-
-// 3) Glob‑register layouts
-const layoutImporters = import.meta.glob("../../layouts/**/*.astro");
-
-// 4) Load the selected layout
-const importer = layoutImporters[spec];
-if (!importer) {
-  throw new Error(`Unknown layout specifier: ${spec}`);
+// 3) Try to import the MDX body
+let Body = null;
+try {
+  const mod = await import(`../../content/${collection}/_meta.mdx`);
+  Body = mod.default;
+} catch {
+  /* no _meta.mdx or failed import */
 }
+
+// 4) Load the layout
+const spec = meta.layout || "../../layouts/ExtendedLayout.astro";
+const layoutMap = import.meta.glob("../../layouts/**/*.astro");
+const importer  = layoutMap[spec];
+if (!importer) throw new Error(`Unknown layout: ${spec}`);
 const { default: Layout } = await importer();
 
-// 5) Build sections
+// 5) Build fallback sections
 const sections = meta.sections?.length
   ? meta.sections
   : [
@@ -44,8 +52,6 @@ const sections = meta.sections?.length
         description: meta.description,
       },
     ];
-
-    console.log("robots", meta.robots);
 ---
 
 <Layout
@@ -56,25 +62,29 @@ const sections = meta.sections?.length
   robots={meta.robots}
   ogType={meta.ogType}
 >
-  {
-    sections.map((section, i) => (
-      <Section
-        key={i}
-        variant={section.variant}
-        collection={section.collection}
-        query={section.query}
-        heading={section.heading}
-        buttons={section.buttons}
-        description={section.description}
-        descriptionClass={section.descriptionClass}
-        sectionClass={section.sectionClass}
-        contentClass={section.contentClass}
-        itemsClass={section.itemsClass}
-        itemClass={section.itemClass}
-        buttonsSectionClass={section.buttonsSectionClass}
-        headingAreaClass={section.headingAreaClass}
-        {...section}
-      />
-    ))
-  }
+  {Body ? (
+    <Body />
+  ) : (
+    <>
+      {sections.map((section, i) => (
+        <Section
+          key={i}
+          variant={section.variant}
+          collection={section.collection}
+          query={section.query}
+          heading={section.heading}
+          buttons={section.buttons}
+          description={section.description}
+          descriptionClass={section.descriptionClass}
+          sectionClass={section.sectionClass}
+          contentClass={section.contentClass}
+          itemsClass={section.itemsClass}
+          itemClass={section.itemClass}
+          buttonsSectionClass={section.buttonsSectionClass}
+          headingAreaClass={section.headingAreaClass}
+          {...section}
+        />
+      ))}
+    </>
+  )}
 </Layout>
