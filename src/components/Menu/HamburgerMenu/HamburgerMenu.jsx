@@ -66,11 +66,11 @@ export default function HamburgerMenu({
         // close the modal
         setOpen(false);
         // also uncheck the toggle so the hamburger icon resets
-        const box = document.getElementById(checkboxId);
-        if (box) {
-          box.checked = false;
+        const checkbox = document.getElementById(checkboxId);
+        if (checkbox) {
+          checkbox.checked = false;
           // dispatch a change so our HamburgerIcon sees it
-          box.dispatchEvent(new Event("change", { bubbles: true }));
+          checkbox.dispatchEvent(new Event("change", { bubbles: true }));
         }}}
     >
       <nav

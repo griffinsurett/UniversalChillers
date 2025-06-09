@@ -1,8 +1,8 @@
-// src/components/Button.jsx
+// src/components/Button/Button.jsx
 import ButtonIcon from "./ButtonIcon";
 import { ButtonVariants } from "./ButtonVariants.js";
 
-export default async function Button({
+export default function Button({
   as: ComponentProp,
   type = "button",
   onClick,

@@ -1,8 +1,7 @@
-// src/components/ButtonIcon.jsx
+// src/components/Button/ButtonIcon.jsx
 import React from "react";
-import { getImage } from "astro:assets";
 
-export default async function ButtonIcon({
+export default function ButtonIcon({
   showIcon,
   element,
   src,
@@ -13,7 +12,6 @@ export default async function ButtonIcon({
 }) {
   if (!showIcon) return null;
 
-  // Build container classes for hover/animation
   let iconContainerClasses = "";
   if (hoverOnly) {
     iconContainerClasses = animateIcon
@@ -27,11 +25,12 @@ export default async function ButtonIcon({
     iconContainerClasses = position === "right" ? "ml-2 inline-flex" : "inline-flex";
   }
 
-  const containerClass = iconCustomClass.includes("hidden")
-    ? iconCustomClass
-    : `${iconCustomClass} ${iconContainerClasses}`.trim();
+  const containerClass =
+    iconCustomClass.includes("hidden")
+      ? iconCustomClass
+      : `${iconCustomClass} ${iconContainerClasses}`.trim();
 
-  // 1) Inline SVG/component override?
+  // Inline element override
   if (element) {
     const CustomIcon = typeof element === "function" ? element : () => element;
     return (
@@ -41,19 +40,15 @@ export default async function ButtonIcon({
     );
   }
 
-  // 2) Explicit src override?
+  // Explicit src override (static fallback)
   if (src) {
-    const optimized = await getImage(
-      { src },
-      { format: "webp", quality: 50, width: 20, sizes: "16px" }
-    );
     return (
       <span className={containerClass}>
-        <img src={optimized.src} alt="" className="h-4 w-auto" loading="lazy" />
+        <img src={src} alt="" className="h-4 w-auto" loading="lazy" />
       </span>
     );
   }
 
-  // 3) Neither supplied ⇢ render nothing
+  // Neither supplied
   return null;
 }

@@ -54,7 +54,7 @@ export default function ClientItemsTemplate({
           itemClass={itemClass}
           renderItem={(item) => (
             <Comp
-              key={item.slug}
+              key={item.slug || item.id}
               item={item}
               collectionName={collectionName}
               HasPage={HasPage}
@@ -65,7 +65,7 @@ export default function ClientItemsTemplate({
       ) : (
         <ul className={itemsClass}>
           {sorted.map((item) => (
-            <li className="contents" key={item.slug}>
+            <li className="contents" key={item.slug || item.id}>
               <Comp
                 key={item.slug}
                 item={item}
