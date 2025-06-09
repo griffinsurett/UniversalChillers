@@ -98,7 +98,7 @@ let sortedMobileItems = Array.isArray(allMenuEntries)
 const desktopRoots = sortedMobileItems.filter((i) => !i.data.parent);
 ---
 
-{!responsive && (
+{!responsive && !hamburgerOnly && (
   <nav aria-label="Main">
     <ItemsTemplate
       items={desktopRoots}
@@ -169,33 +169,9 @@ const desktopRoots = sortedMobileItems.filter((i) => !i.data.parent);
   </>
 )}
 
-{responsive && hamburgerOnly && (
+{hamburgerOnly && (
     <>
-    <div class="hidden md:block">
-      <nav aria-label="Main">
-        <ItemsTemplate
-          items={desktopRoots}
-          collection={collection}
-          query={query}
-          sortBy={sortBy}
-          sortOrder={sortOrder}
-          manualOrder={manualOrder}
-          HasPage={HasPage}
-          itemsClass={desktop.itemsClass}
-          itemClass={desktop.itemClass}
-          ItemComponent={{
-            component: desktop.menuItem.component,
-            props: {
-              ...desktop.menuItem.props,
-              allItems: sortedMobileItems,
-            },
-          }}
-          role="menubar"
-        />
-      </nav>
-    </div>
-
-    <div class="block md:hidden items-center">
+    <div class="block items-center">
       <input type="checkbox" id={mobile.checkboxId} class="hidden" />
       <label for={mobile.checkboxId} class="relative w-6 h-6 cursor-pointer" aria-label="Toggle menu">
         <HamburgerIcon
