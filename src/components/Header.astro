@@ -100,33 +100,9 @@ import MobileMenuItem from "@/components/Menu/HamburgerMenu/MenuItem.jsx";
           },
         },
       },
+      hamburgerTransform: true,
 
       shared: { collection: "menuItems", query: "relatedItem:menus:mainMenu", sortOrder: "asc", HasPage: true },
-
-      cfg: {
-        itemsClass: "flex flex-col space-y-[var(--spacing-sm)]",
-        menuItem:    {
-          component: MobileMenuItem,
-          props: {
-            itemClass: "p-[var(--spacing-sm)] text-lg text-primary",
-            linkClass: "w-full text-left",
-            hierarchical: true,
-            submenu: {
-              component: MobileMenuItem,
-              itemsClass: "ml-4 border-l border-gray-200",
-              subMenuItem: {
-                component: MobileMenuItem,
-                props: {
-                  itemClass:    "p-[var(--spacing-sm)] text-base text-primary",
-                  linkClass:    "w-full text-left",
-                  hierarchical: true,
-                  subMenuItem:  null,
-                },
-              },
-            },
-          },
-        },
-      },
 
       checkboxId: "hamburger-menu-toggle",
     }}

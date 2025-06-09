@@ -62,7 +62,16 @@ export default function HamburgerMenu({
       overlayClass="bg-black bg-opacity-75"
       closeButton={true}
       closeButtonClass="absolute top-4 right-4 p-2 text-gray-700 hover:text-black"
-      onClose={() => setOpen(false)}
+      onClose={() => {
+        // close the modal
+        setOpen(false);
+        // also uncheck the toggle so the hamburger icon resets
+        const box = document.getElementById(checkboxId);
+        if (box) {
+          box.checked = false;
+          // dispatch a change so our HamburgerIcon sees it
+          box.dispatchEvent(new Event("change", { bubbles: true }));
+        }}}
     >
       <nav
         aria-label="Mobile Menu"
@@ -70,6 +79,7 @@ export default function HamburgerMenu({
       >
         <Suspense fallback={<div className="p-4">Loading…</div>}>
           <ClientItemsTemplate
+            key={menuItem.id || menuItem.slug }
             items={roots}
             collectionName={shared.collection}
             HasPage={shared.HasPage}
