@@ -4,6 +4,7 @@ import MenuItem      from "./MenuItem.astro";
 
 const {
   /* Supplied by parent MenuItem */
+  allItems = [],
   parentId,
   childItems = [],
 
@@ -35,6 +36,7 @@ const {
       component: submenu.subMenuItem.component ?? MenuItem,
       props: {
         ...submenu.subMenuItem.props,
+        allItems,
         submenu,               
       },
     }}

@@ -1,5 +1,6 @@
 // src/utils/MenuBuilder.server.ts
 import { getCollection } from "astro:content";
+  import { collections } from "@/content/config";
 import { normalizeRef, capitalize } from "./ContentUtils";
 import { getCollectionMeta } from "./FetchMeta";
 import type { ItemsAddToMenuFields } from "@/content/config";
@@ -55,13 +56,10 @@ async function gatherMenuInstructions(): Promise<{
   allBulk: BulkWithContext[];
 }> {
   // Skip “menus” and “menuItems” themselves (they aren’t injecting into any other menu).
-  const contentCollections = [
-    "services",
-    "projects",
-    "testimonials",
-    "faq",
-    "clients",
-  ] as const;
+// Grab every collection defined in src/content/config.ts, except our
+  // built-in "menus" and "menuItems" collections.
+  const contentCollections = Object.keys(collections)
+    .filter((name) => name !== "menus" && name !== "menuItems");
 
   const allOneOff: OneOffWithContext[] = [];
   const allBulk:   BulkWithContext[]   = [];

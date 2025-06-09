@@ -39,22 +39,13 @@
     "openInNewTab": false,
     "menu": ["mainMenu", "footerMenu"]
   },
-   {
-    "id": "services",
-    "title": "Services",
-    "link": "services",
-    "parent": "about-us",
-    "weight": 2,
-    "openInNewTab": false,
-    "menu": "mainMenu"
-  },
   {
     "id": "blog",
     "title": "Blog",
     "link": "/blog",
     "weight": 3,
     "openInNewTab": false,
-    "parent": "services",
+    "parent": "about-us",
     "menu": "mainMenu"
   },
   {

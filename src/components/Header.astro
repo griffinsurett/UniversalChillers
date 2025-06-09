@@ -26,27 +26,16 @@ import MobileMenuItem from "@/components/Menu/HamburgerMenu/MenuItem.jsx";
     </div>
   </a>
 
-  <!--
-    Now call our new responsive Menu.astro. We pass in:
-      • responsive = true
-      • breakpoint = "(max-width: 767px)"
-      • hamburgerOnly = false (so both variants show)
-      • desktop  = { same desktop‐props as before }
-      • mobile   = { mobile‐specific props + MobileMenuItem + MobileSubmenu }
-
-    If you ever want “hamburgerOnly” on small screens, set `hamburgerOnly={true}`.
-  -->
   <Menu
     collection="menuItems"
     query="relatedItem:menus:mainMenu"
     sortOrder="asc"
-
     responsive={true}
     breakpoint="(max-width: 767px)"
     hamburgerOnly={false}
 
     desktop={{
-      itemsClass: "hidden md:flex gap-[var(--spacing-md)]",
+      itemsClass: "flex gap-[var(--spacing-md)]",
       itemClass : "",
       menuItem: {
         component: MenuItem,

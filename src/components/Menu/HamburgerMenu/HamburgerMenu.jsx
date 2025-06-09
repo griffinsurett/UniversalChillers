@@ -1,5 +1,5 @@
 // src/components/Menu/HamburgerMenu/HamburgerMenu.jsx
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect, Suspense, Children } from "react";
 import Modal from "@/components/Modal.jsx";
 import ClientItemsTemplate from "@/components/Section/ItemsTemplates/ClientItemsTemplate.jsx";
 import MobileMenuItem from "./MenuItem.jsx";
@@ -97,6 +97,7 @@ export default function HamburgerMenu({
             sortOrder={sortOrder}
           />
         </Suspense>
+        
       </nav>
     </Modal>
   );

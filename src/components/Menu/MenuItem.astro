@@ -1,7 +1,7 @@
 ---
 // src/components/Menu/MenuItem.astro
 import { normalizeRef } from "@/utils/ContentUtils";
-import { allMenuItems } from "./menu-data";
+// import { allMenuItems } from "./menu-data";
 import Submenu from "./Submenu.astro";
 import { getChildItems } from "@/utils/menuUtils.js";
 
@@ -10,6 +10,7 @@ import Button from "@/components/Button/Button.jsx";
 
 const {
   item,
+  allItems,
   itemClass = "",
   linkClass = "",
   hierarchical = false,
@@ -33,7 +34,7 @@ const {
 const thisId = item.data.id ?? normalizeRef(item.data.link);
 
 /* 2) Find direct children via helper */
-const childItems = getChildItems(thisId, allMenuItems);
+const childItems = getChildItems(thisId, allItems);
 const hasChildren = hierarchical && childItems.length > 0;
 
 /* 3) Resolve submenu component */
@@ -73,6 +74,7 @@ const SubmenuComponent = submenu.component ?? Submenu;
 
   {hasChildren && (
     <SubmenuComponent
+      allItems={allItems}
       parentId={thisId}
       childItems={childItems}
       submenu={submenu}
