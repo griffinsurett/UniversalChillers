@@ -6,6 +6,7 @@ import { sortItems }       from "@/utils/sortItems.js";
 import MenuItem            from "./MenuItem.astro";
 import Submenu             from "./Submenu.astro";
 import HamburgerMenu       from "./HamburgerMenu/HamburgerMenu.jsx";
+import HamburgerIcon from "./HamburgerMenu/HamburgerIcon";
 
 // ✨ We still import “getCollection” server-side if you ever need to reference ALL “menuItems”
 //    for child lookups inside MenuItem.astro (but in this particular file we don’t need it directly).
@@ -191,19 +192,10 @@ const desktopMenuItemProps = {
       />
       <label
         for={mobile.checkboxId}
-        class="cursor-pointer p-2"
+        class="relative w-6 h-6 cursor-pointer"
         aria-label="Toggle menu"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-6 w-6 text-primary"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M4 6h16M4 12h16M4 18h16" />
-        </svg>
+        <HamburgerIcon />
       </label>
 
       <HamburgerMenu
@@ -237,19 +229,10 @@ const desktopMenuItemProps = {
     />
     <label
       for={mobile.checkboxId}
-      class="cursor-pointer p-2"
+        class="cursor-pointer"
       aria-label="Toggle menu"
     >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        class="h-6 w-6 text-primary"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M4 6h16M4 12h16M4 18h16" />
-        </svg>
+     <HamburgerIcon />
       </label>
 
     <HamburgerMenu
