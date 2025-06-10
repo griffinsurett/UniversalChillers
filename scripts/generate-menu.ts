@@ -1,7 +1,7 @@
 // scripts/generate-menu.ts
 import fs from 'fs/promises';
 import path from 'path';
-import { buildAllMenuItems } from '../src/utils/MenuBuilder';
+import { buildAllMenuItems } from '../src/utils/MenuBuilder.server';
 
 async function main() {
   const items = await buildAllMenuItems();
