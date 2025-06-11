@@ -1,5 +1,4 @@
 // src/utils/CollectionQueryUtils.ts
-
 import { getCollection, getEntry, getEntries } from "astro:content";
 import { normalizeRef, toArray } from "./ContentUtils";
 import { collections } from "@/content/config";
@@ -9,12 +8,15 @@ import { collections } from "@/content/config";
  *
  * Supports the following query formats:
  *   • "getAll" or `getAll${collectionName}`
- *   • "related" or `related${collectionName}`       → existing related logic
+ *   • "related" or `related${collectionName}`       
  *   • "parent" or `parent${collectionName}`
  *   • "children" or `children${collectionName}`
  *   • "sibling" or `sibling${collectionName}`
  *   • "relatedType:<TargetCollection>"
  *   • "relatedItem:<TargetCollection>:<TargetSlug>"
+ *   • "parentItem:<Collection>:<Slug>"
+ *   • "childrenItem:<Collection>:<Slug>"
+ *   • "siblingItem:<Collection>:<Slug>"
  *   • fallback: treat queryType as a tag in frontmatter
  */
 export async function queryItems(
@@ -26,6 +28,49 @@ export async function queryItems(
   const { routeCollectionName, slug } = parseRouteCollection(pathname);
 
   // ────────────────────────────────────────────────────────────────────────
+  // 0a) "parentItem:<Collection>:<Slug>" ──────────────────────────────────
+  if (queryType.startsWith("parentItem:")) {
+    const parts = queryType.split(":"); // ["parentItem","Collection","Slug"]
+    if (parts.length !== 3) {
+      throw new Error(
+        `Invalid parentItem syntax. Use "parentItem:<Collection>:<Slug>", got "${queryType}".`
+      );
+    }
+    const coll = parts[1];
+    const targetSlug = parts[2];
+    const parent = await getParentItem(coll, targetSlug);
+    return parent ? [parent] : [];
+  }
+
+  // ────────────────────────────────────────────────────────────────────────
+  // 0b) "childrenItem:<Collection>:<Slug>" ────────────────────────────────
+  if (queryType.startsWith("childrenItem:")) {
+    const parts = queryType.split(":"); // ["childrenItem","Collection","Slug"]
+    if (parts.length !== 3) {
+      throw new Error(
+        `Invalid childrenItem syntax. Use "childrenItem:<Collection>:<Slug>", got "${queryType}".`
+      );
+    }
+    const coll = parts[1];
+    const targetSlug = parts[2];
+    return await getChildrenItems(coll, targetSlug);
+  }
+
+  // ────────────────────────────────────────────────────────────────────────
+  // 0c) "siblingItem:<Collection>:<Slug>" ─────────────────────────────────
+  if (queryType.startsWith("siblingItem:")) {
+    const parts = queryType.split(":"); // ["siblingItem","Collection","Slug"]
+    if (parts.length !== 3) {
+      throw new Error(
+        `Invalid siblingItem syntax. Use "siblingItem:<Collection>:<Slug>", got "${queryType}".`
+      );
+    }
+    const coll = parts[1];
+    const targetSlug = parts[2];
+    return await getSiblingItems(coll, targetSlug);
+  }
+
+  // ────────────────────────────────────────────────────────────────────────
   // 1) "getAll" ────────────────────────────────────────────────────────────
   if (queryType === "getAll" || queryType === `getAll${collectionName}`) {
     return await getAllItems(collectionName);
@@ -33,40 +78,38 @@ export async function queryItems(
 
   // ────────────────────────────────────────────────────────────────────────
   // 2) "relatedType:<TargetCollection>" ──────────────────────────────────
-  //    Return all items in `collectionName` that reference ANY item in <TargetCollection>.
-  //    e.g. "relatedType:menus" finds all `menuItems` whose frontmatter references any `menus` slug.
   if (queryType.startsWith("relatedType:")) {
-    const parts = queryType.split(":"); // ["relatedType", "<TargetCollection>"]
+    const parts = queryType.split(":"); // ["relatedType","TargetCollection"]
     if (parts.length !== 2) {
       throw new Error(
         `Invalid relatedType syntax. Use "relatedType:<TargetCollection>", got "${queryType}".`
       );
     }
     const targetCollection = parts[1];
-
-    // 2a) Gather all slugs from <TargetCollection>
     const targetItems = await getCollection(targetCollection);
     const targetSlugs = targetItems.map((item) => normalizeRef(item.slug));
 
-    // 2b) Filter current collection by any frontmatter field referencing any targetSlug
     const items = await getCollection(collectionName);
-    return items.filter((item) => {
-      for (const key in item.data) {
-        const value = toArray(item.data[key]);
-        if (value.map(normalizeRef).some((ref) => targetSlugs.includes(ref))) {
-          return true;
-        }
-      }
-      return false;
-    });
+    return items.filter((item) =>
+      Object.values(item.data)
+        .flatMap(toArray)
+        .map(normalizeRef)
+        .some((ref) => targetSlugs.includes(ref))
+    );
   }
+
+    // ────────────────────────────────────────────────────────────────────────
+  // 0d) "roots" or "roots{Collection}" ────────────────────────────────────
+  if (queryType === "roots" || queryType === `roots${collectionName}`) {
+    const all = await getCollection(collectionName);
+    return all.filter((item) => !item.data.parent);
+  }
+
 
   // ────────────────────────────────────────────────────────────────────────
   // 3) "relatedItem:<TargetCollection>:<TargetSlug>" ───────────────────────
-  //    Return all items in `collectionName` that reference exactly <TargetSlug> inside <TargetCollection>.
-  //    e.g. "relatedItem:menus:mainMenu" finds all `menuItems` whose frontmatter references "mainMenu".
   if (queryType.startsWith("relatedItem:")) {
-    const parts = queryType.split(":"); // ["relatedItem", "<TargetCollection>", "<TargetSlug>"]
+    const parts = queryType.split(":"); // ["relatedItem","TargetCollection","TargetSlug"]
     if (parts.length !== 3) {
       throw new Error(
         `Invalid relatedItem syntax. Use "relatedItem:<TargetCollection>:<TargetSlug>", got "${queryType}".`
@@ -76,147 +119,120 @@ export async function queryItems(
     const targetSlug = parts[2];
     const normalizedTarget = normalizeRef(targetSlug);
 
-    // Filter current collection by any frontmatter field that references exactly normalizedTarget
     const items = await getCollection(collectionName);
-    return items.filter((item) => {
-      for (const key in item.data) {
-        const value = toArray(item.data[key]);
-        if (value.map(normalizeRef).includes(normalizedTarget)) {
-          return true;
-        }
-      }
-      return false;
-    });
+    return items.filter((item) =>
+      Object.values(item.data)
+        .flatMap(toArray)
+        .map(normalizeRef)
+        .includes(normalizedTarget)
+    );
   }
 
   // ────────────────────────────────────────────────────────────────────────
   // 4) Existing "related" branch ──────────────────────────────────────────
   if (queryType === "related" || queryType === `related${collectionName}`) {
-    // Check if we're on a collection root (e.g. "/services")
     const segments = pathname.split("/").filter(Boolean);
+
+    // Collection root (`/services`)
     if (segments.length === 1) {
       const parentCollectionName = segments[0];
 
-      // 1. Gather direct references from each parent's frontmatter:
+      // 4a) direct frontmatter refs
       const parentItems = await getCollection(parentCollectionName);
       let directRefs: any[] = [];
       parentItems.forEach((item) => {
-        const refs = toArray(item.data[collectionName] || []);
-        directRefs.push(...refs);
+        directRefs.push(...toArray(item.data[collectionName]));
       });
       const resolvedDirect =
         directRefs.length > 0 ? await getEntries(directRefs) : [];
 
-      // 2. Gather reverse relationships from the target collection:
+      // 4b) reverse refs
       const targetItems = await getCollection(collectionName);
-      const parentSlugs = parentItems.map((item) => normalizeRef(item.slug));
-      const reverseMatches = targetItems.filter((item) => {
-        const field = toArray(item.data[parentCollectionName] || []);
-        return field.some((ref) => parentSlugs.includes(normalizeRef(ref)));
-      });
+      const parentSlugs = parentItems.map((i) => normalizeRef(i.slug));
+      const reverseMatches = targetItems.filter((item) =>
+        toArray(item.data[parentCollectionName])
+          .map(normalizeRef)
+          .some((ref) => parentSlugs.includes(ref))
+      );
 
-      // 3. Combine direct and reverse results:
       let combined = [...resolvedDirect, ...reverseMatches];
 
-      // 4. If no results yet, perform an indirect lookup:
+      // 4c) indirect via other collections
       if (combined.length === 0) {
-        let indirectRelated: any[] = [];
-        const intermediateCollectionNames = Object.keys(collections).filter(
-          (c) => c !== parentCollectionName && c !== collectionName
-        );
-        for (const interColl of intermediateCollectionNames) {
-          const intermediateItems = await getCollection(interColl);
-          const relatedIntermediate = intermediateItems.filter((item) => {
-            for (const key in item.data) {
-              const value = toArray(item.data[key]);
-              if (
-                value
-                  .map(normalizeRef)
-                  .some((ref) => parentSlugs.includes(ref))
-              ) {
-                return true;
-              }
-            }
-            return false;
-          });
+        for (const interColl of Object.keys(collections)) {
+          if (
+            interColl === parentCollectionName ||
+            interColl === collectionName
+          )
+            continue;
+          const intermediates = await getCollection(interColl);
+          const relatedIntermediate = intermediates.filter((item) =>
+            Object.values(item.data)
+              .flatMap(toArray)
+              .map(normalizeRef)
+              .some((ref) => parentSlugs.includes(ref))
+          );
           for (const intermediate of relatedIntermediate) {
-            if (intermediate.data && intermediate.data[collectionName]) {
-              const potentialIndirectRefs = toArray(
-                intermediate.data[collectionName]
-              );
-              const resolvedIndirect = await getEntries(potentialIndirectRefs);
-              if (resolvedIndirect.length > 0) {
-                indirectRelated.push(...resolvedIndirect);
-              }
+            const refs = toArray(intermediate.data[collectionName]);
+            if (refs.length) {
+              const resolved = await getEntries(refs);
+              combined.push(...resolved);
             }
           }
         }
-        combined = [...combined, ...indirectRelated];
       }
 
-      // Deduplicate results.
-      const unique = combined.reduce((acc, item) => {
-        if (!acc.some((existing) => existing.slug === item.slug)) {
-          acc.push(item);
-        }
-        return acc;
-      }, []);
-      return unique;
+      // dedupe
+      return Array.from(
+        combined.reduce((map, it) => map.set(it.slug, it), new Map()).values()
+      );
     }
 
-    // Fallback for individual pages.
+    // Individual page (`/services/roof-repair`)
     let parentEntry = null;
     try {
       parentEntry = await getEntry(routeCollectionName, slug);
-    } catch (e) {
-      // fallback to reverse lookup if needed
-    }
+    } catch {}
     if (parentEntry) {
-      const potentialRefs = parentEntry.data[collectionName];
-      const refArray = toArray(potentialRefs);
-      if (refArray.length > 0) {
-        const resolved = await getEntries(refArray);
-        if (resolved.length > 0) return resolved;
+      const refs = toArray(parentEntry.data[collectionName]);
+      if (refs.length) {
+        const resolved = await getEntries(refs);
+        if (resolved.length) return resolved;
       }
     }
+
     const directRelated = await relatedItems(collectionName, slug);
-    if (directRelated.length > 0) {
-      return directRelated;
-    }
+    if (directRelated.length) return directRelated;
+
+    // indirect fallback
     let indirectRelated: any[] = [];
     if (parentEntry) {
-      const intermediateCollectionNames = Object.keys(collections).filter(
-        (c) => c !== routeCollectionName && c !== collectionName
-      );
-      for (const interColl of intermediateCollectionNames) {
-        const intermediateItems = await getCollection(interColl);
-        const relatedIntermediate = intermediateItems.filter((item) => {
-          for (const key in item.data) {
-            const value = toArray(item.data[key]);
-            if (value.map(normalizeRef).includes(slug)) return true;
-          }
-          return false;
-        });
+      for (const interColl of Object.keys(collections)) {
+        if (
+          interColl === routeCollectionName ||
+          interColl === collectionName
+        )
+          continue;
+        const intermediates = await getCollection(interColl);
+        const relatedIntermediate = intermediates.filter((item) =>
+          Object.values(item.data)
+            .flatMap(toArray)
+            .map(normalizeRef)
+            .includes(slug)
+        );
         for (const intermediate of relatedIntermediate) {
-          if (intermediate.data && intermediate.data[collectionName]) {
-            const potentialIndirectRefs = toArray(
-              intermediate.data[collectionName]
-            );
-            const resolvedIndirect = await getEntries(potentialIndirectRefs);
-            if (resolvedIndirect.length > 0) {
-              indirectRelated.push(...resolvedIndirect);
-            }
+          const refs = toArray(intermediate.data[collectionName]);
+          if (refs.length) {
+            const resolved = await getEntries(refs);
+            indirectRelated.push(...resolved);
           }
         }
       }
     }
-    const uniqueIndirect = indirectRelated.reduce((acc, item) => {
-      if (!acc.some((existing) => existing.slug === item.slug)) {
-        acc.push(item);
-      }
-      return acc;
-    }, []);
-    return uniqueIndirect;
+
+    return Array.from(
+      indirectRelated.reduce((map, it) => map.set(it.slug, it), new Map()).values()
+    );
   }
 
   // ────────────────────────────────────────────────────────────────────────
@@ -240,24 +256,18 @@ export async function queryItems(
 
   // ────────────────────────────────────────────────────────────────────────
   // 8) Tag‐based fallback ───────────────────────────────────────────────────
-  //    Treat queryType as a tag if no other branch matched.
   const items = await getCollection(collectionName);
-  const filteredItems = items.filter((item) => {
+  return items.filter((item) => {
     const tags = item.data.tags || [];
     return (
       Array.isArray(tags) &&
-      tags
-        .map((t: string) => t.toLowerCase())
-        .includes(queryType.toLowerCase())
+      tags.map((t: string) => t.toLowerCase()).includes(queryType.toLowerCase())
     );
   });
-  return filteredItems;
 }
-
 
 /**
  * getParentItem(collectionName, currentSlug)
- * ─────────────────────────────────────────────────────────────────────────
  * Retrieves the parent item (if any) for the current item in the same collection.
  */
 export async function getParentItem(
@@ -270,14 +280,13 @@ export async function getParentItem(
     const parentRef = currentItem.data.parent;
     const parentSlug = normalizeRef(parentRef);
     return await getEntry(collectionName, parentSlug);
-  } catch (error) {
+  } catch {
     return null;
   }
 }
 
 /**
  * getChildrenItems(collectionName, currentSlug)
- * ─────────────────────────────────────────────────────────────────────────
  * Retrieves all items whose normalized parent reference matches the normalized current item's slug.
  */
 export async function getChildrenItems(
@@ -295,7 +304,6 @@ export async function getChildrenItems(
 
 /**
  * getSiblingItems(collectionName, currentSlug)
- * ─────────────────────────────────────────────────────────────────────────
  * Retrieves sibling items that share the same normalized parent as the current item.
  */
 export async function getSiblingItems(
@@ -325,32 +333,7 @@ export async function getSiblingItems(
 }
 
 /**
- * parseRouteCollection(pathname)
- * ─────────────────────────────────────────────────────────────────────────
- * Splits the pathname (e.g. "/services/seo") into:
- *   • routeCollectionName = "services"
- *   • slug                = "seo"
- */
-function parseRouteCollection(pathname: string) {
-  const segments = pathname.split("/").filter(Boolean);
-  return {
-    routeCollectionName: segments[0] || "",
-    slug: segments[segments.length - 1] || "",
-  };
-}
-
-/**
- * getAllItems(collectionName)
- * ─────────────────────────────────────────────────────────────────────────
- * Returns every entry in the given collection.
- */
-export async function getAllItems(collectionName: string) {
-  return await getCollection(collectionName);
-}
-
-/**
  * relatedItems(collectionName, currentEntryId)
- * ─────────────────────────────────────────────────────────────────────────
  * Finds items in `collectionName` that reference `currentEntryId` in their frontmatter.
  */
 export async function relatedItems(
@@ -371,4 +354,24 @@ export async function relatedItems(
     }
     return false;
   });
+}
+
+/**
+ * getAllItems(collectionName)
+ * Returns every entry in the given collection.
+ */
+export async function getAllItems(collectionName: string) {
+  return await getCollection(collectionName);
+}
+
+/**
+ * parseRouteCollection(pathname)
+ * Splits the pathname (e.g. "/services/seo") into collectionName + slug.
+ */
+function parseRouteCollection(pathname: string) {
+  const segments = pathname.split("/").filter(Boolean);
+  return {
+    routeCollectionName: segments[0] || "",
+    slug: segments[segments.length - 1] || "",
+  };
 }
