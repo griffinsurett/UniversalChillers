@@ -52,26 +52,28 @@ export default function HamburgerMenu({
     return () => box.removeEventListener("change", sync);
   }, [checkboxId]);
 
+const closeMenu = () => {
+    setOpen(false);
+    const box = document.getElementById(checkboxId);
+    if (box) {
+      box.checked = false;
+      box.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+  };
+
   // Only show true top‐levels (those without `data.parent`)
   const roots = allItems.filter((i) => !i.data.parent);
 
   return (
     <Modal
       isOpen={open}
-      className="w-full h-full flex flex-col items-center justify-center bg-bg"
-      overlayClass="bg-text bg-opacity-75"
+      className="w-full h-full flex flex-col items-center justify-center bg-primary text-bg"
+      overlayClass="bg-black bg-opacity-75"
       closeButton={true}
       closeButtonClass="absolute top-4 right-4 p-2"
       onClose={() => {
-        // close the modal
-        setOpen(false);
-        // also uncheck the toggle so the hamburger icon resets
-        const checkbox = document.getElementById(checkboxId);
-        if (checkbox) {
-          checkbox.checked = false;
-          // dispatch a change so our HamburgerIcon sees it
-          checkbox.dispatchEvent(new Event("change", { bubbles: true }));
-        }}}
+        closeMenu();
+      }}
     >
       <nav
         aria-label="Mobile Menu"
@@ -89,6 +91,7 @@ export default function HamburgerMenu({
                 ...finalMenuItemProps,
                 allItems,   // entire flat “mainMenu” array
                 checkboxId,
+                onItemClick: closeMenu,
               },
             }}
             itemsClass="flex flex-col items-center space-y-6 text-lg"

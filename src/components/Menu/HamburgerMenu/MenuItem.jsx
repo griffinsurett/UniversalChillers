@@ -16,6 +16,7 @@ export default function MobileMenuItem({
   checkboxId,
   collectionName,
   HasPage,
+  onItemClick
 }) {
   const [open, setOpen] = useState(false);
 
@@ -61,12 +62,8 @@ export default function MobileMenuItem({
           as="a"
           variant="link"
           href={item.data.link}
-          className={`flex w-full items-center justify-start ${linkClass}`}
-          onClick={() => {
-            // Uncheck the checkbox so the modal closes:
-            const box = document.getElementById(checkboxId);
-            if (box) box.checked = false;
-          }}
+          className={`flex w-full ${linkClass}`}
+          onClick={onItemClick}
         >
           {item.data.title}
         </Button>
