@@ -8,7 +8,7 @@ export default function Modal({
   children,
   closeButton = true,
   closeButtonClass = "absolute top-0 right-0 m-[var(--spacing-sm)]",
-  overlayClass = 'bg-black bg-opacity-50',
+  overlayClass = 'bg-text bg-opacity-50',
   className = "bg-[var(--color-bg)] shadow-xl p-[var(--spacing-md)] rounded-[var(--radius-md)]",
   allowScroll = false,
 }) {

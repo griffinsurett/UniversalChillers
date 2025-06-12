@@ -58,10 +58,10 @@ export default function HamburgerMenu({
   return (
     <Modal
       isOpen={open}
-      className="w-full h-full flex flex-col items-center justify-center bg-white"
-      overlayClass="bg-black bg-opacity-75"
+      className="w-full h-full flex flex-col items-center justify-center bg-bg"
+      overlayClass="bg-text bg-opacity-75"
       closeButton={true}
-      closeButtonClass="absolute top-4 right-4 p-2 text-gray-700 hover:text-black"
+      closeButtonClass="absolute top-4 right-4 p-2"
       onClose={() => {
         // close the modal
         setOpen(false);

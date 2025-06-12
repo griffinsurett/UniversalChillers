@@ -18,7 +18,7 @@ export const SectionVariants = {
         src: HeroBg,
         imageClass: "filter brightness-50 bg-cover bg-center xl:bg-fixed",
       },
-      overlayClass: "bg-black opacity-50",
+      overlayClass: "bg-text opacity-50",
     },
     contentClass: "relative z-20 text-center space-y-[var(--spacing-md)]",
     buttonsSectionClass: "mt-[var(--spacing-xl)] flex flex-wrap gap-[var(--spacing-md)] justify-center",
@@ -35,7 +35,7 @@ export const SectionVariants = {
         src: HeroBg,
         imageClass: "filter brightness-50 bg-cover bg-center xl:bg-fixed",
       },
-      overlayClass: "bg-black opacity-50",
+      overlayClass: "bg-text opacity-50",
     },
   },
 };
