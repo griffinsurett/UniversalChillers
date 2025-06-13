@@ -1,6 +1,11 @@
 // src/content/config.ts
 import { file } from "astro/loaders";
 import { defineCollection, reference, z } from "astro:content";
+import type { LoaderContext } from 'astro/loaders';
+import { getCollection } from 'astro:content';
+import { getCollectionMeta } from "@/utils/FetchMeta"
+import { capitalize } from "../utils/ContentUtils";
+import { menuItemsLoader } from '@/utils/MenuItemsLoader';
 
 export const headingSchema = z.union([
   z.string(),
@@ -111,10 +116,6 @@ export const ItemsAddToMenuFields = z.object({
     .default(false),
 });
 
-// ————————————————————————————————
-// Re‑export existing helper schemas for other content collections.
-// ————————————————————————————————
-
 const buttonSchema = z.object({
   text: z.string().optional(),
   class: z.string().optional(),
@@ -222,7 +223,7 @@ export const collections = {
 
   // ── menuItems.json (flat list of all menu items) ──
   menuItems: defineCollection({
-    loader: file("src/content/menuItems/menuItems.json"),
+    loader: menuItemsLoader(),
     schema: MenuItemFields,
   }),
 
