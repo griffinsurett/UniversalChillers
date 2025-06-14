@@ -1,4 +1,4 @@
-// src/utils/menuLoader.ts
+// src/utils/MenuItemsLoader.ts
 import { file, Loader } from 'astro/loaders';
 import { getCollection } from 'astro:content';
 import type { LoaderContext } from 'astro/loaders';
@@ -11,30 +11,26 @@ export function menuItemsLoader(): Loader {
     async load(context: LoaderContext) {
       const { store, logger } = context;
 
-      // 1) clear the store
+      // Clear any existing entries
       store.clear();
 
-      // 2) load your static JSON file (preserves `order` from menuItems.json)
+      // Load static menuItems.json (preserves each item's `order`)
       await file('src/content/menuItems/menuItems.json').load(context);
 
-      // 3) discover all other content collections
+      // Discover dynamic collections to auto-add
       const cfg = await import('../content/config');
       const allColls: string[] = Object.keys(cfg.collections);
-      const dynamicCollections = allColls.filter(
-        (c) => c !== 'menus' && c !== 'menuItems'
-      );
+      const dynamicCollections = allColls.filter(c => c !== 'menus' && c !== 'menuItems');
 
       for (const coll of dynamicCollections) {
-        // 3a) collection-level addToMenu
         const meta = await getCollectionMeta(coll);
+
+        // Collection-level addToMenu instructions
         if (Array.isArray(meta.addToMenu)) {
           for (const instr of meta.addToMenu) {
-            const link = instr.link?.startsWith('/')
-              ? instr.link
-              : `/${instr.link || coll}`;
+            const link = instr.link?.startsWith('/') ? instr.link : `/${instr.link || coll}`;
             const id = link.slice(1);
-            // compute order 
-            const order = instr.order;
+            const order = instr.order ?? 0;
 
             store.set({
               id,
@@ -51,19 +47,18 @@ export function menuItemsLoader(): Loader {
           }
         }
 
-        // 3b) bulk itemsAddToMenu
+        // Bulk itemsAddToMenu: place each entry in menu
         const entries = await getCollection(coll);
         if (Array.isArray(meta.itemsAddToMenu)) {
           for (const instr of meta.itemsAddToMenu) {
-            entries.forEach((entry, i) => {
+            entries.forEach((entry, index) => {
               const entrySlug = entry.slug;
               const link = `/${coll}/${entrySlug}`;
               const id = `${coll}/${entrySlug}`;
-              const parent =
-                instr.respectHierarchy && entry.data.parent
-                  ? `${coll}/${entry.data.parent}`
-                  : instr.parent ?? null;
-              const order = instr.order + i;
+              const parent = instr.respectHierarchy && entry.data.parent
+                ? `${coll}/${entry.data.parent}`
+                : instr.parent ?? null;
+              const baseOrder = instr.order ?? 0;
 
               store.set({
                 id,
@@ -72,7 +67,7 @@ export function menuItemsLoader(): Loader {
                   title: entry.data.title || entrySlug,
                   link,
                   parent,
-                  order,
+                  order: baseOrder + index,
                   openInNewTab: instr.openInNewTab ?? false,
                   menu: instr.menu,
                 },
@@ -81,7 +76,7 @@ export function menuItemsLoader(): Loader {
           }
         }
 
-        // 3c) per-entry addToMenu
+        // Per-entry addToMenu directives
         for (const entry of entries) {
           const list = (entry.data as any).addToMenu;
           if (Array.isArray(list)) {
@@ -90,10 +85,10 @@ export function menuItemsLoader(): Loader {
               const link = instr.link?.startsWith('/')
                 ? instr.link
                 : instr.link
-                ? `/${instr.link}`
-                : defaultLink;
+                  ? `/${instr.link}`
+                  : defaultLink;
               const id = link.slice(1);
-              const order = instr.order;
+              const order = instr.order ?? 0;
 
               store.set({
                 id,
