@@ -101,6 +101,7 @@ for (const entry of entries) {
   }
 }
 
+
          logger.info(
            `[menu-items-loader] loaded ${store.keys().length} items`
          );
