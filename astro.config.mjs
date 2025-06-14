@@ -11,8 +11,6 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 // ② Now process.env.PUBLIC_* is available:
-
-
 export default defineConfig({
   site: `https://${process.env.PUBLIC_SITE_DOMAIN}`,
   server: {
