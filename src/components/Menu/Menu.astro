@@ -14,7 +14,7 @@ const {
   query = "relatedItem:menus:mainMenu",
   sortBy = undefined,
   sortOrder = "asc",
-  manualOrder = false,
+  manualOrder = true,
   HasPage = false,
   responsive = false,
   breakpoint = "(max-width: 767px)",
@@ -95,7 +95,7 @@ let sortedMobileItems = Array.isArray(allMenuEntries)
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 5️⃣ Compute desktop roots
-const desktopRoots = sortedMobileItems.filter((i) => !i.data.parent);
+const desktopRoots = allMenuEntries.filter((i) => !i.data.parent);
 ---
 
 {!responsive && !hamburgerOnly && (
@@ -161,7 +161,7 @@ const desktopRoots = sortedMobileItems.filter((i) => !i.data.parent);
       <HamburgerMenu
         client:media={breakpoint}
         checkboxId={mobile.checkboxId}
-        allItems={sortedMobileItems}
+        allItems={allMenuEntries}
         shared={{ collection, query, sortOrder, HasPage }}
         cfg={{ itemsClass: mobile.itemsClass, menuItem: mobile.menuItem }}
       />
@@ -184,7 +184,7 @@ const desktopRoots = sortedMobileItems.filter((i) => !i.data.parent);
       <HamburgerMenu
         client:media={breakpoint}
         checkboxId={mobile.checkboxId}
-        allItems={sortedMobileItems}
+        allItems={allMenuEntries}
         shared={{ collection, query, sortOrder, HasPage }}
         cfg={{ itemsClass: mobile.itemsClass, menuItem: mobile.menuItem }}
       />

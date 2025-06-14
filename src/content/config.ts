@@ -38,6 +38,7 @@ const CommonFields = {
   id: z.string().optional(),
   title: z.string().optional(),
   description: z.string().optional(),
+  order: z.number().optional(),
 };
 
 const CommonFieldsPlusSlug = {
@@ -161,16 +162,6 @@ const sectionSchema = z.object({
     .optional(),
 });
 
-export const QueryItemSchema = z.object({
-  id: z.string(),
-  label: z.string().optional(),
-  slug: z.string().optional(),
-  position: z.enum(["prepend", "append"]).optional(),
-  parent: z.string().nullable().optional(),
-  weight: z.number().optional(),
-  respectHierarchy: z.boolean().default(false),
-});
-
 // The top‐level “metaSchema” that each collection’s _meta.mdx is validated against.
 export const metaSchema = z.object({
   heading: headingSchema.optional(),
@@ -185,8 +176,6 @@ export const metaSchema = z.object({
   defaultSection: sectionSchema.optional(),
   sections: z.array(sectionSchema).optional(),
   itemsSections: z.array(sectionSchema).optional(),
-  addToQuery: z.array(QueryItemSchema).optional(),
-  addItemsToQuery: z.array(QueryItemSchema).optional(),
   addToMenu: z.array(AddToMenuFields).optional(),
   itemsAddToMenu: z.array(ItemsAddToMenuFields).optional(),
 });
@@ -202,7 +191,6 @@ const baseSchema = ({ image }: { image: Function }) =>
     ogType: z.string().optional(),
     hasPage: z.boolean().optional(),
     sections: z.array(sectionSchema).optional(),
-    addToQuery: z.array(QueryItemSchema).optional(),
     addToMenu: z.array(AddToMenuFields).optional(),
     tags: z.array(z.string()).optional(),
     icon: image().optional(),

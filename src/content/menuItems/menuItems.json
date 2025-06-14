@@ -3,7 +3,7 @@
     "id": "home",
     "title": "Home",
     "link": "/",
-    "weight": 0,
+    "order": 0,
     "openInNewTab": false,
     "menu": "mainMenu"
   },
@@ -11,7 +11,7 @@
     "id": "about-us",
     "title": "About Us",
     "link": "/about-us",
-    "weight": 1,
+    "order": 2,
     "openInNewTab": false,
     "menu": "mainMenu"
   },
@@ -19,7 +19,7 @@
     "id": "privacy-policy",
     "title": "Privacy Policy",
     "link": "/privacy-policy",
-    "weight": 0,
+    "order": 0,
     "openInNewTab": false,
     "menu": "footerMenu"
   },
@@ -27,7 +27,7 @@
     "id": "cookie-policy",
     "title": "Cookie Policy",
     "link": "/cookie-policy",
-    "weight": 1,
+    "order": 1,
     "openInNewTab": false,
     "menu": "footerMenu"
   },
@@ -35,7 +35,7 @@
     "id": "contact-us",
     "title": "Contact Us",
     "link": "/contact-us",
-    "weight": 2,
+    "order": 9,
     "openInNewTab": false,
     "menu": ["mainMenu", "footerMenu"]
   },
@@ -43,7 +43,6 @@
     "id": "blog",
     "title": "Blog",
     "link": "/blog",
-    "weight": 3,
     "openInNewTab": false,
     "parent": "about-us",
     "menu": "mainMenu"
@@ -52,7 +51,6 @@
     "id": "book",
     "title": "Book",
     "link": "/book",
-    "weight": 3,
     "openInNewTab": false,
     "parent": "blog",
     "menu": "mainMenu"

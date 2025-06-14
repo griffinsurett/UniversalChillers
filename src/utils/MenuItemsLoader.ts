@@ -14,7 +14,7 @@ export function menuItemsLoader(): Loader {
       // 1) clear the store
       store.clear();
 
-      // 2) load your static JSON file (each entry will already have data.id=item.id)
+      // 2) load your static JSON file (preserves `order` from menuItems.json)
       await file('src/content/menuItems/menuItems.json').load(context);
 
       // 3) discover all other content collections
@@ -25,7 +25,7 @@ export function menuItemsLoader(): Loader {
       );
 
       for (const coll of dynamicCollections) {
-        // 3a) collection‐level addToMenu
+        // 3a) collection-level addToMenu
         const meta = await getCollectionMeta(coll);
         if (Array.isArray(meta.addToMenu)) {
           for (const instr of meta.addToMenu) {
@@ -33,16 +33,17 @@ export function menuItemsLoader(): Loader {
               ? instr.link
               : `/${instr.link || coll}`;
             const id = link.slice(1);
+            // compute order (prefer explicit `order`, fallback to `weight`)
+            const order = instr.order ?? instr.weight ?? 0;
 
             store.set({
               id,
               data: {
-                // ← populate id here too
                 id,
                 title: instr.title || capitalize(coll),
                 link,
                 parent: instr.parent ?? null,
-                weight: instr.weight ?? 0,
+                order,
                 openInNewTab: instr.openInNewTab ?? false,
                 menu: instr.menu,
               },
@@ -62,15 +63,16 @@ export function menuItemsLoader(): Loader {
                 instr.respectHierarchy && entry.data.parent
                   ? `${coll}/${entry.data.parent}`
                   : instr.parent ?? null;
+              const order = (instr.order ?? instr.weight ?? 0) + i;
 
               store.set({
                 id,
                 data: {
-                  id,  // ← again mirror into data
+                  id,
                   title: entry.data.title || entrySlug,
                   link,
                   parent,
-                  weight: (instr.weight ?? 0) + i,
+                  order,
                   openInNewTab: instr.openInNewTab ?? false,
                   menu: instr.menu,
                 },
@@ -79,7 +81,7 @@ export function menuItemsLoader(): Loader {
           }
         }
 
-        // 3c) per‐entry addToMenu
+        // 3c) per-entry addToMenu
         for (const entry of entries) {
           const list = (entry.data as any).addToMenu;
           if (Array.isArray(list)) {
@@ -91,15 +93,16 @@ export function menuItemsLoader(): Loader {
                 ? `/${instr.link}`
                 : defaultLink;
               const id = link.slice(1);
+              const order = instr.order ?? instr.weight ?? 0;
 
               store.set({
                 id,
                 data: {
-                  id,  // ← and here
+                  id,
                   title: instr.title || entry.data.title || entry.slug,
                   link,
                   parent: instr.parent ?? null,
-                  weight: instr.weight ?? 0,
+                  order,
                   openInNewTab: instr.openInNewTab ?? false,
                   menu: instr.menu,
                 },
