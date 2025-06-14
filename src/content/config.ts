@@ -108,7 +108,6 @@ export const AddToMenuFields = z.object({
 // When a collection’s _meta.mdx declares “itemsAddToMenu: […]”,
 // each object must match this:
 export const ItemsAddToMenuFields = z.object({
-    ...CommonFieldsPlusSlug,     
   ...MenuReferenceField,
   ...BaseMenuFields,
   // NEW: if true, preserve the collection’s own parent–child structure
