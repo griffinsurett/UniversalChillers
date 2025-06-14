@@ -49,36 +49,35 @@ export function MenuItemsLoader(): Loader {
         }
 
         // ── 3b) bulk “itemsAddToMenu” ───────────────────────────────────
-        // ── 3b) bulk “itemsAddToMenu” ───────────────────────────────────
- if (Array.isArray(meta.itemsAddToMenu)) {
-   for (const instr of meta.itemsAddToMenu) {
-     // normalize into array of menu IDs
-     const menus = Array.isArray(instr.menu) ? instr.menu : [instr.menu];
+        if (Array.isArray(meta.itemsAddToMenu)) {
+          for (const instr of meta.itemsAddToMenu) {
+            // normalize into array
+            const menus = Array.isArray(instr.menu) ? instr.menu : [instr.menu];
+            // force everything under instr.parent
+            const parent = instr.parent ?? null;
 
-     // for each entry in this collection, push it into the mainMenu under the given parent
-     entries.forEach((entry) => {
-       const link = `/${coll}/${entry.slug}`;
-       const id   = `${coll}/${entry.slug}`;
+            entries.forEach((entry) => {
+              const link = `/${coll}/${entry.slug}`;
+              const id = `${coll}/${entry.slug}`;
+              // use the item’s own frontmatter `order` if set
+              const entryOrder =
+                typeof entry.data.order === 'number' ? entry.data.order : undefined;
 
-       // honour any explicit per-entry ordering
-       const entryOrder =
-         typeof entry.data.order === 'number' ? entry.data.order : undefined;
-
-       store.set({
-         id,
-         data: {
-           id,
-           title: entry.data.title || entry.slug,
-           link,
-           parent: instr.parent ?? null,
-           ...(entryOrder !== undefined ? { order: entryOrder } : {}),
-           openInNewTab: instr.openInNewTab ?? false,
-           menu: menus,
-         },
-        });
-      });
-    }
-  }
+              store.set({
+                id,
+                data: {
+                  id,
+                  title: entry.data.title || entry.slug,
+                  link,
+                  parent,
+                  ...(entryOrder !== undefined ? { order: entryOrder } : {}),
+                  openInNewTab: instr.openInNewTab ?? false,
+                  menu: menus,
+                },
+              });
+            });
+          }
+        }
 
         // ── 3c) per-file “addToMenu” ────────────────────────────────────
         for (const entry of entries) {
