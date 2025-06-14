@@ -1,4 +1,3 @@
-// src/utils/MenuItemsLoader.ts
 import { file, Loader } from 'astro/loaders';
 import { getCollection } from 'astro:content';
 import type { LoaderContext } from 'astro/loaders';
@@ -11,36 +10,44 @@ export function MenuItemsLoader(): Loader {
     name: 'menu-items-loader',
     async load(context: LoaderContext) {
       const { store, logger } = context;
-      // 1) clear the store
+
+      // 1) clear the store and load static menuItems.json
       store.clear();
-      // 2) load your static JSON (mainMenu & footerMenu)
       await file('src/content/menuItems/menuItems.json').load(context);
 
-      // 3) add dynamic collections
+      // 2) gather dynamic collections
       const allColls = getCollectionNames();
-      const dynamic = allColls.filter((c) => c !== 'menus' && c !== 'menuItems');
+      const dynamic = allColls.filter(c => c !== 'menus' && c !== 'menuItems');
 
       for (const coll of dynamic) {
         const meta = await getCollectionMeta(coll);
         const entries = await getCollection(coll);
 
-        // ── 3a) collection-level “addToMenu” ───────────────────────────
-        if (Array.isArray(meta.addToMenu)) {
-          for (const instr of meta.addToMenu) {
-            const link = instr.link?.startsWith('/') ? instr.link : `/${instr.link || coll}`;
+        // ── 3a) per-file addToMenu (frontmatter on individual entries) ──
+        for (const entry of entries) {
+          const addList = Array.isArray(entry.data.addToMenu)
+            ? entry.data.addToMenu
+            : [];
+
+          for (const instr of addList) {
+            const link = instr.link?.startsWith('/')
+              ? instr.link
+              : instr.link
+                ? `/${instr.link}`
+                : `/${coll}/${entry.slug}`;
             const id = link.slice(1);
-            // normalize into array
             const menus = Array.isArray(instr.menu) ? instr.menu : [instr.menu];
+            const parent = instr.parent ?? null;
+            const order = typeof instr.order === 'number' ? instr.order : entry.data.order;
 
             store.set({
               id,
               data: {
                 id,
-                title: instr.title || capitalize(coll),
+                title: instr.title || entry.data.title || entry.slug,
                 link,
-                parent: instr.parent ?? null,
-                // keep instr.order here if you like, or omit to let default sort apply
-                ...(typeof instr.order === 'number' ? { order: instr.order } : {}),
+                parent,
+                ...(order !== undefined ? { order } : {}),
                 openInNewTab: instr.openInNewTab ?? false,
                 menu: menus,
               },
@@ -48,31 +55,19 @@ export function MenuItemsLoader(): Loader {
           }
         }
 
-        // ── 3b) bulk “itemsAddToMenu” ───────────────────────────────────
+        // ── 3b) itemsAddToMenu (bulk injection under a parent) ──
         if (Array.isArray(meta.itemsAddToMenu)) {
-    for (const entry of entries) {
-      entry.data.addToMenu = [
-        // keep any real per-file addToMenu
-        ...(Array.isArray(entry.data.addToMenu) ? entry.data.addToMenu : []),
-        // then shove in each itemsAddToMenu instruction
-        ...meta.itemsAddToMenu,
-      ];
-    }
-  }
-
-        // ── 3c) per-file “addToMenu” ────────────────────────────────────
-        for (const entry of entries) {
-          const list = (entry.data as any).addToMenu;
-          if (Array.isArray(list)) {
-            for (const instr of list) {
+          for (const instr of meta.itemsAddToMenu) {
+            for (const entry of entries) {
               const link = instr.link?.startsWith('/')
                 ? instr.link
                 : instr.link
-                ? `/${instr.link}`
-                : `/${coll}/${entry.slug}`;
+                  ? `/${instr.link}`
+                  : `/${coll}/${entry.slug}`;
               const id = link.slice(1);
-              const parent = instr.parent ?? null;
               const menus = Array.isArray(instr.menu) ? instr.menu : [instr.menu];
+              const parent = instr.parent ?? coll;
+              const order = entry.data.order;
 
               store.set({
                 id,
@@ -81,12 +76,38 @@ export function MenuItemsLoader(): Loader {
                   title: instr.title || entry.data.title || entry.slug,
                   link,
                   parent,
-                  ...(typeof instr.order === 'number' ? { order: instr.order } : {}),
+                  ...(order !== undefined ? { order } : {}),
                   openInNewTab: instr.openInNewTab ?? false,
                   menu: menus,
                 },
               });
             }
+          }
+        }
+
+        // ── 3c) addToMenu at collection‐level (for the root item) ──
+        if (Array.isArray(meta.addToMenu)) {
+          for (const instr of meta.addToMenu) {
+            const link = instr.link?.startsWith('/')
+              ? instr.link
+              : `/${instr.link || coll}`;
+            const id = link.slice(1);
+            const menus = Array.isArray(instr.menu) ? instr.menu : [instr.menu];
+            const parent = instr.parent ?? null;
+            const order = instr.order;
+
+            store.set({
+              id,
+              data: {
+                id,
+                title: instr.title || capitalize(coll),
+                link,
+                parent,
+                ...(order !== undefined ? { order } : {}),
+                openInNewTab: instr.openInNewTab ?? false,
+                menu: menus,
+              },
+            });
           }
         }
       }
