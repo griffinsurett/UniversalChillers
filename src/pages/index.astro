@@ -3,10 +3,6 @@
 import ExtendedLayout from "@/layouts/ExtendedLayout.astro";
 import Section from "@/components/Section/Section.astro";
 import Card from "@/components/LoopComponents/Card";
-
-import { getCollection } from 'astro:content';
-const services = await getCollection('services');
-console.log('SERVICES COLLECTION:', services);
 ---
 <ExtendedLayout title="Welcome to Astro!" description="Your gateway to amazing projects.">
   <!-- Hero Section -->

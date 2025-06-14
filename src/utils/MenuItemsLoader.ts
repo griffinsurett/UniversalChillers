@@ -63,40 +63,49 @@ import { getCollectionNames } from '@/utils/CollectionUtils';
            }
          }
 
-         // ── 3b) per-file “addToMenu” (will now also include every itemsAddToMenu) ──
-         for (const entry of entries) {
-           const list = (entry.data as any).addToMenu;
-           console.log(list)
-           if (Array.isArray(list)) {
-             for (const instr of list) {
-               const link = instr.link?.startsWith('/')
-                 ? instr.link
-                 : instr.link
-                 ? `/${instr.link}`
-                 : `/${coll}/${entry.slug}`;
-               const id    = link.slice(1);
-               const menus = Array.isArray(instr.menu)
-                 ? instr.menu
-                 : [instr.menu];
+       function normalizeMenuValue(m: string | { id: string; [k: string]: any }) {
+  return typeof m === 'string' ? m : m.id;
+}
 
-               store.set({
-                 id,
-                 data: {
-                   id,
-                   title:
-                     instr.title || entry.data.title || entry.slug,
-                   link,
-                   parent: instr.parent ?? null,
-                   ...(typeof instr.order === 'number'
-                     ? { order: instr.order }
-                     : {}),
-                   openInNewTab: instr.openInNewTab ?? false,
-                   menu: menus,
-                 },
-               });
-             }
-           }
-         }
+// ── 3b) per-file “addToMenu” ──
+for (const entry of entries) {
+  const raw = (entry.data as any).addToMenu;
+  const list = raw
+    ? Array.isArray(raw)
+      ? raw
+      : [raw]
+    : [];
+
+  if (!list.length) continue;
+
+  for (const instr of list) {
+    // build your link+id the same as before…
+    const link = instr.link?.startsWith('/')
+      ? instr.link
+      : instr.link
+      ? `/${instr.link}`
+      : `/${coll}/${entry.slug}`;
+    const id = link.slice(1);
+
+    // 🚀 NEW: always map references → string IDs
+    const menus = Array.isArray(instr.menu)
+      ? instr.menu.map(normalizeMenuValue)
+      : [normalizeMenuValue(instr.menu)];
+
+    store.set({
+      id,
+      data: {
+        id,
+        title: instr.title || entry.data.title || entry.slug,
+        link,
+        parent: instr.parent ?? null,
+        ...(typeof instr.order === 'number' ? { order: instr.order } : {}),
+        openInNewTab: instr.openInNewTab ?? false,
+        menu: menus,
+      },
+    });
+  }
+}
 
          logger.info(
            `[menu-items-loader] loaded ${store.keys().length} items`
