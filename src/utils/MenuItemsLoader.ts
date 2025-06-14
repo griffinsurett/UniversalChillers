@@ -61,42 +61,42 @@ export function MenuItemsLoader(): Loader {
   }
 
         // ── 3c) per-file “addToMenu” ────────────────────────────────────
-           for (const entry of entries) {
-     // collect any per-file instructions
-     const fileList = Array.isArray((entry.data as any).addToMenu)
-       ? (entry.data as any).addToMenu
-       : [];
-     // collect any bulk instructions from meta
-     const bulkList = Array.isArray(meta.itemsAddToMenu)
-       ? meta.itemsAddToMenu
-       : [];
-     // combine them into one list, and then feed each into the store
-     for (const instr of [...fileList, ...bulkList]) {
-       const link = instr.link?.startsWith('/')
-         ? instr.link
-         : instr.link
-         ? `/${instr.link}`
-         : `/${coll}/${entry.slug}`;
-       const id     = link.slice(1);
-       const parent = instr.parent ?? null;
-       const menus  = Array.isArray(instr.menu) ? instr.menu : [instr.menu];
-       store.set({
-         id,
-         data: {
-           id,
-           title:
-             instr.title || entry.data.title || entry.slug,
-           link,
-           parent,
-           ...(typeof instr.order === 'number'
-             ? { order: instr.order }
-             : {}),
-           openInNewTab: instr.openInNewTab ?? false,
-           menu: menus,
-         },
-       });
-     }
-   }
+      for (const entry of entries) {
+  const list = (entry.data as any).addToMenu;
+  if (Array.isArray(list)) {
+    for (const instr of list) {
+      // compute the URL as before
+      const link =
+        instr.link?.startsWith("/")
+          ? instr.link
+          : instr.link
+          ? `/${instr.link}`
+          : `/${coll}/${entry.slug}`;
+
+      // *** NEW: make the menu‐item ID unique per‐parent ***
+      const id = instr.id
+        ? instr.id
+        : // for "root" (no parent) we'll get "services/seo-root"
+        `${coll}/${entry.slug}-${instr.parent ?? "root"}`;
+
+      const parent = instr.parent ?? null;
+      const menus = Array.isArray(instr.menu) ? instr.menu : [instr.menu];
+
+      store.set({
+        id,
+        data: {
+          id,
+          title: instr.title || entry.data.title || entry.slug,
+          link,
+          parent,
+          ...(typeof instr.order === "number" ? { order: instr.order } : {}),
+          openInNewTab: instr.openInNewTab ?? false,
+          menu: menus,
+        },
+      });
+    }
+  }
+}
       }
 
       logger.info(`[menu-items-loader] loaded ${store.keys().length} items`);
