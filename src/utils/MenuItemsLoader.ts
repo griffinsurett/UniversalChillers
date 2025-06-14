@@ -50,34 +50,15 @@ export function MenuItemsLoader(): Loader {
 
         // ── 3b) bulk “itemsAddToMenu” ───────────────────────────────────
         if (Array.isArray(meta.itemsAddToMenu)) {
-          for (const instr of meta.itemsAddToMenu) {
-            // normalize into array
-            const menus = Array.isArray(instr.menu) ? instr.menu : [instr.menu];
-            // force everything under instr.parent
-            const parent = instr.parent ?? null;
-
-            entries.forEach((entry) => {
-              const link = `/${coll}/${entry.slug}`;
-              const id = `${coll}/${entry.slug}`;
-              // use the item’s own frontmatter `order` if set
-              const entryOrder =
-                typeof entry.data.order === 'number' ? entry.data.order : undefined;
-
-              store.set({
-                id,
-                data: {
-                  id,
-                  title: entry.data.title || entry.slug,
-                  link,
-                  parent,
-                  ...(entryOrder !== undefined ? { order: entryOrder } : {}),
-                  openInNewTab: instr.openInNewTab ?? false,
-                  menu: menus,
-                },
-              });
-            });
-          }
-        }
+    for (const entry of entries) {
+      entry.data.addToMenu = [
+        // keep any real per-file addToMenu
+        ...(Array.isArray(entry.data.addToMenu) ? entry.data.addToMenu : []),
+        // then shove in each itemsAddToMenu instruction
+        ...meta.itemsAddToMenu,
+      ];
+    }
+  }
 
         // ── 3c) per-file “addToMenu” ────────────────────────────────────
         for (const entry of entries) {
