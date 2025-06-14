@@ -1,41 +1,39 @@
 // src/utils/MenuItemsLoader.ts
-import { file, Loader } from "astro/loaders";
-import { getCollection } from "astro:content";
-import type { LoaderContext } from "astro/loaders";
-import { getCollectionMeta } from "@/utils/FetchMeta";
-import { capitalize } from "@/utils/ContentUtils";
-import { getCollectionNames } from "@/utils/CollectionUtils";
+import { file, Loader } from 'astro/loaders';
+import { getCollection } from 'astro:content';
+import type { LoaderContext } from 'astro/loaders';
+import { getCollectionMeta } from '@/utils/FetchMeta';
+import { capitalize } from '@/utils/ContentUtils';
+import { getCollectionNames } from '@/utils/CollectionUtils';
 
 export function MenuItemsLoader(): Loader {
   return {
-    name: "menu-items-loader",
+    name: 'menu-items-loader',
     async load(context: LoaderContext) {
       const { store, logger } = context;
-      // 1) clear the store
-      store.clear();
-      // 2) load your static JSON (mainMenu & footerMenu)
-      await file("src/content/menuItems/menuItems.json").load(context);
 
-      // 3) add dynamic collections
+      // 1) Clear everything out
+      store.clear();
+
+      // 2) Load your static JSON first (preserves `order`)
+      await file('src/content/menuItems/menuItems.json').load(context);
+
+      // 3) Now walk every other collection and apply addToMenu + itemsAddToMenu
       const allColls = getCollectionNames();
-      const dynamic = allColls.filter(
-        (c) => c !== "menus" && c !== "menuItems"
-      );
+      const dynamic = allColls.filter((c) => c !== 'menus' && c !== 'menuItems');
 
       for (const coll of dynamic) {
         const meta = await getCollectionMeta(coll);
         const entries = await getCollection(coll);
 
-        // ── 3a) collection-level “addToMenu” ───────────────────────────
+        // ── 3a) Collection-level addToMenu ───────────────────────────
         if (Array.isArray(meta.addToMenu)) {
           for (const instr of meta.addToMenu) {
-            const link = instr.link?.startsWith("/")
+            const link = instr.link?.startsWith('/')
               ? instr.link
               : `/${instr.link || coll}`;
             const id = link.slice(1);
-            // normalize into array
             const menus = Array.isArray(instr.menu) ? instr.menu : [instr.menu];
-
             store.set({
               id,
               data: {
@@ -43,10 +41,7 @@ export function MenuItemsLoader(): Loader {
                 title: instr.title || capitalize(coll),
                 link,
                 parent: instr.parent ?? null,
-                // keep instr.order here if you like, or omit to let default sort apply
-                ...(typeof instr.order === "number"
-                  ? { order: instr.order }
-                  : {}),
+                order: typeof instr.order === 'number' ? instr.order : 0,
                 openInNewTab: instr.openInNewTab ?? false,
                 menu: menus,
               },
@@ -54,31 +49,36 @@ export function MenuItemsLoader(): Loader {
           }
         }
 
-        // ── 3b) bulk “itemsAddToMenu” ───────────────────────────────────
+        // ── 3b) Bulk itemsAddToMenu ───────────────────────────────────
         if (Array.isArray(meta.itemsAddToMenu)) {
           for (const instr of meta.itemsAddToMenu) {
-            // normalize into array
             const menus = Array.isArray(instr.menu) ? instr.menu : [instr.menu];
-            // force everything under instr.parent
-            const parent = instr.parent ?? null;
+            const parentInstr = instr.parent ?? null;
 
-            entries.forEach((entry) => {
-              const link = `/${coll}/${entry.slug}`;
-              const id = `${coll}/${entry.slug}`;
-              // use the item’s own frontmatter `order` if set
-              const entryOrder =
-                typeof entry.data.order === "number"
-                  ? entry.data.order
-                  : undefined;
+            entries.forEach((entry, i) => {
+              const slug = entry.slug;
+              const link = `/${coll}/${slug}`;
+              const id = `${coll}/${slug}`;
+              const title = entry.data.title || slug;
+
+              // respectHierarchy → use the entry’s own parent frontmatter
+              const parent =
+                instr.respectHierarchy && entry.data.parent
+                  ? `${coll}/${entry.data.parent}`
+                  : parentInstr;
+
+              // if you set `order:` in your frontmatter use that, otherwise use the index
+              const order =
+                typeof entry.data.order === 'number' ? entry.data.order : i;
 
               store.set({
                 id,
                 data: {
                   id,
-                  title: entry.data.title || entry.slug,
+                  title,
                   link,
                   parent,
-                  ...(entryOrder !== undefined ? { order: entryOrder } : {}),
+                  order,
                   openInNewTab: instr.openInNewTab ?? false,
                   menu: menus,
                 },
@@ -87,32 +87,34 @@ export function MenuItemsLoader(): Loader {
           }
         }
 
-        // ── 3c) per-file “addToMenu” ────────────────────────────────────
+        // ── 3c) Per-entry addToMenu (frontmatter on individual files) ──
         for (const entry of entries) {
           const list = (entry.data as any).addToMenu;
           if (Array.isArray(list)) {
+            const defaultLink = `/${coll}/${entry.slug}`;
             for (const instr of list) {
-              const link = instr.link?.startsWith("/")
+              const link = instr.link?.startsWith('/')
                 ? instr.link
                 : instr.link
                 ? `/${instr.link}`
-                : `/${coll}/${entry.slug}`;
+                : defaultLink;
               const id = link.slice(1);
-              const parent = instr.parent ?? null;
-              const menus = Array.isArray(instr.menu)
-                ? instr.menu
-                : [instr.menu];
+              const menus = Array.isArray(instr.menu) ? instr.menu : [instr.menu];
 
               store.set({
                 id,
                 data: {
                   id,
-                  title: instr.title || entry.data.title || entry.slug,
+                  title:
+                    instr.title ||
+                    entry.data.title ||
+                    entry.slug,
                   link,
-                  parent,
-                  ...(typeof instr.order === "number"
-                    ? { order: instr.order }
-                    : {}),
+                  parent: instr.parent ?? null,
+                  order:
+                    typeof instr.order === 'number'
+                      ? instr.order
+                      : 0,
                   openInNewTab: instr.openInNewTab ?? false,
                   menu: menus,
                 },
@@ -123,12 +125,6 @@ export function MenuItemsLoader(): Loader {
       }
 
       logger.info(`[menu-items-loader] loaded ${store.keys().length} items`);
-      logger.info(
-        `[menu-items-loader] keys: ${store
-          .keys()
-          .filter((k) => k.startsWith("services/"))
-          .join(", ")}`
-      );
     },
   };
 }
