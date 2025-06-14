@@ -15,21 +15,28 @@ export function MenuItemsLoader(): Loader {
       // 1) clear the store
       store.clear();
 
-      // 2) load your static JSON file (preserves `order` from menuItems.json)
+      // 2) load your static JSON file
       await file('src/content/menuItems/menuItems.json').load(context);
 
-      // 3) discover all other content collections without circular deps
+      // 3) discover all other content collections
       const allColls = getCollectionNames();
       const dynamicCollections = allColls.filter(
         (c) => c !== 'menus' && c !== 'menuItems'
       );
 
       for (const coll of dynamicCollections) {
-        // fetch this collection’s frontmatter meta
+        // fetch frontmatter meta & actual entries
         const meta = await getCollectionMeta(coll);
         const entries = await getCollection(coll);
 
-        // ── 3a) collection-level addToMenu ───────────────────────────────
+        // --- DEBUG: for 'services', log exactly what we got ---
+        if (coll === 'services') {
+          console.log('▶ [menu-items-loader] services.meta.addToMenu =', meta.addToMenu);
+          console.log('▶ [menu-items-loader] services.meta.itemsAddToMenu =', meta.itemsAddToMenu);
+          console.log('▶ [menu-items-loader] services.entries =', entries.map((e) => e.slug));
+        }
+
+        // 3a) collection-level addToMenu
         if (Array.isArray(meta.addToMenu)) {
           for (const instr of meta.addToMenu) {
             const link = instr.link?.startsWith('/')
@@ -37,7 +44,7 @@ export function MenuItemsLoader(): Loader {
               : `/${instr.link || coll}`;
             const id = link.slice(1);
             const order = typeof instr.order === 'number' ? instr.order : 0;
-            // always wrap in array
+            // always wrap menu in an array
             const menus = Array.isArray(instr.menu) ? instr.menu : [instr.menu];
 
             store.set({
@@ -55,16 +62,15 @@ export function MenuItemsLoader(): Loader {
           }
         }
 
-        // ── 3b) bulk itemsAddToMenu ───────────────────────────────────────
+        // 3b) bulk itemsAddToMenu
         if (Array.isArray(meta.itemsAddToMenu)) {
           for (const instr of meta.itemsAddToMenu) {
-            // wrap menu in array
             const menus = Array.isArray(instr.menu) ? instr.menu : [instr.menu];
             entries.forEach((entry, i) => {
               const entrySlug = entry.slug;
               const link = `/${coll}/${entrySlug}`;
               const id = `${coll}/${entrySlug}`;
-              // **flatten** everyone under instr.parent
+              // flatten all children under your specified parent
               const parent = instr.parent ?? null;
               const baseOrder = typeof instr.order === 'number' ? instr.order : 0;
               const order = baseOrder + i;
@@ -85,7 +91,7 @@ export function MenuItemsLoader(): Loader {
           }
         }
 
-        // ── 3c) per-entry addToMenu (frontmatter) ────────────────────────
+        // 3c) per-entry addToMenu (in frontmatter on each file)
         for (const entry of entries) {
           const list = (entry.data as any).addToMenu;
           if (Array.isArray(list)) {
