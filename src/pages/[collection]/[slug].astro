@@ -19,7 +19,14 @@ export async function getStaticPaths() {
       continue;
     }
 
-    const meta = await getCollectionMeta(coll).catch(() => ({}));
+let meta;
+try {
+  // getCollectionMeta is now synchronous, so just call it directly
+  meta = getCollectionMeta(collection);
+} catch (err) {
+  // if parsing fails or the module isn’t found, fall back to empty object
+  meta = {};
+}
     const entries = await getCollection(coll);
     const { itemsHasPage = true } = meta;
 
