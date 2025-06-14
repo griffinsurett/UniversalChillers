@@ -33,8 +33,9 @@ export function MenuItemsLoader(): Loader {
               ? instr.link
               : `/${instr.link || coll}`;
             const id = link.slice(1);
-            // default to 0 if no instr.order
             const order = typeof instr.order === 'number' ? instr.order : 0;
+            // normalize menu into an array
+            const menus = Array.isArray(instr.menu) ? instr.menu : [instr.menu];
 
             store.set({
               id,
@@ -45,7 +46,7 @@ export function MenuItemsLoader(): Loader {
                 parent: instr.parent ?? null,
                 order,
                 openInNewTab: instr.openInNewTab ?? false,
-                menu: instr.menu,
+                menu: menus,
               },
             });
           }
@@ -55,6 +56,8 @@ export function MenuItemsLoader(): Loader {
         const entries = await getCollection(coll);
         if (Array.isArray(meta.itemsAddToMenu)) {
           for (const instr of meta.itemsAddToMenu) {
+            // normalize menu into an array
+            const menus = Array.isArray(instr.menu) ? instr.menu : [instr.menu];
             entries.forEach((entry, i) => {
               const entrySlug = entry.slug;
               const link = `/${coll}/${entrySlug}`;
@@ -63,7 +66,6 @@ export function MenuItemsLoader(): Loader {
                 instr.respectHierarchy && entry.data.parent
                   ? `${coll}/${entry.data.parent}`
                   : instr.parent ?? null;
-              // default to 0 if no instr.order
               const baseOrder = typeof instr.order === 'number' ? instr.order : 0;
               const order = baseOrder + i;
 
@@ -76,7 +78,7 @@ export function MenuItemsLoader(): Loader {
                   parent,
                   order,
                   openInNewTab: instr.openInNewTab ?? false,
-                  menu: instr.menu,
+                  menu: menus,
                 },
               });
             });
@@ -95,8 +97,9 @@ export function MenuItemsLoader(): Loader {
                 ? `/${instr.link}`
                 : defaultLink;
               const id = link.slice(1);
-              // default to 0 if no instr.order
               const order = typeof instr.order === 'number' ? instr.order : 0;
+              // normalize menu into an array
+              const menus = Array.isArray(instr.menu) ? instr.menu : [instr.menu];
 
               store.set({
                 id,
@@ -107,7 +110,7 @@ export function MenuItemsLoader(): Loader {
                   parent: instr.parent ?? null,
                   order,
                   openInNewTab: instr.openInNewTab ?? false,
-                  menu: instr.menu,
+                  menu: menus,
                 },
               });
             }
