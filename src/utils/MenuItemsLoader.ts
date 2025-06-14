@@ -1,9 +1,9 @@
 // src/utils/MenuItemsLoader.ts
 import { file, Loader } from 'astro/loaders';
-import { getCollection }    from 'astro:content';
+import { getCollection } from 'astro:content';
 import type { LoaderContext } from 'astro/loaders';
-import { getCollectionMeta }  from '@/utils/FetchMeta';
-import { capitalize }         from '@/utils/ContentUtils';
+import { getCollectionMeta } from '@/utils/FetchMeta';
+import { capitalize } from '@/utils/ContentUtils';
 import { getCollectionNames } from '@/utils/CollectionUtils';
 
 export function MenuItemsLoader(): Loader {
@@ -12,30 +12,29 @@ export function MenuItemsLoader(): Loader {
     async load(context: LoaderContext) {
       const { store, logger } = context;
 
-      // 1) Wipe & load static footer/mainMenu
+      // 1) Clear existing and load static JSON menus
       store.clear();
       await file('src/content/menuItems/menuItems.json').load(context);
 
-      // 2) Find all real collections (skip the menus themselves)
+      // 2) Find all dynamic collections except menus and menuItems
       const allColls = getCollectionNames().filter(
         (c) => c !== 'menus' && c !== 'menuItems'
       );
 
       for (const coll of allColls) {
-        // 2a) Grab meta (for addToMenu / itemsAddToMenu)…
-        const meta    = await getCollectionMeta(coll);
-        // 2b) …and fetch every entry in that collection
+        // Fetch collection-level meta and all entries
+        const meta = await getCollectionMeta(coll);
         const entries = await getCollection(coll);
 
         //
-        // ── A) COLLECTION-LEVEL addToMenu from the _meta.mdx ────────────
+        // A) COLLECTION-LEVEL addToMenu from meta
         //
         if (Array.isArray(meta.addToMenu)) {
           for (const instr of meta.addToMenu) {
-            const link  = instr.link?.startsWith('/')
+            const link = instr.link?.startsWith('/')
               ? instr.link
               : `/${instr.link ?? coll}`;
-            const id    = link.slice(1);
+            const id = link.slice(1);
             const menus = Array.isArray(instr.menu)
               ? instr.menu
               : [instr.menu];
@@ -47,9 +46,7 @@ export function MenuItemsLoader(): Loader {
                 title: instr.title || capitalize(coll),
                 link,
                 parent: instr.parent ?? null,
-                ...(typeof instr.order === 'number'
-                  ? { order: instr.order }
-                  : {}),
+                ...(typeof instr.order === 'number' ? { order: instr.order } : {}),
                 openInNewTab: instr.openInNewTab ?? false,
                 menu: menus,
               },
@@ -58,7 +55,7 @@ export function MenuItemsLoader(): Loader {
         }
 
         //
-        // ── B) BULK itemsAddToMenu: “add every entry under /services” ────
+        // B) BULK itemsAddToMenu: inject every entry under the given parent
         //
         if (Array.isArray(meta.itemsAddToMenu)) {
           for (const instr of meta.itemsAddToMenu) {
@@ -67,7 +64,6 @@ export function MenuItemsLoader(): Loader {
               : [instr.menu];
 
             for (const entry of entries) {
-              // by default link back to its own slug if none provided
               const link = instr.link?.startsWith('/')
                 ? instr.link
                 : instr.link
@@ -79,16 +75,12 @@ export function MenuItemsLoader(): Loader {
                 id,
                 data: {
                   id,
-                  // allow you to override per-item title, else fall back
                   title: instr.title ?? entry.data.title ?? entry.slug,
                   link,
-                  // if you wanted true hierarchy you could respect entry.data.parent
                   parent: instr.respectHierarchy && entry.data.parent
                     ? entry.data.parent
                     : instr.parent ?? null,
-                  ...(typeof instr.order === 'number'
-                    ? { order: instr.order }
-                    : {}),
+                  ...(typeof instr.order === 'number' ? { order: instr.order } : {}),
                   openInNewTab: instr.openInNewTab ?? false,
                   menu: menus,
                 },
@@ -98,23 +90,28 @@ export function MenuItemsLoader(): Loader {
         }
 
         //
-        // ── C) PER-FILE addToMenu front-matter on each entry ──────────────
+        // C) PER-FILE addToMenu frontmatter on each entry, without overwriting bulk
         //
         for (const entry of entries) {
           const list = Array.isArray(entry.data.addToMenu)
             ? entry.data.addToMenu
             : [];
           for (const instr of list) {
-            const menus = Array.isArray(instr.menu)
-              ? instr.menu
-              : [instr.menu];
-
             const link = instr.link?.startsWith('/')
               ? instr.link
               : instr.link
                 ? `/${instr.link}`
                 : `/${coll}/${entry.slug}`;
             const id = link.slice(1);
+
+            // If we already injected this ID via itemsAddToMenu, skip it
+            if (store.has(id)) {
+              continue;
+            }
+
+            const menus = Array.isArray(instr.menu)
+              ? instr.menu
+              : [instr.menu];
 
             store.set({
               id,
@@ -123,9 +120,7 @@ export function MenuItemsLoader(): Loader {
                 title: instr.title ?? entry.data.title ?? entry.slug,
                 link,
                 parent: instr.parent ?? null,
-                ...(typeof instr.order === 'number'
-                  ? { order: instr.order }
-                  : {}),
+                ...(typeof instr.order === 'number' ? { order: instr.order } : {}),
                 openInNewTab: instr.openInNewTab ?? false,
                 menu: menus,
               },
@@ -134,9 +129,7 @@ export function MenuItemsLoader(): Loader {
         }
       }
 
-      logger.info(
-        `[menu-items-loader] loaded ${store.keys().length} items`
-      );
+      logger.info(`[menu-items-loader] loaded ${store.keys().length} items`);
     },
   };
 }
