@@ -12,34 +12,29 @@ export function MenuItemsLoader(): Loader {
     async load(context: LoaderContext) {
       const { store, logger } = context;
 
-      // 1) clear out any previous items
+      // 1) clear the store
       store.clear();
 
-      // 2) load the static menuItems.json (Home, About Us, etc.)
+      // 2) load your static JSON file (preserves `order` from menuItems.json)
       await file('src/content/menuItems/menuItems.json').load(context);
 
-      // 3) find all other collections (except menus/menuItems)
+      // 3) discover all other content collections without circular deps
       const allColls = getCollectionNames();
-      const dynamicColls = allColls.filter((c) => c !== 'menus' && c !== 'menuItems');
+      const dynamicCollections = allColls.filter(
+        (c) => c !== 'menus' && c !== 'menuItems'
+      );
 
-      for (const coll of dynamicColls) {
-        // 3a) fetch the parsed frontmatter for this collection (_meta.*)
-        const meta = getCollectionMeta(coll);
-        logger.info(`[menu-items-loader] "${coll}" meta:`, {
-          addToMenu: meta.addToMenu,
-          itemsAddToMenu: meta.itemsAddToMenu,
-        });
-
-        // ── Top‐level injection via addToMenu ──
+      for (const coll of dynamicCollections) {
+        // 3a) collection-level addToMenu
+        const meta = await getCollectionMeta(coll);
         if (Array.isArray(meta.addToMenu)) {
           for (const instr of meta.addToMenu) {
-            const link = instr.link?.startsWith('/') ? instr.link : `/${instr.link || coll}`;
-            const id   = link.slice(1);
-            const base = typeof instr.order === 'number'
-              ? instr.order
-              : typeof instr.weight === 'number'
-              ? instr.weight
-              : 0;
+            const link = instr.link?.startsWith('/')
+              ? instr.link
+              : `/${instr.link || coll}`;
+            const id = link.slice(1);
+            // default to 0 if no instr.order
+            const order = typeof instr.order === 'number' ? instr.order : 0;
 
             store.set({
               id,
@@ -48,7 +43,7 @@ export function MenuItemsLoader(): Loader {
                 title: instr.title || capitalize(coll),
                 link,
                 parent: instr.parent ?? null,
-                order: base,
+                order,
                 openInNewTab: instr.openInNewTab ?? false,
                 menu: instr.menu,
               },
@@ -56,26 +51,21 @@ export function MenuItemsLoader(): Loader {
           }
         }
 
-        // fetch all entries in this collection
+        // 3b) bulk itemsAddToMenu
         const entries = await getCollection(coll);
-
-        // ── Bulk inject every page under this collection via itemsAddToMenu ──
         if (Array.isArray(meta.itemsAddToMenu)) {
           for (const instr of meta.itemsAddToMenu) {
-            entries.forEach((entry, idx) => {
+            entries.forEach((entry, i) => {
               const entrySlug = entry.slug;
-              const link      = `/${coll}/${entrySlug}`;
-              const id        = `${coll}/${entrySlug}`;
-              const parent    =
+              const link = `/${coll}/${entrySlug}`;
+              const id = `${coll}/${entrySlug}`;
+              const parent =
                 instr.respectHierarchy && entry.data.parent
                   ? `${coll}/${entry.data.parent}`
                   : instr.parent ?? null;
-              const base = typeof instr.order === 'number'
-                ? instr.order
-                : typeof instr.weight === 'number'
-                ? instr.weight
-                : 0;
-              const order = base + idx;
+              // default to 0 if no instr.order
+              const baseOrder = typeof instr.order === 'number' ? instr.order : 0;
+              const order = baseOrder + i;
 
               store.set({
                 id,
@@ -93,42 +83,39 @@ export function MenuItemsLoader(): Loader {
           }
         }
 
-        // ── Per-entry injection via each entry’s own addToMenu ──
+        // 3c) per-entry addToMenu
         for (const entry of entries) {
-          const list = Array.isArray((entry.data as any).addToMenu)
-            ? (entry.data as any).addToMenu
-            : [];
-          for (const instr of list) {
-            const defaultLink = `/${coll}/${entry.slug}`;
-            const link = instr.link?.startsWith('/')
-              ? instr.link
-              : instr.link
-              ? `/${instr.link}`
-              : defaultLink;
-            const id = link.slice(1);
-            const base = typeof instr.order === 'number'
-              ? instr.order
-              : typeof instr.weight === 'number'
-              ? instr.weight
-              : 0;
+          const list = (entry.data as any).addToMenu;
+          if (Array.isArray(list)) {
+            for (const instr of list) {
+              const defaultLink = `/${coll}/${entry.slug}`;
+              const link = instr.link?.startsWith('/')
+                ? instr.link
+                : instr.link
+                ? `/${instr.link}`
+                : defaultLink;
+              const id = link.slice(1);
+              // default to 0 if no instr.order
+              const order = typeof instr.order === 'number' ? instr.order : 0;
 
-            store.set({
-              id,
-              data: {
+              store.set({
                 id,
-                title: instr.title || entry.data.title || entry.slug,
-                link,
-                parent: instr.parent ?? null,
-                order: base,
-                openInNewTab: instr.openInNewTab ?? false,
-                menu: instr.menu,
-              },
-            });
+                data: {
+                  id,
+                  title: instr.title || entry.data.title || entry.slug,
+                  link,
+                  parent: instr.parent ?? null,
+                  order,
+                  openInNewTab: instr.openInNewTab ?? false,
+                  menu: instr.menu,
+                },
+              });
+            }
           }
         }
       }
 
-      logger.info(`[menu-items-loader] total menu items loaded: ${store.keys().length}`);
+      logger.info(`[menu-items-loader] loaded ${store.keys().length} items`);
     },
   };
 }
