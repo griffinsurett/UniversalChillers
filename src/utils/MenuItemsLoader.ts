@@ -1,5 +1,4 @@
 // src/utils/MenuItemsLoader.ts
-
 import { file, Loader } from 'astro/loaders';
 import { getCollection } from 'astro:content';
 import type { LoaderContext } from 'astro/loaders';
@@ -13,38 +12,40 @@ export function MenuItemsLoader(): Loader {
     async load(context: LoaderContext) {
       const { store, logger } = context;
 
-      // ── 1) clear any previously loaded items
+      // 1) Clear any existing items
       store.clear();
 
-      // ── 2) load the base JSON menu first (menuItems.json)
+      // 2) Load static menuItems.json first
       await file('src/content/menuItems/menuItems.json').load(context);
 
-      // ── 3) discover all other collections and inject “addToMenu” + “itemsAddToMenu”
-      const allColls = getCollectionNames().filter(
-        (c) => c !== 'menus' && c !== 'menuItems'
-      );
+      // 3) Discover all dynamic collections (excluding the menus themselves)
+      const allColls = getCollectionNames();
+      const dynamicColls = allColls.filter((c) => c !== 'menus' && c !== 'menuItems');
 
-      for (const coll of allColls) {
+      for (const coll of dynamicColls) {
+        // Fetch the collection's meta frontmatter
         const meta = await getCollectionMeta(coll);
 
-        // Debug: inspect what the meta parser actually picked up
+        // Debug logging
         logger.info(`[menu-items-loader] ${coll}.addToMenu =`, meta.addToMenu);
         logger.info(`[menu-items-loader] ${coll}.itemsAddToMenu =`, meta.itemsAddToMenu);
 
-        // ── 3a) collection-level `addToMenu`
+        //
+        // 3a) collection‐level addToMenu
+        //
         if (Array.isArray(meta.addToMenu)) {
           for (const instr of meta.addToMenu) {
             const link = instr.link?.startsWith('/')
               ? instr.link
               : `/${instr.link || coll}`;
             const id = link.slice(1);
-
-            // allow either `order` or fallback to `weight` (or zero)
-            const baseOrder = typeof instr.order === 'number'
+            // use instr.order if defined, otherwise fall back to instr.weight or 0
+            const base = typeof instr.order === 'number'
               ? instr.order
               : typeof instr.weight === 'number'
-                ? instr.weight
-                : 0;
+              ? instr.weight
+              : 0;
+            const order = base;
 
             store.set({
               id,
@@ -53,7 +54,7 @@ export function MenuItemsLoader(): Loader {
                 title: instr.title || capitalize(coll),
                 link,
                 parent: instr.parent ?? null,
-                order: baseOrder,
+                order,
                 openInNewTab: instr.openInNewTab ?? false,
                 menu: instr.menu,
               },
@@ -61,31 +62,27 @@ export function MenuItemsLoader(): Loader {
           }
         }
 
-        // fetch all entries in this collection
+        //
+        // 3b) bulk itemsAddToMenu — inject every entry in this collection
+        //
         const entries = await getCollection(coll);
-
-        // ── 3b) bulk `itemsAddToMenu`
         if (Array.isArray(meta.itemsAddToMenu)) {
           for (const instr of meta.itemsAddToMenu) {
-            entries.forEach((entry, i) => {
+            entries.forEach((entry, idx) => {
               const entrySlug = entry.slug;
               const link = `/${coll}/${entrySlug}`;
               const id = `${coll}/${entrySlug}`;
-
-              // if the entry itself has a parent and `respectHierarchy` is true, nest under that;
-              // otherwise, use the `parent` from the instruction
-              const parent = instr.respectHierarchy && entry.data.parent
-                ? `${coll}/${entry.data.parent}`
-                : instr.parent ?? null;
-
-              // allow either `order` or fallback to `weight`, then offset by index
-              const baseOrder = typeof instr.order === 'number'
+              const parent =
+                instr.respectHierarchy && entry.data.parent
+                  ? `${coll}/${entry.data.parent}`
+                  : instr.parent ?? null;
+              // pick order → instr.order, then instr.weight, then default 0
+              const base = typeof instr.order === 'number'
                 ? instr.order
                 : typeof instr.weight === 'number'
-                  ? instr.weight
-                  : 0;
-
-              const order = baseOrder + i;
+                ? instr.weight
+                : 0;
+              const order = base + idx;
 
               store.set({
                 id,
@@ -103,7 +100,9 @@ export function MenuItemsLoader(): Loader {
           }
         }
 
-        // ── 3c) per-entry `addToMenu` in each file’s frontmatter
+        //
+        // 3c) per‐entry addToMenu — inject itemsAddToMenu on individual entries
+        //
         for (const entry of entries) {
           const list = (entry.data as any).addToMenu;
           if (Array.isArray(list)) {
@@ -112,15 +111,14 @@ export function MenuItemsLoader(): Loader {
               const link = instr.link?.startsWith('/')
                 ? instr.link
                 : instr.link
-                  ? `/${instr.link}`
-                  : defaultLink;
+                ? `/${instr.link}`
+                : defaultLink;
               const id = link.slice(1);
-
-              // if someone specified an explicit `order` in the entry-level addToMenu,
-              // respect it; otherwise fall back to `weight` or zero
-              const order = typeof instr.order === 'number'
-                ? instr.order
-                : typeof instr.weight === 'number'
+              // same fallback for order
+              const order =
+                typeof instr.order === 'number'
+                  ? instr.order
+                  : typeof instr.weight === 'number'
                   ? instr.weight
                   : 0;
 
