@@ -64,42 +64,44 @@ import { getCollectionNames } from '@/utils/CollectionUtils';
          }
 
          // ── 3b) per-file “addToMenu” (will now also include every itemsAddToMenu) ──
-       // ── 3b) per-file “addToMenu” ──
-for (const entry of entries) {
-  const raw = (entry.data as any).addToMenu;
-  // Normalize into an array:
-  const list = raw
-    ? Array.isArray(raw)
-      ? raw
-      : [raw]
-    : [];
+         for (const entry of entries) {
+           const list = (entry.data as any).addToMenu;
+           if (Array.isArray(list)) {
+             for (const instr of list) {
+               const link = instr.link?.startsWith('/')
+                 ? instr.link
+                 : instr.link
+                 ? `/${instr.link}`
+                 : `/${coll}/${entry.slug}`;
+               const id    = link.slice(1);
+               const menus = Array.isArray(instr.menu)
+                 ? instr.menu
+                 : [instr.menu];
 
-  for (const instr of list) {
-    const link = instr.link?.startsWith("/")
-      ? instr.link
-      : instr.link
-      ? `/${instr.link}`
-      : `/${coll}/${entry.slug}`;
-    const id = link.slice(1);
-    const menus = Array.isArray(instr.menu) ? instr.menu : [instr.menu];
-
-    store.set({
-      id,
-      data: {
-        id,
-        title: instr.title || entry.data.title || entry.slug,
-        link,
-        parent: instr.parent ?? null,
-        ...(typeof instr.order === "number" ? { order: instr.order } : {}),
-        openInNewTab: instr.openInNewTab ?? false,
-        menu: menus,
-      },
-    });
-  }
-}
-
+               store.set({
+                 id,
+                 data: {
+                   id,
+                   title:
+                     instr.title || entry.data.title || entry.slug,
+                   link,
+                   parent: instr.parent ?? null,
+                   ...(typeof instr.order === 'number'
+                     ? { order: instr.order }
+                     : {}),
+                   openInNewTab: instr.openInNewTab ?? false,
+                   menu: menus,
+                 },
+               });
+             }
+           }
+         }
 
          logger.info(
+           `[menu-items-loader] loaded ${store.keys().length} items`
+         );
+
+         console.log(
            `[menu-items-loader] loaded ${store.keys().length} items`
          );
        }
