@@ -105,7 +105,6 @@ export function MenuItemsLoader(): Loader {
             });
           }
         }
-
         logger.info(`[menu-items-loader] loaded ${store.keys().length} items`);
       }
     },
