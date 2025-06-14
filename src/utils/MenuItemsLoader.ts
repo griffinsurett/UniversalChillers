@@ -33,8 +33,8 @@ export function menuItemsLoader(): Loader {
               ? instr.link
               : `/${instr.link || coll}`;
             const id = link.slice(1);
-            // compute order (prefer explicit `order`, fallback to `weight`)
-            const order = instr.order ?? instr.weight ?? 0;
+            // compute order 
+            const order = instr.order;
 
             store.set({
               id,
@@ -63,7 +63,7 @@ export function menuItemsLoader(): Loader {
                 instr.respectHierarchy && entry.data.parent
                   ? `${coll}/${entry.data.parent}`
                   : instr.parent ?? null;
-              const order = (instr.order ?? instr.weight ?? 0) + i;
+              const order = instr.order + i;
 
               store.set({
                 id,
@@ -93,7 +93,7 @@ export function menuItemsLoader(): Loader {
                 ? `/${instr.link}`
                 : defaultLink;
               const id = link.slice(1);
-              const order = instr.order ?? instr.weight ?? 0;
+              const order = instr.order;
 
               store.set({
                 id,
