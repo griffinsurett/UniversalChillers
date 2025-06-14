@@ -52,8 +52,10 @@ export function menuItemsLoader(): Loader {
 
         // 3b) bulk itemsAddToMenu
         const entries = await getCollection(coll);
+        logger.info(`[menu-items-loader] ${coll}: itemsAddToMenu = ${JSON.stringify(meta.itemsAddToMenu)}`);
         if (Array.isArray(meta.itemsAddToMenu)) {
           for (const instr of meta.itemsAddToMenu) {
+            logger.info(`[menu-items-loader]   instr = ${JSON.stringify(instr)}`);
             entries.forEach((entry, i) => {
               const entrySlug = entry.slug;
               const link = `/${coll}/${entrySlug}`;
@@ -62,6 +64,7 @@ export function menuItemsLoader(): Loader {
                 instr.respectHierarchy && entry.data.parent
                   ? `${coll}/${entry.data.parent}`
                   : instr.parent ?? null;
+              logger.info(`[menu-items-loader] → setting menuItem ${id}: parent=${parent} menu=${instr.menu}`);
               const order = instr.order + i;
 
               store.set({
