@@ -1,4 +1,5 @@
 // src/utils/MenuItemsLoader.ts
+
 import { file, Loader } from 'astro/loaders';
 import { getCollection } from 'astro:content';
 import type { LoaderContext } from 'astro/loaders';
@@ -12,29 +13,38 @@ export function MenuItemsLoader(): Loader {
     async load(context: LoaderContext) {
       const { store, logger } = context;
 
-      // 1) clear the store
+      // ── 1) clear any previously loaded items
       store.clear();
 
-      // 2) load your static JSON file (preserves `order` from menuItems.json)
+      // ── 2) load the base JSON menu first (menuItems.json)
       await file('src/content/menuItems/menuItems.json').load(context);
 
-      // 3) discover all other content collections without circular deps
-      const allColls = getCollectionNames();
-      const dynamicCollections = allColls.filter(
+      // ── 3) discover all other collections and inject “addToMenu” + “itemsAddToMenu”
+      const allColls = getCollectionNames().filter(
         (c) => c !== 'menus' && c !== 'menuItems'
       );
 
-      for (const coll of dynamicCollections) {
-        // 3a) collection-level addToMenu
+      for (const coll of allColls) {
         const meta = await getCollectionMeta(coll);
+
+        // Debug: inspect what the meta parser actually picked up
+        logger.info(`[menu-items-loader] ${coll}.addToMenu =`, meta.addToMenu);
+        logger.info(`[menu-items-loader] ${coll}.itemsAddToMenu =`, meta.itemsAddToMenu);
+
+        // ── 3a) collection-level `addToMenu`
         if (Array.isArray(meta.addToMenu)) {
           for (const instr of meta.addToMenu) {
             const link = instr.link?.startsWith('/')
               ? instr.link
               : `/${instr.link || coll}`;
             const id = link.slice(1);
-            // default to 0 if no instr.order
-            const order = typeof instr.order === 'number' ? instr.order : 0;
+
+            // allow either `order` or fallback to `weight` (or zero)
+            const baseOrder = typeof instr.order === 'number'
+              ? instr.order
+              : typeof instr.weight === 'number'
+                ? instr.weight
+                : 0;
 
             store.set({
               id,
@@ -43,7 +53,7 @@ export function MenuItemsLoader(): Loader {
                 title: instr.title || capitalize(coll),
                 link,
                 parent: instr.parent ?? null,
-                order,
+                order: baseOrder,
                 openInNewTab: instr.openInNewTab ?? false,
                 menu: instr.menu,
               },
@@ -51,20 +61,30 @@ export function MenuItemsLoader(): Loader {
           }
         }
 
-        // 3b) bulk itemsAddToMenu
+        // fetch all entries in this collection
         const entries = await getCollection(coll);
+
+        // ── 3b) bulk `itemsAddToMenu`
         if (Array.isArray(meta.itemsAddToMenu)) {
           for (const instr of meta.itemsAddToMenu) {
             entries.forEach((entry, i) => {
               const entrySlug = entry.slug;
               const link = `/${coll}/${entrySlug}`;
               const id = `${coll}/${entrySlug}`;
-              const parent =
-                instr.respectHierarchy && entry.data.parent
-                  ? `${coll}/${entry.data.parent}`
-                  : instr.parent ?? null;
-              // default to 0 if no instr.order
-              const baseOrder = typeof instr.order === 'number' ? instr.order : 0;
+
+              // if the entry itself has a parent and `respectHierarchy` is true, nest under that;
+              // otherwise, use the `parent` from the instruction
+              const parent = instr.respectHierarchy && entry.data.parent
+                ? `${coll}/${entry.data.parent}`
+                : instr.parent ?? null;
+
+              // allow either `order` or fallback to `weight`, then offset by index
+              const baseOrder = typeof instr.order === 'number'
+                ? instr.order
+                : typeof instr.weight === 'number'
+                  ? instr.weight
+                  : 0;
+
               const order = baseOrder + i;
 
               store.set({
@@ -83,7 +103,7 @@ export function MenuItemsLoader(): Loader {
           }
         }
 
-        // 3c) per-entry addToMenu
+        // ── 3c) per-entry `addToMenu` in each file’s frontmatter
         for (const entry of entries) {
           const list = (entry.data as any).addToMenu;
           if (Array.isArray(list)) {
@@ -92,11 +112,17 @@ export function MenuItemsLoader(): Loader {
               const link = instr.link?.startsWith('/')
                 ? instr.link
                 : instr.link
-                ? `/${instr.link}`
-                : defaultLink;
+                  ? `/${instr.link}`
+                  : defaultLink;
               const id = link.slice(1);
-              // default to 0 if no instr.order
-              const order = typeof instr.order === 'number' ? instr.order : 0;
+
+              // if someone specified an explicit `order` in the entry-level addToMenu,
+              // respect it; otherwise fall back to `weight` or zero
+              const order = typeof instr.order === 'number'
+                ? instr.order
+                : typeof instr.weight === 'number'
+                  ? instr.weight
+                  : 0;
 
               store.set({
                 id,
@@ -115,7 +141,7 @@ export function MenuItemsLoader(): Loader {
         }
       }
 
-      logger.info(`[menu-items-loader] loaded ${store.keys().length} items`);
+      logger.info(`[menu-items-loader] total items loaded: ${store.keys().length}`);
     },
   };
 }
