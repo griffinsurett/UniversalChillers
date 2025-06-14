@@ -59,7 +59,6 @@ const CommonFieldsPlusId = {
 
 const BaseMenuFields = {
   parent: z.union([reference("menuItems"), z.array(reference("menuItems"))]).optional(),
-  weight: z.number().optional().default(0),
   openInNewTab: z.boolean().default(false),
 };
 
@@ -75,7 +74,6 @@ const MenuReferenceField = {
  *   - label?: string
  *   - slug?: string
  *   - parent?: string | string[] (ID(s) of another menuItem)
- *   - weight: number       (default: 0)
  *   - openInNewTab: bool   (default: false)
  *   - menu?: string | string[]  (ID(s) of menus it lives in)
  */
