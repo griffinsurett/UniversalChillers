@@ -5,7 +5,6 @@ import type { LoaderContext } from 'astro/loaders';
 import { getCollectionMeta } from '@/utils/FetchMeta';
 import { capitalize } from '@/utils/ContentUtils';
 import { getCollectionNames } from '@/utils/CollectionUtils';
-// after (works in dev + build)
 import { fileURLToPath } from "url";
 
  export function MenuItemsLoader(): Loader {
