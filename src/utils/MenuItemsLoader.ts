@@ -63,44 +63,40 @@ import { getCollectionNames } from '@/utils/CollectionUtils';
            }
          }
 
-    // ── 3b) per‐file `addToMenu` (frontmatter on each file) ──
-for (const entry of entries) {
-  // grab the raw frontmatter value (could be undefined, object, or array)
-  const raw = (entry.data as any).addToMenu
-  // force it into an array
-  const list = raw
-    ? Array.isArray(raw)
-      ? raw
-      : [raw]
-    : []
-  if (!list.length) continue
+         // ── 3b) per-file “addToMenu” (will now also include every itemsAddToMenu) ──
+         for (const entry of entries) {
+           const list = (entry.data as any).addToMenu;
+           console.log(list)
+           if (Array.isArray(list)) {
+             for (const instr of list) {
+               const link = instr.link?.startsWith('/')
+                 ? instr.link
+                 : instr.link
+                 ? `/${instr.link}`
+                 : `/${coll}/${entry.slug}`;
+               const id    = link.slice(1);
+               const menus = Array.isArray(instr.menu)
+                 ? instr.menu
+                 : [instr.menu];
 
-  for (const instr of list) {
-    // compute link exactly as you already do
-    const link = instr.link?.startsWith("/")
-      ? instr.link
-      : instr.link
-      ? `/${instr.link}`
-      : `/${coll}/${entry.slug}`
-    const id = link.slice(1)
-    const menus = Array.isArray(instr.menu) ? instr.menu : [instr.menu]
-
-    console.log(`[menu‐loader] adding per‐file menu item →`, id, menus)
-    store.set({
-      id,
-      data: {
-        id,
-        title: instr.title || entry.data.title || entry.slug,
-        link,
-        parent: instr.parent ?? null,
-        ...(typeof instr.order === "number" ? { order: instr.order } : {}),
-        openInNewTab: instr.openInNewTab ?? false,
-        menu: menus,
-      },
-    })
-  }
-}
-
+               store.set({
+                 id,
+                 data: {
+                   id,
+                   title:
+                     instr.title || entry.data.title || entry.slug,
+                   link,
+                   parent: instr.parent ?? null,
+                   ...(typeof instr.order === 'number'
+                     ? { order: instr.order }
+                     : {}),
+                   openInNewTab: instr.openInNewTab ?? false,
+                   menu: menus,
+                 },
+               });
+             }
+           }
+         }
 
          logger.info(
            `[menu-items-loader] loaded ${store.keys().length} items`
