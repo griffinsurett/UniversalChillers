@@ -1,4 +1,4 @@
-// src/utils/menuLoader.ts
+// src/utils/MenuItemsLoader.ts
 import { file, Loader } from 'astro/loaders';
 import { getCollection } from 'astro:content';
 import type { LoaderContext } from 'astro/loaders';
@@ -6,7 +6,7 @@ import { getCollectionMeta } from '@/utils/FetchMeta';
 import { capitalize } from '@/utils/ContentUtils';
 import { getCollectionNames } from '@/utils/CollectionUtils';
 
-export function menuItemsLoader(): Loader {
+export function MenuItemsLoader(): Loader {
   return {
     name: 'menu-items-loader',
     async load(context: LoaderContext) {
@@ -52,10 +52,8 @@ export function menuItemsLoader(): Loader {
 
         // 3b) bulk itemsAddToMenu
         const entries = await getCollection(coll);
-        logger.info(`[menu-items-loader] ${coll}: itemsAddToMenu = ${JSON.stringify(meta.itemsAddToMenu)}`);
         if (Array.isArray(meta.itemsAddToMenu)) {
           for (const instr of meta.itemsAddToMenu) {
-            logger.info(`[menu-items-loader]   instr = ${JSON.stringify(instr)}`);
             entries.forEach((entry, i) => {
               const entrySlug = entry.slug;
               const link = `/${coll}/${entrySlug}`;
@@ -64,7 +62,6 @@ export function menuItemsLoader(): Loader {
                 instr.respectHierarchy && entry.data.parent
                   ? `${coll}/${entry.data.parent}`
                   : instr.parent ?? null;
-              logger.info(`[menu-items-loader] → setting menuItem ${id}: parent=${parent} menu=${instr.menu}`);
               const order = instr.order + i;
 
               store.set({

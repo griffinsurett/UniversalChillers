@@ -5,7 +5,7 @@ import type { LoaderContext } from 'astro/loaders';
 import { getCollection } from 'astro:content';
 import { getCollectionMeta } from "@/utils/FetchMeta"
 import { capitalize } from "../utils/ContentUtils";
-import { menuItemsLoader } from '@/utils/MenuItemsLoader';
+import { MenuItemsLoader } from '@/utils/MenuItemsLoader';
 
 export const headingSchema = z.union([
   z.string(),
@@ -211,7 +211,7 @@ export const collections = {
 
   // ── menuItems.json (flat list of all menu items) ──
   menuItems: defineCollection({
-    loader: menuItemsLoader(),
+    loader: MenuItemsLoader(),
     schema: MenuItemFields,
   }),
 
