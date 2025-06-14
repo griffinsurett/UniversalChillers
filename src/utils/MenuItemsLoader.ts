@@ -111,6 +111,12 @@ export function MenuItemsLoader(): Loader {
       }
 
       logger.info(`[menu-items-loader] loaded ${store.keys().length} items`);
+      logger.info(
+  `[menu-items-loader] keys: ${store
+    .keys()
+    .filter((k) => k.startsWith('services/'))
+    .join(', ')}`
+);
     },
   };
 }
