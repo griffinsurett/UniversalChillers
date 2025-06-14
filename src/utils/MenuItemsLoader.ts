@@ -11,7 +11,7 @@ export function menuItemsLoader(): Loader {
     name: 'menu-items-loader',
     async load(context: LoaderContext) {
       const { store, logger } = context;
-
+      logger.info("[menu-items-loader] 🚀 running load()");
       // 1) clear the store
       store.clear();
 
