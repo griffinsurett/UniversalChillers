@@ -5,6 +5,8 @@ import type { LoaderContext } from 'astro/loaders';
 import { getCollectionMeta } from '@/utils/FetchMeta';
 import { capitalize } from '@/utils/ContentUtils';
 import { getCollectionNames } from '@/utils/CollectionUtils';
+// after (works in dev + build)
+import { fileURLToPath } from "url";
 
  export function MenuItemsLoader(): Loader {
    return {
@@ -13,8 +15,11 @@ import { getCollectionNames } from '@/utils/CollectionUtils';
        const { store, logger } = context;
        // 1) clear the store & load your static JSON
        store.clear();
-       await file('src/content/menuItems/menuItems.json').load(context);
 
+const menuJson = fileURLToPath(
+  new URL("../content/menuItems/menuItems.json", import.meta.url)
+);
+await file(menuJson).load(context);
        // 2) discover all of your dynamic collections
        const allColls = getCollectionNames();
        const dynamic = allColls.filter((c) => c !== 'menus' && c !== 'menuItems');
@@ -63,41 +68,39 @@ import { getCollectionNames } from '@/utils/CollectionUtils';
            }
          }
 
-       // ── 3b) per-file “addToMenu” ──
-for (const entry of entries) {
-  const list = (entry.data as any).addToMenu;
-  if (Array.isArray(list)) {
-    for (const instr of list) {
+         // ── 3b) per-file “addToMenu” (will now also include every itemsAddToMenu) ──
+         for (const entry of entries) {
+           const list = (entry.data as any).addToMenu;
+           if (Array.isArray(list)) {
+             for (const instr of list) {
+               const link = instr.link?.startsWith('/')
+                 ? instr.link
+                 : instr.link
+                 ? `/${instr.link}`
+                 : `/${coll}/${entry.slug}`;
+               const id    = link.slice(1);
+               const menus = Array.isArray(instr.menu)
+                 ? instr.menu
+                 : [instr.menu];
 
-     // unwrap any reference objects into their string IDs
-     const rawMenus = Array.isArray(instr.menu)
-       ? instr.menu
-       : [instr.menu];
-     const menus = rawMenus.map(m => (typeof m === "string" ? m : m.id));
-
-      const link = instr.link?.startsWith('/')
-        ? instr.link
-        : instr.link
-        ? `/${instr.link}`
-        : `/${coll}/${entry.slug}`;
-      const id = link.slice(1);
-
-      store.set({
-        id,
-        data: {
-          id,
-          title: instr.title || entry.data.title || entry.slug,
-          link,
-          parent: instr.parent ?? null,
-          ...(typeof instr.order === "number" ? { order: instr.order } : {}),
-          openInNewTab: instr.openInNewTab ?? false,
-         menu: menus,
-        },
-      });
-    }
-  }
-}
-
+               store.set({
+                 id,
+                 data: {
+                   id,
+                   title:
+                     instr.title || entry.data.title || entry.slug,
+                   link,
+                   parent: instr.parent ?? null,
+                   ...(typeof instr.order === 'number'
+                     ? { order: instr.order }
+                     : {}),
+                   openInNewTab: instr.openInNewTab ?? false,
+                   menu: menus,
+                 },
+               });
+             }
+           }
+         }
 
          logger.info(
            `[menu-items-loader] loaded ${store.keys().length} items`
