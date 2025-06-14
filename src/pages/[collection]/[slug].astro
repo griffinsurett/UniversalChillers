@@ -19,14 +19,14 @@ export async function getStaticPaths() {
       continue;
     }
 
-let meta;
-try {
-  // getCollectionMeta is now synchronous, so just call it directly
-  meta = getCollectionMeta(collection);
-} catch (err) {
-  // if parsing fails or the module isn’t found, fall back to empty object
-  meta = {};
-}
+    // Safely load collection meta
+    let meta;
+    try {
+      meta = getCollectionMeta(coll);
+    } catch {
+      meta = {};
+    }
+
     const entries = await getCollection(coll);
     const { itemsHasPage = true } = meta;
 
@@ -49,7 +49,14 @@ try {
 
 const { collection, entry } = Astro.props;
 const { data, body } = entry;
-const meta = await getCollectionMeta(collection).catch(() => ({}));
+
+// Safely load page-specific meta
+let meta;
+try {
+  meta = getCollectionMeta(collection);
+} catch {
+  meta = {};
+}
 
 // 2) Default layout specifier (must match the glob keys)
 const spec =

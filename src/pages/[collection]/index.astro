@@ -11,8 +11,14 @@ export async function getStaticPaths() {
   const names = Object.keys(collections);
   const paths = [];
 
-  for (const coll of names) {
-    const meta = await getCollectionMeta(coll).catch(() => ({}));
+   for (const coll of names) {
+    let meta;
+    try {
+      // getCollectionMeta now returns synchronously
+      meta = getCollectionMeta(coll);
+    } catch {
+      meta = {};
+    }
     if (meta.hasPage !== false) {
       paths.push({ params: { collection: coll } });
     }
@@ -23,7 +29,12 @@ export async function getStaticPaths() {
 
 // 2) Load this collection’s meta
 const { collection } = Astro.params;
-const meta = await getCollectionMeta(collection).catch(() => ({}));
+let meta;
+try {
+  meta = getCollectionMeta(collection);
+} catch {
+  meta = {};
+}
 
 // 3) Try to import the MDX body
 let Body = null;
