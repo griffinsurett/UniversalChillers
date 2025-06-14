@@ -1,24 +1,26 @@
 // src/utils/MenuItemsLoader.ts
-import { file, Loader } from 'astro/loaders';
-import { getCollection } from 'astro:content';
-import type { LoaderContext } from 'astro/loaders';
-import { getCollectionMeta } from '@/utils/FetchMeta';
-import { capitalize } from '@/utils/ContentUtils';
-import { getCollectionNames } from '@/utils/CollectionUtils';
+import { file, Loader } from "astro/loaders";
+import { getCollection } from "astro:content";
+import type { LoaderContext } from "astro/loaders";
+import { getCollectionMeta } from "@/utils/FetchMeta";
+import { capitalize } from "@/utils/ContentUtils";
+import { getCollectionNames } from "@/utils/CollectionUtils";
 
 export function MenuItemsLoader(): Loader {
   return {
-    name: 'menu-items-loader',
+    name: "menu-items-loader",
     async load(context: LoaderContext) {
       const { store, logger } = context;
       // 1) clear the store
       store.clear();
       // 2) load your static JSON (mainMenu & footerMenu)
-      await file('src/content/menuItems/menuItems.json').load(context);
+      await file("src/content/menuItems/menuItems.json").load(context);
 
       // 3) add dynamic collections
       const allColls = getCollectionNames();
-      const dynamic = allColls.filter((c) => c !== 'menus' && c !== 'menuItems');
+      const dynamic = allColls.filter(
+        (c) => c !== "menus" && c !== "menuItems"
+      );
 
       for (const coll of dynamic) {
         const meta = await getCollectionMeta(coll);
@@ -27,7 +29,9 @@ export function MenuItemsLoader(): Loader {
         // ── 3a) collection-level “addToMenu” ───────────────────────────
         if (Array.isArray(meta.addToMenu)) {
           for (const instr of meta.addToMenu) {
-            const link = instr.link?.startsWith('/') ? instr.link : `/${instr.link || coll}`;
+            const link = instr.link?.startsWith("/")
+              ? instr.link
+              : `/${instr.link || coll}`;
             const id = link.slice(1);
             // normalize into array
             const menus = Array.isArray(instr.menu) ? instr.menu : [instr.menu];
@@ -40,7 +44,9 @@ export function MenuItemsLoader(): Loader {
                 link,
                 parent: instr.parent ?? null,
                 // keep instr.order here if you like, or omit to let default sort apply
-                ...(typeof instr.order === 'number' ? { order: instr.order } : {}),
+                ...(typeof instr.order === "number"
+                  ? { order: instr.order }
+                  : {}),
                 openInNewTab: instr.openInNewTab ?? false,
                 menu: menus,
               },
@@ -61,7 +67,9 @@ export function MenuItemsLoader(): Loader {
               const id = `${coll}/${entry.slug}`;
               // use the item’s own frontmatter `order` if set
               const entryOrder =
-                typeof entry.data.order === 'number' ? entry.data.order : undefined;
+                typeof entry.data.order === "number"
+                  ? entry.data.order
+                  : undefined;
 
               store.set({
                 id,
@@ -84,14 +92,16 @@ export function MenuItemsLoader(): Loader {
           const list = (entry.data as any).addToMenu;
           if (Array.isArray(list)) {
             for (const instr of list) {
-              const link = instr.link?.startsWith('/')
+              const link = instr.link?.startsWith("/")
                 ? instr.link
                 : instr.link
                 ? `/${instr.link}`
                 : `/${coll}/${entry.slug}`;
               const id = link.slice(1);
               const parent = instr.parent ?? null;
-              const menus = Array.isArray(instr.menu) ? instr.menu : [instr.menu];
+              const menus = Array.isArray(instr.menu)
+                ? instr.menu
+                : [instr.menu];
 
               store.set({
                 id,
@@ -100,7 +110,9 @@ export function MenuItemsLoader(): Loader {
                   title: instr.title || entry.data.title || entry.slug,
                   link,
                   parent,
-                  ...(typeof instr.order === 'number' ? { order: instr.order } : {}),
+                  ...(typeof instr.order === "number"
+                    ? { order: instr.order }
+                    : {}),
                   openInNewTab: instr.openInNewTab ?? false,
                   menu: menus,
                 },
@@ -112,11 +124,11 @@ export function MenuItemsLoader(): Loader {
 
       logger.info(`[menu-items-loader] loaded ${store.keys().length} items`);
       logger.info(
-  `[menu-items-loader] keys: ${store
-    .keys()
-    .filter((k) => k.startsWith('services/'))
-    .join(', ')}`
-);
+        `[menu-items-loader] keys: ${store
+          .keys()
+          .filter((k) => k.startsWith("services/"))
+          .join(", ")}`
+      );
     },
   };
 }
