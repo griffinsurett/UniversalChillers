@@ -25,8 +25,11 @@ export function MenuItemsLoader(): Loader {
       );
 
       for (const coll of dynamicCollections) {
-        // 3a) collection-level addToMenu
+        // fetch this collection’s frontmatter meta
         const meta = await getCollectionMeta(coll);
+        const entries = await getCollection(coll);
+
+        // ── 3a) collection-level addToMenu ───────────────────────────────
         if (Array.isArray(meta.addToMenu)) {
           for (const instr of meta.addToMenu) {
             const link = instr.link?.startsWith('/')
@@ -34,7 +37,7 @@ export function MenuItemsLoader(): Loader {
               : `/${instr.link || coll}`;
             const id = link.slice(1);
             const order = typeof instr.order === 'number' ? instr.order : 0;
-            // normalize menu into an array
+            // always wrap in array
             const menus = Array.isArray(instr.menu) ? instr.menu : [instr.menu];
 
             store.set({
@@ -52,20 +55,17 @@ export function MenuItemsLoader(): Loader {
           }
         }
 
-        // 3b) bulk itemsAddToMenu
-        const entries = await getCollection(coll);
+        // ── 3b) bulk itemsAddToMenu ───────────────────────────────────────
         if (Array.isArray(meta.itemsAddToMenu)) {
           for (const instr of meta.itemsAddToMenu) {
-            // normalize menu into an array
+            // wrap menu in array
             const menus = Array.isArray(instr.menu) ? instr.menu : [instr.menu];
             entries.forEach((entry, i) => {
               const entrySlug = entry.slug;
               const link = `/${coll}/${entrySlug}`;
               const id = `${coll}/${entrySlug}`;
-              const parent =
-                instr.respectHierarchy && entry.data.parent
-                  ? `${coll}/${entry.data.parent}`
-                  : instr.parent ?? null;
+              // **flatten** everyone under instr.parent
+              const parent = instr.parent ?? null;
               const baseOrder = typeof instr.order === 'number' ? instr.order : 0;
               const order = baseOrder + i;
 
@@ -85,7 +85,7 @@ export function MenuItemsLoader(): Loader {
           }
         }
 
-        // 3c) per-entry addToMenu
+        // ── 3c) per-entry addToMenu (frontmatter) ────────────────────────
         for (const entry of entries) {
           const list = (entry.data as any).addToMenu;
           if (Array.isArray(list)) {
@@ -98,7 +98,6 @@ export function MenuItemsLoader(): Loader {
                 : defaultLink;
               const id = link.slice(1);
               const order = typeof instr.order === 'number' ? instr.order : 0;
-              // normalize menu into an array
               const menus = Array.isArray(instr.menu) ? instr.menu : [instr.menu];
 
               store.set({
