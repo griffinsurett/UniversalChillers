@@ -72,6 +72,7 @@ export function MenuItemsLoader(): Loader {
                   link,
                   parent,
                   order,
+                  weight: 0,
                   openInNewTab: instr.openInNewTab ?? false,
                   menu: instr.menu,
                 },
