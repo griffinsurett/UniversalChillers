@@ -33,7 +33,7 @@ export function MenuItemsLoader(): Loader {
               ? instr.link
               : `/${instr.link || coll}`;
             const id = link.slice(1);
-            // default to 0 if no explicit order
+            // default to 0 if no instr.order
             const order = typeof instr.order === 'number' ? instr.order : 0;
 
             store.set({
@@ -63,7 +63,7 @@ export function MenuItemsLoader(): Loader {
                 instr.respectHierarchy && entry.data.parent
                   ? `${coll}/${entry.data.parent}`
                   : instr.parent ?? null;
-
+              // default to 0 if no instr.order
               const baseOrder = typeof instr.order === 'number' ? instr.order : 0;
               const order = baseOrder + i;
 
@@ -95,7 +95,7 @@ export function MenuItemsLoader(): Loader {
                 ? `/${instr.link}`
                 : defaultLink;
               const id = link.slice(1);
-
+              // default to 0 if no instr.order
               const order = typeof instr.order === 'number' ? instr.order : 0;
 
               store.set({
