@@ -72,8 +72,8 @@ export function MenuItemsLoader(): Loader {
               const id = `${coll}/${entrySlug}`;
               // flatten all children under your specified parent
               const parent = instr.parent ?? null;
-              const baseOrder = typeof instr.order === 'number' ? instr.order : 0;
-              const order = baseOrder + i;
+              // const baseOrder = typeof instr.order === 'number' ? instr.order : 0;
+              // const order = baseOrder + i;
 
               store.set({
                 id,
@@ -82,7 +82,6 @@ export function MenuItemsLoader(): Loader {
                   title: entry.data.title || entrySlug,
                   link,
                   parent,
-                  order,
                   openInNewTab: instr.openInNewTab ?? false,
                   menu: menus,
                 },
