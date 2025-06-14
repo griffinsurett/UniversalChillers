@@ -1,10 +1,10 @@
-// src/utils/menuItemsLoader.ts
+// src/utils/menuLoader.ts
 import { file, Loader } from 'astro/loaders';
 import { getCollection } from 'astro:content';
 import type { LoaderContext } from 'astro/loaders';
 import { getCollectionMeta } from '@/utils/FetchMeta';
 import { capitalize } from '@/utils/ContentUtils';
-import { getCollectionNames } from '../utils/CollectionUtils';
+import { getCollectionNames } from '@/utils/CollectionUtils';
 
 export function menuItemsLoader(): Loader {
   return {
