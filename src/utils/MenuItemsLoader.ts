@@ -27,6 +27,7 @@ export function MenuItemsLoader(): Loader {
       for (const coll of dynamicCollections) {
         // 3a) collection-level addToMenu
         const meta = await getCollectionMeta(coll);
+        
         if (Array.isArray(meta.addToMenu)) {
           for (const instr of meta.addToMenu) {
             const link = instr.link?.startsWith('/')
@@ -62,7 +63,10 @@ export function MenuItemsLoader(): Loader {
                 instr.respectHierarchy && entry.data.parent
                   ? `${coll}/${entry.data.parent}`
                   : instr.parent ?? null;
-              const order = instr.order + i;
+
+              // default instr.order to 0 if not explicitly set
+              const baseOrder = typeof instr.order === 'number' ? instr.order : 0;
+              const order     = baseOrder + i;
 
               store.set({
                 id,
@@ -72,14 +76,13 @@ export function MenuItemsLoader(): Loader {
                   link,
                   parent,
                   order,
-                  weight: 0,
                   openInNewTab: instr.openInNewTab ?? false,
                   menu: instr.menu,
                 },
               });
             });
           }
-        }
+       }
 
         // 3c) per-entry addToMenu
         for (const entry of entries) {
