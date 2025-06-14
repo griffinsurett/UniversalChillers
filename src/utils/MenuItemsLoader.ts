@@ -42,9 +42,13 @@ import { getCollectionNames } from '@/utils/CollectionUtils';
                ? instr.link
                : `/${instr.link || coll}`;
              const id    = link.slice(1);
-             const menus = Array.isArray(instr.menu)
+              // unwrap any reference objects down to their .id
+             const rawMenus = Array.isArray(instr.menu)
                ? instr.menu
                : [instr.menu];
+             const menus = rawMenus.map(m =>
+               typeof m === "string" ? m : m.id
+             );
 
              store.set({
                id,
@@ -87,10 +91,11 @@ import { getCollectionNames } from '@/utils/CollectionUtils';
                    link,
                    parent: instr.parent ?? null,
                    ...(typeof instr.order === 'number'
-                     ? { order: instr.order }
-                     : {}),
-                   openInNewTab: instr.openInNewTab ?? false,
-                   menu: menus,
+                   ? { order: instr.order }
+                   : {}),
+                 openInNewTab: instr.openInNewTab ?? false,
+                 // now genuine array of menu IDs
+                 menu: menus,
                  },
                });
              }
