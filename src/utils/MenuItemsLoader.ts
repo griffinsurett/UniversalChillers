@@ -1,113 +1,77 @@
 // src/utils/MenuItemsLoader.ts
-import { file, Loader } from 'astro/loaders';
-import { getCollection } from 'astro:content';
-import type { LoaderContext } from 'astro/loaders';
+import type { Loader, LoaderContext } from 'astro/loaders';
+import { file } from 'astro/loaders';
 import { getCollectionMeta } from '@/utils/FetchMeta';
+import { getCollection } from 'astro:content';
 import { capitalize } from '@/utils/ContentUtils';
 
 export function menuItemsLoader(): Loader {
   return {
     name: 'menu-items-loader',
-    async load(context: LoaderContext) {
-      const { store, logger } = context;
-
-      // Clear any existing entries
+    async load({ store, logger, config, parseData, generateDigest }) {
+      // ── 1) start fresh
       store.clear();
 
-      // Load static menuItems.json (preserves each item's `order`)
-      await file('src/content/menuItems/menuItems.json').load(context);
+      // ── 2) load your static JSON
+      await file(`${config.root}/src/content/menuItems/menuItems.json`).load({ store, logger, config, parseData, generateDigest });
 
-      // Discover dynamic collections to auto-add
-      const cfg = await import('../content/config');
-      const allColls: string[] = Object.keys(cfg.collections);
-      const dynamicCollections = allColls.filter(c => c !== 'menus' && c !== 'menuItems');
+      // ── 3) inject your dynamic collections
+      const dynamicCollections = ['services', 'projects', 'testimonials', 'faq', 'clients'];
 
       for (const coll of dynamicCollections) {
         const meta = await getCollectionMeta(coll);
 
-        // Collection-level addToMenu instructions
+        //— 3a) collection-level addToMenu
         if (Array.isArray(meta.addToMenu)) {
           for (const instr of meta.addToMenu) {
-            const link = instr.link?.startsWith('/') ? instr.link : `/${instr.link || coll}`;
-            const id = link.slice(1);
-            const order = instr.order ?? 0;
-
-            store.set({
+            const link = instr.link?.startsWith('/') ? instr.link : `/${instr.link||coll}`;
+            const id   = link.slice(1);
+            const raw  = {
               id,
-              data: {
-                id,
-                title: instr.title || capitalize(coll),
-                link,
-                parent: instr.parent ?? null,
-                order,
-                openInNewTab: instr.openInNewTab ?? false,
-                menu: instr.menu,
-              },
-            });
+              title: instr.title || capitalize(coll),
+              link,
+              parent: instr.parent ?? null,
+              order: instr.order ?? 0,             // ← use `order`, not `weight`
+              openInNewTab: instr.openInNewTab ?? false,
+              menu: instr.menu,
+            };
+            const data = await parseData({ id, data: raw });
+            store.set(id, { id, data, digest: generateDigest(data) });
+            logger.info(`menu‐items-loader → added ${id}`);
           }
         }
 
-        // Bulk itemsAddToMenu: place each entry in menu
+        //— 3b) per‐entry itemsAddToMenu
         const entries = await getCollection(coll);
         if (Array.isArray(meta.itemsAddToMenu)) {
           for (const instr of meta.itemsAddToMenu) {
-            entries.forEach((entry, index) => {
-              const entrySlug = entry.slug;
-              const link = `/${coll}/${entrySlug}`;
-              const id = `${coll}/${entrySlug}`;
-              const parent = instr.respectHierarchy && entry.data.parent
-                ? `${coll}/${entry.data.parent}`
-                : instr.parent ?? null;
-              const baseOrder = instr.order ?? 0;
-
-              store.set({
-                id,
-                data: {
-                  id,
-                  title: entry.data.title || entrySlug,
-                  link,
-                  parent,
-                  order: baseOrder + index,
-                  openInNewTab: instr.openInNewTab ?? false,
-                  menu: instr.menu,
-                },
-              });
-            });
-          }
-        }
-
-        // Per-entry addToMenu directives
-        for (const entry of entries) {
-          const list = (entry.data as any).addToMenu;
-          if (Array.isArray(list)) {
-            for (const instr of list) {
-              const defaultLink = `/${coll}/${entry.slug}`;
+            entries.forEach(async (entry, i) => {
               const link = instr.link?.startsWith('/')
                 ? instr.link
                 : instr.link
                   ? `/${instr.link}`
-                  : defaultLink;
-              const id = link.slice(1);
-              const order = instr.order ?? 0;
-
-              store.set({
+                  : `/${coll}/${entry.slug}`;
+              const id    = link.slice(1);
+              const raw   = {
                 id,
-                data: {
-                  id,
-                  title: instr.title || entry.data.title || entry.slug,
-                  link,
-                  parent: instr.parent ?? null,
-                  order,
-                  openInNewTab: instr.openInNewTab ?? false,
-                  menu: instr.menu,
-                },
-              });
-            }
+                title: instr.title || entry.data.title || entry.slug,
+                link,
+                parent: instr.respectHierarchy && entry.data.parent
+                  ? `${coll}/${entry.data.parent}`
+                  : instr.parent ?? null,
+                order: (instr.order ?? 0) + i,     // ← again, use `order`
+                openInNewTab: instr.openInNewTab ?? false,
+                menu: instr.menu,
+              };
+              const data = await parseData({ id, data: raw });
+              store.set(id, { id, data, digest: generateDigest(data) });
+              logger.info(`menu‐items-loader → added ${id}`);
+            });
           }
         }
       }
 
-      logger.info(`[menu-items-loader] loaded ${store.keys().length} items`);
+      logger.info(`[menu‐items-loader] total items: ${store.keys().length}`);
     },
   };
 }
