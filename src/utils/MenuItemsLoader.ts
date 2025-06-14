@@ -12,40 +12,29 @@ export function MenuItemsLoader(): Loader {
     async load(context: LoaderContext) {
       const { store, logger } = context;
 
-      // 1) Clear any existing items
+      // 1) clear the store
       store.clear();
 
-      // 2) Load static menuItems.json first
+      // 2) load your static JSON file (preserves `order` from menuItems.json)
       await file('src/content/menuItems/menuItems.json').load(context);
 
-      // 3) Discover all dynamic collections (excluding the menus themselves)
+      // 3) discover all other content collections without circular deps
       const allColls = getCollectionNames();
-      const dynamicColls = allColls.filter((c) => c !== 'menus' && c !== 'menuItems');
+      const dynamicCollections = allColls.filter(
+        (c) => c !== 'menus' && c !== 'menuItems'
+      );
 
-      for (const coll of dynamicColls) {
-        // Fetch the collection's meta frontmatter
+      for (const coll of dynamicCollections) {
+        // 3a) collection-level addToMenu
         const meta = await getCollectionMeta(coll);
-
-        // Debug logging
-        logger.info(`[menu-items-loader] ${coll}.addToMenu =`, meta.addToMenu);
-        logger.info(`[menu-items-loader] ${coll}.itemsAddToMenu =`, meta.itemsAddToMenu);
-
-        //
-        // 3a) collection‐level addToMenu
-        //
         if (Array.isArray(meta.addToMenu)) {
           for (const instr of meta.addToMenu) {
             const link = instr.link?.startsWith('/')
               ? instr.link
               : `/${instr.link || coll}`;
             const id = link.slice(1);
-            // use instr.order if defined, otherwise fall back to instr.weight or 0
-            const base = typeof instr.order === 'number'
-              ? instr.order
-              : typeof instr.weight === 'number'
-              ? instr.weight
-              : 0;
-            const order = base;
+            // default to 0 if no instr.order
+            const order = typeof instr.order === 'number' ? instr.order : 0;
 
             store.set({
               id,
@@ -62,13 +51,11 @@ export function MenuItemsLoader(): Loader {
           }
         }
 
-        //
-        // 3b) bulk itemsAddToMenu — inject every entry in this collection
-        //
+        // 3b) bulk itemsAddToMenu
         const entries = await getCollection(coll);
         if (Array.isArray(meta.itemsAddToMenu)) {
           for (const instr of meta.itemsAddToMenu) {
-            entries.forEach((entry, idx) => {
+            entries.forEach((entry, i) => {
               const entrySlug = entry.slug;
               const link = `/${coll}/${entrySlug}`;
               const id = `${coll}/${entrySlug}`;
@@ -76,13 +63,9 @@ export function MenuItemsLoader(): Loader {
                 instr.respectHierarchy && entry.data.parent
                   ? `${coll}/${entry.data.parent}`
                   : instr.parent ?? null;
-              // pick order → instr.order, then instr.weight, then default 0
-              const base = typeof instr.order === 'number'
-                ? instr.order
-                : typeof instr.weight === 'number'
-                ? instr.weight
-                : 0;
-              const order = base + idx;
+              // default to 0 if no instr.order
+              const baseOrder = typeof instr.order === 'number' ? instr.order : 0;
+              const order = baseOrder + i;
 
               store.set({
                 id,
@@ -100,9 +83,7 @@ export function MenuItemsLoader(): Loader {
           }
         }
 
-        //
-        // 3c) per‐entry addToMenu — inject itemsAddToMenu on individual entries
-        //
+        // 3c) per-entry addToMenu
         for (const entry of entries) {
           const list = (entry.data as any).addToMenu;
           if (Array.isArray(list)) {
@@ -114,13 +95,8 @@ export function MenuItemsLoader(): Loader {
                 ? `/${instr.link}`
                 : defaultLink;
               const id = link.slice(1);
-              // same fallback for order
-              const order =
-                typeof instr.order === 'number'
-                  ? instr.order
-                  : typeof instr.weight === 'number'
-                  ? instr.weight
-                  : 0;
+              // default to 0 if no instr.order
+              const order = typeof instr.order === 'number' ? instr.order : 0;
 
               store.set({
                 id,
@@ -139,7 +115,7 @@ export function MenuItemsLoader(): Loader {
         }
       }
 
-      logger.info(`[menu-items-loader] total items loaded: ${store.keys().length}`);
+      logger.info(`[menu-items-loader] loaded ${store.keys().length} items`);
     },
   };
 }
