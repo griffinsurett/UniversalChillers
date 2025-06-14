@@ -63,10 +63,7 @@ export function MenuItemsLoader(): Loader {
                 instr.respectHierarchy && entry.data.parent
                   ? `${coll}/${entry.data.parent}`
                   : instr.parent ?? null;
-
-              // default instr.order to 0 if not explicitly set
-              const baseOrder = typeof instr.order === 'number' ? instr.order : 0;
-              const order     = baseOrder + i;
+              const order = instr.order + i;
 
               store.set({
                 id,
@@ -82,7 +79,7 @@ export function MenuItemsLoader(): Loader {
               });
             });
           }
-       }
+        }
 
         // 3c) per-entry addToMenu
         for (const entry of entries) {
