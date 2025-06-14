@@ -4,7 +4,6 @@ import tailwindcss from '@tailwindcss/vite';
 import mdx from '@astrojs/mdx';
 import react from '@astrojs/react';
 import { config as loadDotenv } from 'dotenv';
-import MenuItemsLoader from "./src/utils/MenuItemsLoader";
 
 // ① Only load .env when NODE_ENV !== 'production'
 if (process.env.NODE_ENV !== 'production') {
@@ -20,7 +19,7 @@ export default defineConfig({
     port: Number(process.env.PUBLIC_DEV_PORT) || 9000,
   },
   vite: {
-    plugins: [tailwindcss(), MenuItemsLoader()],
+    plugins: [tailwindcss()],
     build: {
       rollupOptions: {
         output: {

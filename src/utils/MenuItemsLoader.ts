@@ -42,13 +42,9 @@ import { getCollectionNames } from '@/utils/CollectionUtils';
                ? instr.link
                : `/${instr.link || coll}`;
              const id    = link.slice(1);
-              // unwrap any reference objects down to their .id
-             const rawMenus = Array.isArray(instr.menu)
+             const menus = Array.isArray(instr.menu)
                ? instr.menu
                : [instr.menu];
-             const menus = rawMenus.map(m =>
-               typeof m === "string" ? m : m.id
-             );
 
              store.set({
                id,
@@ -67,40 +63,41 @@ import { getCollectionNames } from '@/utils/CollectionUtils';
            }
          }
 
-         // ── 3b) per-file “addToMenu” (will now also include every itemsAddToMenu) ──
-         for (const entry of entries) {
-           const list = (entry.data as any).addToMenu;
-           if (Array.isArray(list)) {
-             for (const instr of list) {
-               const link = instr.link?.startsWith('/')
-                 ? instr.link
-                 : instr.link
-                 ? `/${instr.link}`
-                 : `/${coll}/${entry.slug}`;
-               const id    = link.slice(1);
-               const menus = Array.isArray(instr.menu)
-                 ? instr.menu
-                 : [instr.menu];
+       // ── 3b) per-file “addToMenu” ──
+for (const entry of entries) {
+  const list = (entry.data as any).addToMenu;
+  if (Array.isArray(list)) {
+    for (const instr of list) {
 
-               store.set({
-                 id,
-                 data: {
-                   id,
-                   title:
-                     instr.title || entry.data.title || entry.slug,
-                   link,
-                   parent: instr.parent ?? null,
-                   ...(typeof instr.order === 'number'
-                   ? { order: instr.order }
-                   : {}),
-                 openInNewTab: instr.openInNewTab ?? false,
-                 // now genuine array of menu IDs
-                 menu: menus,
-                 },
-               });
-             }
-           }
-         }
+     // unwrap any reference objects into their string IDs
+     const rawMenus = Array.isArray(instr.menu)
+       ? instr.menu
+       : [instr.menu];
+     const menus = rawMenus.map(m => (typeof m === "string" ? m : m.id));
+
+      const link = instr.link?.startsWith('/')
+        ? instr.link
+        : instr.link
+        ? `/${instr.link}`
+        : `/${coll}/${entry.slug}`;
+      const id = link.slice(1);
+
+      store.set({
+        id,
+        data: {
+          id,
+          title: instr.title || entry.data.title || entry.slug,
+          link,
+          parent: instr.parent ?? null,
+          ...(typeof instr.order === "number" ? { order: instr.order } : {}),
+          openInNewTab: instr.openInNewTab ?? false,
+         menu: menus,
+        },
+      });
+    }
+  }
+}
+
 
          logger.info(
            `[menu-items-loader] loaded ${store.keys().length} items`
