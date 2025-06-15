@@ -9,73 +9,80 @@ import { getCollectionNames } from '@/utils/CollectionUtils';
 export function MenuItemsLoader(): Loader {
   return {
     name: 'menu-items-loader',
-    async load({ store, logger }: LoaderContext) {
-      // 1) Clear existing and load static menuItems.json
-      store.clear();
-      await file('src/content/menuItems/menuItems.json').load(arguments[0]);
+    async load(context: LoaderContext) {
+      const { store, logger } = context;
 
-      // 2) All collections except menus/menuItems
-      const dynamic = getCollectionNames().filter(c => c !== 'menus' && c !== 'menuItems');
+      // 1) Clear and load the static menuItems.json
+      store.clear();
+      await file('src/content/menuItems/menuItems.json').load(context);
+
+      // 2) Find all dynamic collections
+      const allColls = getCollectionNames();
+      const dynamic = allColls.filter((c) => c !== 'menus' && c !== 'menuItems');
 
       for (const coll of dynamic) {
-        const meta    = await getCollectionMeta(coll);
-        const entries = await getCollection(coll);
-        const injections: Array<{ title: string; link: string; parent: string | null; order?: number; openInNewTab: boolean; menu: string[] }> = [];
-
-        // 3) Collection-level addToMenu
+        // Read collection‐level addToMenu from _meta.mdx
+        const meta = await getCollectionMeta(coll);
         if (Array.isArray(meta.addToMenu)) {
           for (const instr of meta.addToMenu) {
             const link = instr.link?.startsWith('/') ? instr.link : `/${instr.link || coll}`;
-            injections.push({
-              title:       instr.title || capitalize(coll),
-              link,
-              parent:      instr.parent ?? null,
-              order:       typeof instr.order === 'number' ? instr.order : undefined,
-              openInNewTab: instr.openInNewTab ?? false,
-              menu:        Array.isArray(instr.menu) ? instr.menu : [instr.menu],
+            const id = link.slice(1);
+            const menus = Array.isArray(instr.menu) ? instr.menu : [instr.menu];
+
+            store.set({
+              id,
+              data: {
+                id,
+                title:       instr.title      || capitalize(coll),
+                link,
+                parent:      instr.parent     ?? null,
+                ...(typeof instr.order === 'number' ? { order: instr.order } : {}),
+                openInNewTab: instr.openInNewTab ?? false,
+                menu:        menus,
+              },
             });
           }
         }
 
-        // 4) Entry-level addToMenu
+        // 3) Read every entry in this collection
+        const entries = await getCollection(coll);
+
+        // 4) Inject per‐entry addToMenu frontmatter exactly like meta
         for (const entry of entries) {
-          const list = Array.isArray((entry.data as any).addToMenu) ? (entry.data as any).addToMenu : [];
+          const list = Array.isArray((entry.data as any).addToMenu)
+            ? (entry.data as any).addToMenu
+            : [];
+
           if (!list.length) continue;
+
+          // debug: should appear both in dev and build logs
+          console.log(`[menu-loader][${coll}/${entry.slug}] addToMenu=`, list);
+
           for (const instr of list) {
             const link = instr.link?.startsWith('/')
               ? instr.link
               : instr.link
                 ? `/${instr.link}`
                 : `/${coll}/${entry.slug}`;
-            injections.push({
-              title:       instr.title || entry.data.title || entry.slug,
-              link,
-              parent:      instr.parent ?? null,
-              order:       typeof instr.order === 'number' ? instr.order : undefined,
-              openInNewTab: instr.openInNewTab ?? false,
-              menu:        Array.isArray(instr.menu) ? instr.menu : [instr.menu],
+            const id = link.slice(1);
+            const menus = Array.isArray(instr.menu) ? instr.menu : [instr.menu];
+
+            store.set({
+              id,
+              data: {
+                id,
+                title:       instr.title      || entry.data.title || entry.slug,
+                link,
+                parent:      instr.parent     ?? null,
+                ...(typeof instr.order === 'number' ? { order: instr.order } : {}),
+                openInNewTab: instr.openInNewTab ?? false,
+                menu:        menus,
+              },
             });
           }
         }
 
-        // 5) Inject all collected items
-        for (const item of injections) {
-          const id = item.link.slice(1);
-          store.set({
-            id,
-            data: {
-              id,
-              title:       item.title,
-              link:        item.link,
-              parent:      item.parent,
-              ...(item.order !== undefined ? { order: item.order } : {}),
-              openInNewTab: item.openInNewTab,
-              menu:        item.menu,
-            },
-          });
-        }
-
-        logger.info(`[menu-items-loader] loaded ${store.keys().length} items (from ${coll})`);
+        logger.info(`[menu-items-loader] loaded ${store.keys().length} items`);
       }
     },
   };
