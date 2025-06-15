@@ -65,8 +65,9 @@ import { getCollectionNames } from '@/utils/CollectionUtils';
 
          // ── 3b) per-file “addToMenu” (will now also include every itemsAddToMenu) ──
          for (const entry of entries) {
-           const list = (entry.data as any).addToMenu;
-           console.log(list)
+           const list = Array.isArray(entry.data.addToMenu)
+           ? entry.data.addToMenu
+           : [];
            if (Array.isArray(list)) {
              for (const instr of list) {
                const link = instr.link?.startsWith('/')
