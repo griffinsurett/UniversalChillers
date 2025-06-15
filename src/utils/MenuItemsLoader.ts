@@ -22,7 +22,6 @@ import { getCollectionNames } from '@/utils/CollectionUtils';
        for (const coll of dynamic) {
          const meta    = await getCollectionMeta(coll);
          const entries = await getCollection(coll);
-
        // ── INJECT meta.itemsAddToMenu AS per-file addToMenu on every entry ──
        if (Array.isArray(meta.itemsAddToMenu)) {
          for (const entry of entries) {
