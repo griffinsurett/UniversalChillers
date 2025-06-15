@@ -12,21 +12,26 @@ export function MenuItemsLoader(): Loader {
     async load(context: LoaderContext) {
       const { store, logger } = context;
 
-      // 1) Clear and load the static menuItems.json
+      // 1) Clear the store & load your static JSON
       store.clear();
       await file('src/content/menuItems/menuItems.json').load(context);
 
       // 2) Find all dynamic collections
-      const allColls = getCollectionNames();
-      const dynamic = allColls.filter((c) => c !== 'menus' && c !== 'menuItems');
+      const dynamic = getCollectionNames().filter(
+        (c) => c !== 'menus' && c !== 'menuItems'
+      );
 
       for (const coll of dynamic) {
-        // Read collection‐level addToMenu from _meta.mdx
-        const meta = await getCollectionMeta(coll);
+        const meta    = await getCollectionMeta(coll);
+        const entries = await getCollection(coll);
+
+        // ── 3a) Inject collection‐level addToMenu from _meta.mdx ──
         if (Array.isArray(meta.addToMenu)) {
           for (const instr of meta.addToMenu) {
-            const link = instr.link?.startsWith('/') ? instr.link : `/${instr.link || coll}`;
-            const id = link.slice(1);
+            const link = instr.link?.startsWith('/')
+              ? instr.link
+              : `/${instr.link || coll}`;
+            const id    = link.slice(1);
             const menus = Array.isArray(instr.menu) ? instr.menu : [instr.menu];
 
             store.set({
@@ -44,27 +49,31 @@ export function MenuItemsLoader(): Loader {
           }
         }
 
-        // 3) Read every entry in this collection
-        const entries = await getCollection(coll);
+        // ── 3b) Inject per‐entry addToMenu (frontmatter) ──
+        //     + any meta.itemsAddToMenu instructions too
+        const fileLevel: any[] = Array.isArray(meta.itemsAddToMenu)
+          ? meta.itemsAddToMenu
+          : [];
 
-        // 4) Inject per‐entry addToMenu frontmatter exactly like meta
         for (const entry of entries) {
-          const list = Array.isArray((entry.data as any).addToMenu)
+          // read (but do NOT mutate!) the frontmatter array:
+          const fm = Array.isArray((entry.data as any).addToMenu)
             ? (entry.data as any).addToMenu
             : [];
 
-          if (!list.length) continue;
+          // combine frontmatter + collection-level itemsAddToMenu
+          const combined = [...fm, ...fileLevel];
+          if (!combined.length) continue;
 
-          // debug: should appear both in dev and build logs
-          console.log(`[menu-loader][${coll}/${entry.slug}] addToMenu=`, list);
+          console.log(`[menu-loader][${coll}/${entry.slug}] addToMenu:`, combined);
 
-          for (const instr of list) {
+          for (const instr of combined) {
             const link = instr.link?.startsWith('/')
               ? instr.link
               : instr.link
                 ? `/${instr.link}`
                 : `/${coll}/${entry.slug}`;
-            const id = link.slice(1);
+            const id    = link.slice(1);
             const menus = Array.isArray(instr.menu) ? instr.menu : [instr.menu];
 
             store.set({
