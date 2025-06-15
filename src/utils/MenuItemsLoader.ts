@@ -4,7 +4,6 @@ import { getCollection } from 'astro:content';
 import type { LoaderContext } from 'astro/loaders';
 import { getCollectionMeta } from '@/utils/FetchMeta';
 import { capitalize } from '@/utils/ContentUtils';
-import { getCollectionNames } from '@/utils/CollectionUtils';
 
 export function MenuItemsLoader(): Loader {
   return {
@@ -16,15 +15,20 @@ export function MenuItemsLoader(): Loader {
       store.clear();
       await file('src/content/menuItems/menuItems.json').load(context);
 
-      // 2) Discover all dynamic collections (excluding menus/menuItems)
-      const allColls = getCollectionNames();
-      const dynamic = allColls.filter((c) => c !== 'menus' && c !== 'menuItems');
+      // 2) Static list of collections to inject into menus
+      const dynamic = [
+        'services',
+        'projects',
+        'testimonials',
+        'faq',
+        'clients',
+      ];
 
       for (const coll of dynamic) {
         const meta    = await getCollectionMeta(coll);
         const entries = await getCollection(coll);
 
-        // ── 3a) Collection-level “addToMenu” (from _meta.mdx) ──
+        // ── 3a) Collection-level “addToMenu” from _meta.mdx ──
         if (Array.isArray(meta.addToMenu)) {
           for (const instr of meta.addToMenu) {
             const link = instr.link?.startsWith('/')
@@ -44,7 +48,7 @@ export function MenuItemsLoader(): Loader {
                 parent:      instr.parent ?? null,
                 ...(typeof instr.order === 'number' ? { order: instr.order } : {}),
                 openInNewTab: instr.openInNewTab ?? false,
-                menu:        menus,
+                menu:         menus,
               },
             });
           }
@@ -52,14 +56,13 @@ export function MenuItemsLoader(): Loader {
 
         // ── 3b) Per-file “addToMenu” (frontmatter) ──
         for (const entry of entries) {
-          // read—but do not mutate—each MDX file’s addToMenu array
           const list = Array.isArray((entry.data as any).addToMenu)
             ? (entry.data as any).addToMenu
             : [];
 
           if (!list.length) continue;
 
-          // debug-log so you can verify it’s being picked up
+          // Debug: verify per-file injection
           console.log(`[menu-loader][${coll}/${entry.slug}] addToMenu=`, list);
 
           for (const instr of list) {
@@ -82,7 +85,7 @@ export function MenuItemsLoader(): Loader {
                 parent:      instr.parent ?? null,
                 ...(typeof instr.order === 'number' ? { order: instr.order } : {}),
                 openInNewTab: instr.openInNewTab ?? false,
-                menu:        menus,
+                menu:         menus,
               },
             });
           }
