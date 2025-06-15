@@ -198,7 +198,7 @@ const baseSchema = ({ image }: { image: Function }) =>
         video: z.string().optional(),
       })
       .optional(),
-  });
+  }).passthrough();
 
 export const collections = {
   // ── menus.json (flat list of menus) ──
@@ -221,7 +221,7 @@ export const collections = {
         parent: z
           .union([reference("services"), z.array(reference("services"))])
           .optional(),
-      }),
+      }).passthrough(),
   }),
   projects: defineCollection({
     schema: ({ image }) =>
