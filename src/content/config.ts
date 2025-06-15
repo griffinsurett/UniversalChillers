@@ -221,7 +221,7 @@ export const collections = {
         parent: z
           .union([reference("services"), z.array(reference("services"))])
           .optional(),
-      }),
+      }).passthrough(),
   }),
   projects: defineCollection({
     schema: ({ image }) =>
