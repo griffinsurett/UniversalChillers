@@ -9,24 +9,24 @@ import { getCollectionNames } from '@/utils/CollectionUtils';
 import fs from 'fs/promises';
 import path from 'path';
 
-/** Recursively find all .json files under a directory (skipping menuItems.json and _meta.json) */
+// Recursively find all JSON files under a directory (excluding menuItems.json and _meta.json)
 async function scanJSON(dir: string): Promise<string[]> {
-  let results: string[] = [];
+  let found: string[] = [];
   const entries = await fs.readdir(dir, { withFileTypes: true });
-  for (const e of entries) {
-    const full = path.join(dir, e.name);
-    if (e.isDirectory()) {
-      results = results.concat(await scanJSON(full));
+  for (const ent of entries) {
+    const full = path.join(dir, ent.name);
+    if (ent.isDirectory()) {
+      found.push(...await scanJSON(full));
     } else if (
-      e.isFile() &&
-      e.name.endsWith('.json') &&
-      e.name !== 'menuItems.json' &&
-      !e.name.startsWith('_meta')
+      ent.isFile() &&
+      ent.name.endsWith('.json') &&
+      ent.name !== 'menuItems.json' &&
+      !ent.name.startsWith('_meta')
     ) {
-      results.push(full);
+      found.push(full);
     }
   }
-  return results;
+  return found;
 }
 
 export function MenuItemsLoader(): Loader {
@@ -35,57 +35,53 @@ export function MenuItemsLoader(): Loader {
     async load(context: LoaderContext) {
       const { store, logger } = context;
 
-      // ── 1) Clear & load base menuItems.json ─────────────────────────────
+      // ── 1) Clear & load primary menuItems.json ────────────────────────────
       store.clear();
       await file('src/content/menuItems/menuItems.json').load(context);
 
-      // ── 2) Per-file addToMenu from MDX/MD ────────────────────────────────
+      // ── 2) PER-FILE addToMenu from MDX/MD ─────────────────────────────────
       {
-        const mdFiles = import.meta.glob<
-          { frontmatter?: any }
-        >('../content/**/*.{mdx,md}', { eager: true });
-
-        for (const p in mdFiles) {
-          // skip _meta files
+        const mods = import.meta.glob<Record<string, any> & { frontmatter?: any }>(
+          '../content/**/*.{mdx,md}',
+          { eager: true }
+        );
+        for (const p in mods) {
           if (/\/_meta\.(mdx|md)$/.test(p)) continue;
-
-          const mod  = mdFiles[p]!;
+          const mod  = mods[p]!;
           const data = mod.frontmatter;
           if (!data?.addToMenu) continue;
 
-          // derive collection + slug
-          const parts = p.split('/');
-          const filename = parts.pop()!;      // e.g. "seo.mdx"
-          const collection = parts.pop()!;    // e.g. "services"
-          const slug = filename.replace(/\.(mdx|md)$/, '');
-          const fallback = `/${collection}/${slug}`;
+          // derive collection & slug
+          const segs        = p.split('/');
+          const fileWithExt = segs.pop()!;      // e.g. "seo.mdx"
+          const collection  = segs.pop()!;      // e.g. "services"
+          const slug        = fileWithExt.replace(/\.(mdx|md)$/, '');
+          const fallback    = `/${collection}/${slug}`;
 
           const recs = Array.isArray(data) ? data : [data];
           for (const rec of recs) {
-            const items = Array.isArray(rec.addToMenu)
+            const ins = Array.isArray(rec.addToMenu)
               ? rec.addToMenu
               : [rec.addToMenu];
-            for (const instr of items) {
+            for (const instr of ins) {
               const link = instr.link
                 ? instr.link.startsWith('/')
                   ? instr.link
                   : `/${instr.link}`
                 : fallback;
-              const id = link.slice(1);
+              const id    = link.slice(1);
               const menus = Array.isArray(instr.menu)
                 ? instr.menu
                 : [instr.menu];
 
-              store.set({
+              store.set({ 
                 id,
                 data: {
                   id,
                   title: instr.title || rec.title || capitalize(slug),
                   link,
                   parent: instr.parent ?? null,
-                  ...(typeof instr.order === 'number'
-                    ? { order: instr.order }
-                    : {}),
+                  ...(typeof instr.order === 'number' ? { order: instr.order } : {}),
                   openInNewTab: instr.openInNewTab ?? false,
                   menu: menus,
                 },
@@ -95,37 +91,36 @@ export function MenuItemsLoader(): Loader {
         }
       }
 
-      // ── 3) Per-file addToMenu from standalone JSON ─────────────────────────
+      // ── 3) PER-FILE addToMenu from JSON files ───────────────────────────────
       {
-        const contentDir = path.join(process.cwd(), 'src', 'content');
-        const jsonPaths = await scanJSON(contentDir);
+        const contentRoot = path.join(process.cwd(), 'src', 'content');
+        const jsonFiles   = await scanJSON(contentRoot);
 
-        for (const abs of jsonPaths) {
+        for (const abs of jsonFiles) {
           let raw: any;
           try {
-            raw = JSON.parse(await fs.readFile(abs, 'utf8'));
+            raw = JSON.parse(await fs.readFile(abs, 'utf-8'));
           } catch {
             continue;
           }
           const recs = Array.isArray(raw) ? raw : [raw];
-          // derive collection + slug
-          const rel = path.relative(contentDir, abs).replace(/\\/g, '/');  
-          const [collection, ...rest] = rel.split('/');
-          const slugPart = rest.join('/').replace(/\.json$/, '');
-          const fallback = `/${collection}/${slugPart}`;
+          const rel  = path.relative(contentRoot, abs).split(path.sep);
+          const collection = rel.shift()!;
+          const fileSlug   = rel.join('/').replace(/\.json$/, '');
+          const fallback   = `/${collection}/${fileSlug}`;
 
           for (const rec of recs) {
             if (!rec.addToMenu) continue;
-            const items = Array.isArray(rec.addToMenu)
+            const ins = Array.isArray(rec.addToMenu)
               ? rec.addToMenu
               : [rec.addToMenu];
-            for (const instr of items) {
+            for (const instr of ins) {
               const link = instr.link
                 ? instr.link.startsWith('/')
                   ? instr.link
                   : `/${instr.link}`
                 : fallback;
-              const id = link.slice(1);
+              const id    = link.slice(1);
               const menus = Array.isArray(instr.menu)
                 ? instr.menu
                 : [instr.menu];
@@ -134,13 +129,10 @@ export function MenuItemsLoader(): Loader {
                 id,
                 data: {
                   id,
-                  title:
-                    instr.title || rec.title || capitalize(rec.id ?? slugPart),
+                  title: instr.title || rec.title || capitalize(rec.id ?? fileSlug),
                   link,
                   parent: instr.parent ?? null,
-                  ...(typeof instr.order === 'number'
-                    ? { order: instr.order }
-                    : {}),
+                  ...(typeof instr.order === 'number' ? { order: instr.order } : {}),
                   openInNewTab: instr.openInNewTab ?? false,
                   menu: menus,
                 },
@@ -150,13 +142,14 @@ export function MenuItemsLoader(): Loader {
         }
       }
 
-      // ── 4) Collection-level addToMenu & itemsAddToMenu via getCollectionMeta ─
+      // ── 4) COLLECTION-LEVEL addToMenu & itemsAddToMenu via getCollectionMeta ─
       {
-        const cols = getCollectionNames().filter(
+        const allColls = getCollectionNames().filter(
           (c) => c !== 'menus' && c !== 'menuItems'
         );
 
-        for (const coll of cols) {
+        for (const coll of allColls) {
+          // fetch your parsed _meta.* frontmatter
           const meta = getCollectionMeta(coll);
           const entries = await getCollection(coll);
 
@@ -166,7 +159,7 @@ export function MenuItemsLoader(): Loader {
               const link = instr.link?.startsWith('/')
                 ? instr.link
                 : `/${instr.link || coll}`;
-              const id = link.slice(1);
+              const id    = link.slice(1);
               const menus = Array.isArray(instr.menu)
                 ? instr.menu
                 : [instr.menu];
@@ -178,9 +171,7 @@ export function MenuItemsLoader(): Loader {
                   title: instr.title || capitalize(coll),
                   link,
                   parent: instr.parent ?? null,
-                  ...(typeof instr.order === 'number'
-                    ? { order: instr.order }
-                    : {}),
+                  ...(typeof instr.order === 'number' ? { order: instr.order } : {}),
                   openInNewTab: instr.openInNewTab ?? false,
                   menu: menus,
                 },
@@ -188,19 +179,25 @@ export function MenuItemsLoader(): Loader {
             }
           }
 
-          // 4b) itemsAddToMenu – inject every entry, preserving hierarchy
-          if (Array.isArray(meta.itemsAddToMenu)) {
+          // 4b) itemsAddToMenu: look in BOTH top-level and defaultSection
+          const itemsAdd =
+            meta.itemsAddToMenu ??
+            (meta.defaultSection as any)?.itemsAddToMenu;
+
+          if (Array.isArray(itemsAdd)) {
             for (const entry of entries) {
-              for (const instr of meta.itemsAddToMenu) {
-                // Always preserve the entry’s own parent if present
-                const parent = entry.data.parent ?? instr.parent ?? null;
+              for (const instr of itemsAdd) {
+                // allow per-entry parent override if requested
+                const parent = instr.respectHierarchy
+                  ? entry.data.parent ?? instr.parent
+                  : instr.parent;
 
                 const link = instr.link?.startsWith('/')
                   ? instr.link
                   : instr.link
                     ? `/${instr.link}`
                     : `/${coll}/${entry.slug}`;
-                const id = link.slice(1);
+                const id    = link.slice(1);
                 const menus = Array.isArray(instr.menu)
                   ? instr.menu
                   : [instr.menu];
@@ -209,13 +206,10 @@ export function MenuItemsLoader(): Loader {
                   id,
                   data: {
                     id,
-                    title:
-                      instr.title || entry.data.title || entry.slug,
+                    title: instr.title || entry.data.title || entry.slug,
                     link,
-                    parent,
-                    ...(typeof instr.order === 'number'
-                      ? { order: instr.order }
-                      : {}),
+                    parent: parent ?? null,
+                    ...(typeof instr.order === 'number' ? { order: instr.order } : {}),
                     openInNewTab: instr.openInNewTab ?? false,
                     menu: menus,
                   },
