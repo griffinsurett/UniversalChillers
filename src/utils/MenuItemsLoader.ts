@@ -21,9 +21,9 @@ export function MenuItemsLoader(): Loader {
       const jsonMods = import.meta.glob("../content/**/*.json", { eager: true });
       const contentModules = { ...mdxMods, ...mdMods, ...jsonMods };
 
-      // 2a) per-file addToMenu (works in dev + build)
+      // 2a) per-file addToMenu (works in dev+build)
       for (const path in contentModules) {
-        if (/\/\/_meta\.(mdx|md|json)$/.test(path)) continue;
+        if (/\/_meta\.(mdx|md|json)$/.test(path)) continue;
 
         const mod = contentModules[path] as any;
         const raw = mod.frontmatter ?? mod.default;
@@ -101,56 +101,55 @@ export function MenuItemsLoader(): Loader {
           }
         }
 
-        // 3b) per-file itemsAddToMenu (with respectHierarchy)
+        // 3b) per-file itemsAddToMenu (with respectHierarchy!)
         if (Array.isArray(meta.itemsAddToMenu)) {
           for (const path in contentModules) {
+            // only files in this collection’s folder, skip its _meta.*
             if (!path.includes(`../content/${coll}/`)) continue;
-            if (/\/\/_meta\.(mdx|md|json)$/.test(path)) continue;
-
-            const mod = contentModules[path] as any;
-            const fm = mod.frontmatter ?? {};
+            if (/\/_meta\.(mdx|md|json)$/.test(path)) continue;
 
             const segments = path.split("/");
             const fileNameWithExt = segments.pop()!;
+            const folder = segments.pop()!;
+            if (folder !== coll) continue;
             const fileSlug = fileNameWithExt.replace(/\.(mdx|md|json)$/, "");
 
-            for (const instr of meta.itemsAddToMenu!) {
-              // build link
+            // grab each file’s frontmatter/default so we can inspect rec.parent/title
+            const mod = contentModules[path] as any;
+            const raw = mod.frontmatter ?? mod.default;
+            if (!raw) continue;
+            // if you ever have array-frontmatter, you could map here; assume single rec:
+            const rec = Array.isArray(raw) ? raw[0] : raw;
+
+            for (const instr of meta.itemsAddToMenu) {
+              // build the link
               const link = instr.link?.startsWith("/")
                 ? instr.link
                 : instr.link
                 ? `/${instr.link}`
                 : `/${coll}/${fileSlug}`;
-
-              // determine parentId, prefixing collection if needed
-              let parentId: string | null = null;
-              if (instr.respectHierarchy && fm.parent) {
-                if (fm.parent.startsWith("/")) {
-                  parentId = fm.parent.slice(1);
-                } else if (fm.parent.includes("/")) {
-                  parentId = fm.parent;
-                } else {
-                  parentId = `${coll}/${fm.parent}`;
-                }
-              } else {
-                parentId = instr.parent ?? null;
-              }
-
               const id = link.slice(1);
               const menus = Array.isArray(instr.menu)
                 ? instr.menu
                 : [instr.menu];
 
+              // decide parent: either the hierarchy parent from frontmatter, or the root
+              let parent = instr.parent ?? null;
+              if (instr.respectHierarchy && rec.parent) {
+                // rec.parent is a slug; mirror your collection-root parent’s shape
+                parent = {
+                  id: rec.parent,
+                  collection: instr.parent?.collection,
+                };
+              }
+
               store.set({
                 id,
                 data: {
                   id,
-                  title:
-                    instr.title ||
-                    (fm.title as string) ||
-                    capitalize(fileSlug),
+                  title: instr.title || rec.title || fileSlug,
                   link,
-                  parent: parentId,
+                  parent,
                   ...(typeof instr.order === "number" && { order: instr.order }),
                   openInNewTab: instr.openInNewTab ?? false,
                   menu: menus,
@@ -161,9 +160,7 @@ export function MenuItemsLoader(): Loader {
         }
       }
 
-      logger.info(
-        `[menu-items-loader] loaded ${store.keys().length} items`
-      );
+      logger.info(`[menu-items-loader] loaded ${store.keys().length} items`);
     },
   };
 }
