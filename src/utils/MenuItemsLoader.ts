@@ -12,43 +12,53 @@ export function MenuItemsLoader(): Loader {
     async load(context: LoaderContext) {
       const { store, logger } = context;
 
-      // ── 1) Clear store & load static JSON ───────────────────────────────
+      // ── 1) Clear & load static menuItems.json ───────────────────────────
       store.clear();
       await file('src/content/menuItems/menuItems.json').load(context);
 
-      // ── 2) Eager‐load all MDX entries’ frontmatter to pick up per-file addToMenu ──
-      const mdxModules = import.meta.glob('../content/**/*.mdx', { eager: true });
-      for (const path in mdxModules) {
-        // Skip any _meta.mdx files
-        if (path.endsWith('_meta.mdx')) continue;
-        const mod = (mdxModules[path] as any);
-        const front = mod.frontmatter;
+      // ── 2) Eager-import ALL content files under src/content ──────────────
+      //    • .mdx & .md  → mod.frontmatter
+      //    • .json       → mod.default
+      const contentModules = import.meta.glob<
+        Record<string, any> & { frontmatter?: any; default?: any }
+      >('../content/**/*.{mdx,md,json}', { eager: true });
+
+      for (const path in contentModules) {
+        // skip any _meta files
+        if (/\/_meta\.(mdx|md|json)$/.test(path)) continue;
+
+        const mod = contentModules[path]!;
+        // frontmatter for MDX/MD, default export for JSON
+        const front = mod.frontmatter ?? mod.default;
         if (!front?.addToMenu) continue;
 
-        const list = Array.isArray(front.addToMenu)
+        const instructions = Array.isArray(front.addToMenu)
           ? front.addToMenu
           : [front.addToMenu];
 
-        // Derive URL path from file path: ../content/<collection>/<slug>.mdx
-        const parts = path.split('/');
-        const fileName = parts.pop()!.replace(/\.mdx$/, '');
-        const collection = parts.pop()!;
-        const defaultLink = `/${collection}/${fileName}`;
+        // derive collection & slug from path: ../content/<collection>/<slug>.<ext>
+        const segments = path.split('/');
+        const filenameWithExt = segments.pop()!;
+        const collection = segments.pop()!;
+        const slug = filenameWithExt.replace(/\.(mdx|md|json)$/, '');
+        const fallbackLink = `/${collection}/${slug}`;
 
-        for (const instr of list) {
+        for (const instr of instructions) {
           const link = instr.link?.startsWith('/')
             ? instr.link
             : instr.link
-            ? `/${instr.link}`
-            : defaultLink;
+              ? `/${instr.link}`
+              : fallbackLink;
           const id = link.slice(1);
-          const menus = Array.isArray(instr.menu) ? instr.menu : [instr.menu];
+          const menus = Array.isArray(instr.menu)
+            ? instr.menu
+            : [instr.menu];
 
           store.set({
             id,
             data: {
               id,
-              title: instr.title || front.title || capitalize(fileName),
+              title: instr.title || front.title || capitalize(slug),
               link,
               parent: instr.parent ?? null,
               ...(typeof instr.order === 'number' ? { order: instr.order } : {}),
@@ -59,23 +69,23 @@ export function MenuItemsLoader(): Loader {
         }
       }
 
-      // ── 3) Inject collection‐level addToMenu & itemsAddToMenu from each _meta.mdx ──
-      const dynamic = getCollectionNames().filter(
-        (c) => c !== 'menus' && c !== 'menuItems'
-      );
+      // ── 3) Now inject your collection-level & itemsAddToMenu from each _meta.* ────
+      const dynamic = getCollectionNames().filter(c => c !== 'menus' && c !== 'menuItems');
 
       for (const coll of dynamic) {
         const meta = await getCollectionMeta(coll);
         const entries = await getCollection(coll);
 
-        // 3a) collection‐level addToMenu
+        // 3a) collection-level addToMenu
         if (Array.isArray(meta.addToMenu)) {
           for (const instr of meta.addToMenu) {
             const link = instr.link?.startsWith('/')
               ? instr.link
               : `/${instr.link || coll}`;
             const id = link.slice(1);
-            const menus = Array.isArray(instr.menu) ? instr.menu : [instr.menu];
+            const menus = Array.isArray(instr.menu)
+              ? instr.menu
+              : [instr.menu];
 
             store.set({
               id,
@@ -92,14 +102,13 @@ export function MenuItemsLoader(): Loader {
           }
         }
 
-        // 3b) per‐file itemsAddToMenu (merge into each entry)
+        // 3b) per-file itemsAddToMenu (merges into every entry)
         if (Array.isArray(meta.itemsAddToMenu)) {
           for (const entry of entries) {
-            // start with any real frontmatter addToMenu already on entry.data
-            const perFile = Array.isArray((entry.data as any).addToMenu)
+            const existing = Array.isArray((entry.data as any).addToMenu)
               ? (entry.data as any).addToMenu
               : [];
-            const combined = [...perFile, ...meta.itemsAddToMenu];
+            const combined = [...existing, ...meta.itemsAddToMenu];
 
             for (const instr of combined) {
               const link = instr.link?.startsWith('/')
@@ -116,8 +125,7 @@ export function MenuItemsLoader(): Loader {
                 id,
                 data: {
                   id,
-                  title:
-                    instr.title || entry.data.title || entry.slug,
+                  title: instr.title || entry.data.title || entry.slug,
                   link,
                   parent: instr.parent ?? null,
                   ...(typeof instr.order === 'number' ? { order: instr.order } : {}),
@@ -128,9 +136,9 @@ export function MenuItemsLoader(): Loader {
             }
           }
         }
-
-        logger.info(`[menu-items-loader] loaded ${store.keys().length} items`);
       }
+
+      logger.info(`[menu-items-loader] loaded ${store.keys().length} items`);
     },
   };
 }
