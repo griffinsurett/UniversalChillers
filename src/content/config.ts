@@ -198,7 +198,7 @@ const baseSchema = ({ image }: { image: Function }) =>
         video: z.string().optional(),
       })
       .optional(),
-  }).passthrough();
+  })
 
 export const collections = {
   // ── menus.json (flat list of menus) ──
