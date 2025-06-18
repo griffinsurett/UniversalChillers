@@ -108,14 +108,28 @@ export function MenuItemsLoader(): Loader {
         }
 
         // 3b) itemsAddToMenu: run that same logic for *every* entry
+        // 3b) per-file itemsAddToMenu
         if (Array.isArray(meta.itemsAddToMenu)) {
-          for (const entry of entries) {
-            const instrs = meta.itemsAddToMenu as MenuInstr[];
-            for (const instr of instrs) {
-              const fallbackId = `/${coll}/${entry.slug}`;
-              const fallbackTitle =
-                entry.data.title ?? capitalize(entry.slug);
-              applyInstr(instr, fallbackId, fallbackTitle);
+          for (const instr of meta.itemsAddToMenu) {
+            // For each instruction in itemsAddToMenu, iterate *all* entries
+            for (const entry of entries) {
+              // Build our fallback link & title
+              const fallbackLink = `/${coll}/${entry.slug}`;
+              const fallbackTitle = entry.data.title ?? capitalize(entry.slug);
+
+              // Determine parent: either entry.data.parent (if respecting hierarchy), or the meta.parent
+              const parentField = instr.respectHierarchy
+                ? entry.data.parent ?? instr.parent
+                : instr.parent;
+
+              // Merge a per-entry instruction
+              const perEntryInstr = {
+                ...instr,
+                parent: parentField,
+              };
+
+              // And apply it just like addToMenu
+              applyInstr(perEntryInstr, fallbackLink, fallbackTitle);
             }
           }
         }
