@@ -10,7 +10,7 @@ export default function HamburgerMenu({
   shared,
   cfg = {},
 }) {
-  // console.log(allItems, "allItems in HamburgerMenu");
+  console.log(allItems, "allItems in HamburgerMenu");
   const { itemsClass = "", menuItem = {} } = cfg;
   const finalMenuItemComponent = menuItem.component || MobileMenuItem;
   const sortBy = shared.sortBy ?? undefined;

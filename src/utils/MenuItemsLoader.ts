@@ -101,7 +101,7 @@ export function MenuItemsLoader(): Loader {
           }
         }
 
-        // 3b) per-file itemsAddToMenu (with respectHierarchy!)
+        // 3b) per-file itemsAddToMenu (now build-safe!)
         if (Array.isArray(meta.itemsAddToMenu)) {
           for (const path in contentModules) {
             // only files in this collection’s folder, skip its _meta.*
@@ -114,15 +114,7 @@ export function MenuItemsLoader(): Loader {
             if (folder !== coll) continue;
             const fileSlug = fileNameWithExt.replace(/\.(mdx|md|json)$/, "");
 
-            // grab each file’s frontmatter/default so we can inspect rec.parent/title
-            const mod = contentModules[path] as any;
-            const raw = mod.frontmatter ?? mod.default;
-            if (!raw) continue;
-            // if you ever have array-frontmatter, you could map here; assume single rec:
-            const rec = Array.isArray(raw) ? raw[0] : raw;
-
             for (const instr of meta.itemsAddToMenu) {
-              // build the link
               const link = instr.link?.startsWith("/")
                 ? instr.link
                 : instr.link
@@ -133,23 +125,16 @@ export function MenuItemsLoader(): Loader {
                 ? instr.menu
                 : [instr.menu];
 
-              // decide parent: either the hierarchy parent from frontmatter, or the root
-              let parent = instr.parent ?? null;
-              if (instr.respectHierarchy && rec.parent) {
-                // rec.parent is a slug; mirror your collection-root parent’s shape
-                parent = {
-                  id: rec.parent,
-                  collection: instr.parent?.collection,
-                };
-              }
-
               store.set({
                 id,
                 data: {
                   id,
-                  title: instr.title || rec.title || fileSlug,
+                  title:
+                    instr.title ||
+                    (contentModules[path].frontmatter?.title as string) ||
+                    fileSlug,
                   link,
-                  parent,
+                  parent: instr.parent ?? null,
                   ...(typeof instr.order === "number" && { order: instr.order }),
                   openInNewTab: instr.openInNewTab ?? false,
                   menu: menus,
@@ -160,7 +145,9 @@ export function MenuItemsLoader(): Loader {
         }
       }
 
-      logger.info(`[menu-items-loader] loaded ${store.keys().length} items`);
+      logger.info(
+        `[menu-items-loader] loaded ${store.keys().length} items`
+      );
     },
   };
 }
