@@ -12,23 +12,22 @@ export function MenuItemsLoader(): Loader {
     async load(context: LoaderContext) {
       const { store, logger } = context;
 
-      // ── 1) Clear & load static menuItems.json ───────────────────────────
+      // 1) Clear & load your primary menuItems.json
       store.clear();
       await file('src/content/menuItems/menuItems.json').load(context);
 
-      // ── 2) Eager-import ALL content files under src/content ──────────────
-      //    • .mdx & .md  → mod.frontmatter
-      //    • .json       → mod.default
-      const contentModules = import.meta.glob<
-        Record<string, any> & { frontmatter?: any; default?: any }
-      >('../content/**/*.{mdx,md,json}', { eager: true });
+      // 2) Eager-import ALL .mdx, .md and .json under src/content
+      const mdxMods  = import.meta.glob('../content/**/*.mdx', { eager: true });
+      const mdMods   = import.meta.glob('../content/**/*.md',  { eager: true });
+      const jsonMods = import.meta.glob('../content/**/*.json',{ eager: true });
+      const contentModules = { ...mdxMods, ...mdMods, ...jsonMods };
 
       for (const path in contentModules) {
-        // skip any _meta files
+        // skip any _meta.* files
         if (/\/_meta\.(mdx|md|json)$/.test(path)) continue;
 
-        const mod = contentModules[path]!;
-        // frontmatter for MDX/MD, default export for JSON
+        const mod   = (contentModules[path] as any);
+        // for MDX/MD: frontmatter in mod.frontmatter; for JSON: full object in mod.default
         const front = mod.frontmatter ?? mod.default;
         if (!front?.addToMenu) continue;
 
@@ -36,12 +35,13 @@ export function MenuItemsLoader(): Loader {
           ? front.addToMenu
           : [front.addToMenu];
 
-        // derive collection & slug from path: ../content/<collection>/<slug>.<ext>
-        const segments = path.split('/');
-        const filenameWithExt = segments.pop()!;
-        const collection = segments.pop()!;
-        const slug = filenameWithExt.replace(/\.(mdx|md|json)$/, '');
-        const fallbackLink = `/${collection}/${slug}`;
+        // derive collection name & slug from the file path:
+        // ../content/<collection>/<slug>.<ext>
+        const segments         = path.split('/');
+        const fileNameWithExt  = segments.pop()!;
+        const collection       = segments.pop()!;
+        const slug             = fileNameWithExt.replace(/\.(mdx|md|json)$/, '');
+        const fallbackLink     = `/${collection}/${slug}`;
 
         for (const instr of instructions) {
           const link = instr.link?.startsWith('/')
@@ -49,6 +49,7 @@ export function MenuItemsLoader(): Loader {
             : instr.link
               ? `/${instr.link}`
               : fallbackLink;
+
           const id = link.slice(1);
           const menus = Array.isArray(instr.menu)
             ? instr.menu
@@ -69,11 +70,10 @@ export function MenuItemsLoader(): Loader {
         }
       }
 
-      // ── 3) Now inject your collection-level & itemsAddToMenu from each _meta.* ────
+      // 3) Now pick up your collection-level addToMenu & itemsAddToMenu from each _meta.*
       const dynamic = getCollectionNames().filter(c => c !== 'menus' && c !== 'menuItems');
-
       for (const coll of dynamic) {
-        const meta = await getCollectionMeta(coll);
+        const meta    = await getCollectionMeta(coll);
         const entries = await getCollection(coll);
 
         // 3a) collection-level addToMenu
@@ -82,10 +82,8 @@ export function MenuItemsLoader(): Loader {
             const link = instr.link?.startsWith('/')
               ? instr.link
               : `/${instr.link || coll}`;
-            const id = link.slice(1);
-            const menus = Array.isArray(instr.menu)
-              ? instr.menu
-              : [instr.menu];
+            const id    = link.slice(1);
+            const menus = Array.isArray(instr.menu) ? instr.menu : [instr.menu];
 
             store.set({
               id,
@@ -102,7 +100,7 @@ export function MenuItemsLoader(): Loader {
           }
         }
 
-        // 3b) per-file itemsAddToMenu (merges into every entry)
+        // 3b) per-file itemsAddToMenu
         if (Array.isArray(meta.itemsAddToMenu)) {
           for (const entry of entries) {
             const existing = Array.isArray((entry.data as any).addToMenu)
@@ -116,10 +114,8 @@ export function MenuItemsLoader(): Loader {
                 : instr.link
                   ? `/${instr.link}`
                   : `/${coll}/${entry.slug}`;
-              const id = link.slice(1);
-              const menus = Array.isArray(instr.menu)
-                ? instr.menu
-                : [instr.menu];
+              const id    = link.slice(1);
+              const menus = Array.isArray(instr.menu) ? instr.menu : [instr.menu];
 
               store.set({
                 id,
