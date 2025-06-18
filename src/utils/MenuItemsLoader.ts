@@ -6,15 +6,39 @@ import { getCollectionMeta } from "@/utils/FetchMeta";
 import { capitalize } from "@/utils/ContentUtils";
 import { getCollectionNames } from "@/utils/CollectionUtils";
 
+type MenuInstr = {
+  menu: string | string[];
+  link?: string;
+  title?: string;
+  parent?: string;
+  order?: number;
+  openInNewTab?: boolean;
+  respectHierarchy?: boolean;
+};
+
 export function MenuItemsLoader(): Loader {
   return {
     name: "menu-items-loader",
     async load(context: LoaderContext) {
-      const { store, logger } = context; // 1) Clear & load your primary menuItems.json
+      const { store, logger } = context;
 
+      // 1) Clear & load your base menuItems.json
       store.clear();
-      await file("src/content/menuItems/menuItems.json").load(context); // 2) Eager-import all MDX, MD & JSON under src/content
+      await file("src/content/menuItems/menuItems.json").load(context);
 
+      // 2) Build a unified list of [instr, context] tuples
+      type Tuple = {
+        instr: MenuInstr;
+        // fallbackLink = where this menu item should point if no instr.link
+        fallbackLink: string;
+        // fallbackTitle = what to call it if instr.title is missing
+        fallbackTitle: string;
+        // entryParent = original entry.parent (for respectHierarchy)
+        entryParent?: string;
+      };
+      const allTuples: Tuple[] = [];
+
+      // 2a) — file-level addToMenu
       const mdxMods = import.meta.glob("../content/**/*.mdx", { eager: true });
       const mdMods = import.meta.glob("../content/**/*.md", { eager: true });
       const jsonMods = import.meta.glob("../content/**/*.json", {
@@ -23,124 +47,110 @@ export function MenuItemsLoader(): Loader {
       const contentModules = { ...mdxMods, ...mdMods, ...jsonMods };
 
       for (const path in contentModules) {
-        // skip any _meta.* files
         if (/\/_meta\.(mdx|md|json)$/.test(path)) continue;
-
-        const mod = contentModules[path] as any; // MDX/MD frontmatter or JSON default export
+        const mod = contentModules[path] as any;
         const raw = mod.frontmatter ?? mod.default;
-        if (!raw) continue; // normalize to array of “records”
+        if (!raw) continue;
 
-        const records = Array.isArray(raw) ? raw : [raw]; // derive collection & fallback slug from file path
-
+        const records = Array.isArray(raw) ? raw : [raw];
         const segments = path.split("/");
-        const fileNameWithExt = segments.pop()!;
-        const collection = segments.pop()!;
-        const fileSlug = fileNameWithExt.replace(/\.(mdx|md|json)$/, "");
+        const fileName = segments.pop()!;
+        const coll = segments.pop()!;
+        const slug = fileName.replace(/\.(mdx|md|json)$/, "");
 
         for (const rec of records) {
           if (!rec.addToMenu) continue;
-
-          const instructions = Array.isArray(rec.addToMenu)
+          const instrs: MenuInstr[] = Array.isArray(rec.addToMenu)
             ? rec.addToMenu
             : [rec.addToMenu];
 
-          for (const instr of instructions) {
-            // build link: explicit → absolute; else fallback /<collection>/<rec.id||fileSlug>
-            const link = instr.link
-              ? instr.link.startsWith("/")
-                ? instr.link
-                : `/${instr.link}`
-              : `/${collection}/${rec.id ?? fileSlug}`;
-
-            const id = link.slice(1);
-            const menus = Array.isArray(instr.menu) ? instr.menu : [instr.menu];
-
-            store.set({
-              id,
-              data: {
-                id,
-                title:
-                  instr.title || rec.title || capitalize(rec.id ?? fileSlug),
-                link,
-                parent: instr.parent ?? null,
-                ...(typeof instr.order === "number"
-                  ? { order: instr.order }
-                  : {}),
-                openInNewTab: instr.openInNewTab ?? false,
-                menu: menus,
-              },
+          for (const instr of instrs) {
+            const fallbackLink = `/${coll}/${rec.id ?? slug}`;
+            const fallbackTitle =
+              rec.title ?? capitalize(rec.id ?? slug);
+            allTuples.push({
+              instr,
+              fallbackLink,
+              fallbackTitle,
+              entryParent: rec.parent,
             });
           }
         }
-      } // 3) Inject collection-level addToMenu & itemsAddToMenu from each _meta.*
+      }
 
+      // 2b) — meta-level addToMenu & itemsAddToMenu
       const dynamic = getCollectionNames().filter(
         (c) => c !== "menus" && c !== "menuItems"
       );
       for (const coll of dynamic) {
         const meta = await getCollectionMeta(coll);
-        const entries = await getCollection(coll); // 3a) collection-level addToMenu
+        const entries = await getCollection(coll);
 
+        // — collection-level addToMenu
         if (Array.isArray(meta.addToMenu)) {
           for (const instr of meta.addToMenu) {
-            const link = instr.link?.startsWith("/")
-              ? instr.link
-              : `/${instr.link || coll}`;
-            const id = link.slice(1);
-            const menus = Array.isArray(instr.menu) ? instr.menu : [instr.menu];
-
-            store.set({
-              id,
-              data: {
-                id,
-                title: instr.title || capitalize(coll),
-                link,
-                parent: instr.parent ?? null,
-                ...(typeof instr.order === "number"
-                  ? { order: instr.order }
-                  : {}),
-                openInNewTab: instr.openInNewTab ?? false,
-                menu: menus,
-              },
-            });
+            const fallbackLink = `/${coll}`;
+            const fallbackTitle = capitalize(coll);
+            allTuples.push({ instr, fallbackLink, fallbackTitle });
           }
-        } // 3b) per-file itemsAddToMenu
+        }
 
+        // — itemsAddToMenu: push one tuple per entry *per* instr
         if (Array.isArray(meta.itemsAddToMenu)) {
           for (const entry of entries) {
-            const existing = Array.isArray((entry.data as any).addToMenu)
-              ? (entry.data as any).addToMenu
-              : [];
-            const combined = [...existing, ...meta.itemsAddToMenu];
-
-            for (const instr of combined) {
-              const link = instr.link?.startsWith("/")
-                ? instr.link
-                : instr.link
-                ? `/${instr.link}`
-                : `/${coll}/${entry.slug}`;
-              const id = link.slice(1);
-              const menus = Array.isArray(instr.menu)
-                ? instr.menu
-                : [instr.menu];
-
-              store.set({
-                id,
-                data: {
-                  id,
-                  title: instr.title || entry.data.title || entry.slug,
-                  link,
-                  parent: instr.parent ?? null,
-                  ...(typeof instr.order === "number"
-                    ? { order: instr.order }
-                    : {}),
-                  openInNewTab: instr.openInNewTab ?? false,
-                  menu: menus,
-                },
+            const slug = entry.slug;
+            const title = entry.data.title ?? capitalize(slug);
+            const parent = entry.data.parent as string | undefined;
+            for (const instr of meta.itemsAddToMenu) {
+              const fallbackLink = `/${coll}/${slug}`;
+              allTuples.push({
+                instr,
+                fallbackLink,
+                fallbackTitle: title,
+                entryParent: parent,
               });
             }
           }
         }
+      }
+
+      // 3) Apply every tuple exactly as we do for file-level addToMenu
+      function applyInstr(
+        instr: MenuInstr,
+        fallbackLink: string,
+        fallbackTitle: string,
+        entryParent?: string
+      ) {
+        const link = instr.link
+          ? instr.link.startsWith("/")
+            ? instr.link
+            : `/${instr.link}`
+          : fallbackLink;
+
+        const id = link.slice(1);
+        const menus = Array.isArray(instr.menu)
+          ? instr.menu
+          : [instr.menu];
+
+        store.set({
+          id,
+          data: {
+            id,
+            title: instr.title ?? fallbackTitle,
+            link,
+            parent:
+              instr.respectHierarchy && entryParent
+                ? entryParent
+                : instr.parent ?? null,
+            ...(typeof instr.order === "number" ? { order: instr.order } : {}),
+            openInNewTab: instr.openInNewTab ?? false,
+            menu: menus,
+          },
+        });
+      }
+
+      for (const { instr, fallbackLink, fallbackTitle, entryParent } of allTuples) {
+        applyInstr(instr, fallbackLink, fallbackTitle, entryParent);
       }
 
       logger.info(`[menu-items-loader] loaded ${store.keys().length} items`);
