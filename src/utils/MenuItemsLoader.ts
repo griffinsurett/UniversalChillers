@@ -13,6 +13,7 @@ type MenuInstr = {
   parent?: string;
   order?: number;
   openInNewTab?: boolean;
+  respectHierarchy?: boolean;
 };
 
 export function MenuItemsLoader(): Loader {
@@ -21,18 +22,23 @@ export function MenuItemsLoader(): Loader {
     async load(context: LoaderContext) {
       const { store, logger } = context;
 
-      // Helper to normalize & store a single instruction
+      // 1) Clear & load base menuItems.json
+      store.clear();
+      await file("src/content/menuItems/menuItems.json").load(context);
+
+      // Helper: normalize and set one menu‐instruction into the store
       function applyInstr(
         instr: MenuInstr,
-        fallbackId: string,
-        fallbackTitle: string
+        fallbackPath: string,
+        fallbackTitle: string,
+        entryParent?: string
       ) {
-        // build the link
+        // build link (absolute)
         const link = instr.link
           ? instr.link.startsWith("/")
             ? instr.link
             : `/${instr.link}`
-          : fallbackId;
+          : fallbackPath;
 
         const id = link.slice(1);
         const menus = Array.isArray(instr.menu) ? instr.menu : [instr.menu];
@@ -43,7 +49,11 @@ export function MenuItemsLoader(): Loader {
             id,
             title: instr.title ?? fallbackTitle,
             link,
-            parent: instr.parent ?? null,
+            parent:
+              // if respectHierarchy, use entry’s own parent if available
+              instr.respectHierarchy && entryParent
+                ? entryParent
+                : instr.parent ?? null,
             ...(typeof instr.order === "number" ? { order: instr.order } : {}),
             openInNewTab: instr.openInNewTab ?? false,
             menu: menus,
@@ -51,21 +61,14 @@ export function MenuItemsLoader(): Loader {
         });
       }
 
-      // 1) Clear & load base menuItems.json
-      store.clear();
-      await file("src/content/menuItems/menuItems.json").load(context);
-
-      // 2) Eager-import all MDX/MD/JSON under content
+      // 2) File‐level addToMenu (unchanged) …
       const mdxMods = import.meta.glob("../content/**/*.mdx", { eager: true });
       const mdMods = import.meta.glob("../content/**/*.md", { eager: true });
-      const jsonMods = import.meta.glob("../content/**/*.json", {
-        eager: true,
-      });
+      const jsonMods = import.meta.glob("../content/**/*.json", { eager: true });
       const contentModules = { ...mdxMods, ...mdMods, ...jsonMods };
 
       for (const path in contentModules) {
         if (/\/_meta\.(mdx|md|json)$/.test(path)) continue;
-
         const mod = contentModules[path] as any;
         const raw = mod.frontmatter ?? mod.default;
         if (!raw) continue;
@@ -73,7 +76,7 @@ export function MenuItemsLoader(): Loader {
         const records = Array.isArray(raw) ? raw : [raw];
         const segments = path.split("/");
         const fileNameWithExt = segments.pop()!;
-        const collection = segments.pop()!;
+        const coll = segments.pop()!;
         const fileSlug = fileNameWithExt.replace(/\.(mdx|md|json)$/, "");
 
         for (const rec of records) {
@@ -83,14 +86,15 @@ export function MenuItemsLoader(): Loader {
             : [rec.addToMenu];
 
           for (const instr of instrs) {
-            const fallbackId = `/${collection}/${rec.id ?? fileSlug}`;
-            const fallbackTitle = rec.title ?? capitalize(rec.id ?? fileSlug);
-            applyInstr(instr, fallbackId, fallbackTitle);
+            const fallbackPath = `/${coll}/${rec.id ?? fileSlug}`;
+            const fallbackTitle =
+              rec.title ?? capitalize(rec.id ?? fileSlug);
+            applyInstr(instr, fallbackPath, fallbackTitle);
           }
         }
       }
 
-      // 3) Now handle meta.addToMenu and meta.itemsAddToMenu
+      // 3) Meta‐level addToMenu + itemsAddToMenu
       const dynamic = getCollectionNames().filter(
         (c) => c !== "menus" && c !== "menuItems"
       );
@@ -98,38 +102,26 @@ export function MenuItemsLoader(): Loader {
         const meta = await getCollectionMeta(coll);
         const entries = await getCollection(coll);
 
-        // 3a) collection-level addToMenu
+        // 3a) collection‐level addToMenu
         if (Array.isArray(meta.addToMenu)) {
-          for (const instr of meta.addToMenu) {
-            const fallbackId = `/${coll}`;
+          for (const instr of meta.addToMenu as MenuInstr[]) {
+            const fallbackPath = `/${coll}`;
             const fallbackTitle = capitalize(coll);
-            applyInstr(instr, fallbackId, fallbackTitle);
+            applyInstr(instr, fallbackPath, fallbackTitle);
           }
         }
 
-        // 3b) itemsAddToMenu: run that same logic for *every* entry
-        // 3b) per-file itemsAddToMenu
+        // 3b) itemsAddToMenu: run the same helper for every entry
         if (Array.isArray(meta.itemsAddToMenu)) {
-          for (const instr of meta.itemsAddToMenu) {
-            // For each instruction in itemsAddToMenu, iterate *all* entries
-            for (const entry of entries) {
-              // Build our fallback link & title
-              const fallbackLink = `/${coll}/${entry.slug}`;
-              const fallbackTitle = entry.data.title ?? capitalize(entry.slug);
+          const instrs = meta.itemsAddToMenu as MenuInstr[];
+          for (const entry of entries) {
+            const entrySlug = entry.slug;
+            const entryTitle = entry.data.title ?? capitalize(entrySlug);
+            const entryParent = entry.data.parent as string | undefined;
 
-              // Determine parent: either entry.data.parent (if respecting hierarchy), or the meta.parent
-              const parentField = instr.respectHierarchy
-                ? entry.data.parent ?? instr.parent
-                : instr.parent;
-
-              // Merge a per-entry instruction
-              const perEntryInstr = {
-                ...instr,
-                parent: parentField,
-              };
-
-              // And apply it just like addToMenu
-              applyInstr(perEntryInstr, fallbackLink, fallbackTitle);
+            for (const instr of instrs) {
+              const fallbackPath = `/${coll}/${entrySlug}`;
+              applyInstr(instr, fallbackPath, entryTitle, entryParent);
             }
           }
         }
