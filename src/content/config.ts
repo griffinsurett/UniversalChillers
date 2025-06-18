@@ -5,7 +5,7 @@ import type { LoaderContext } from 'astro/loaders';
 import { getCollection } from 'astro:content';
 import { getCollectionMeta } from "@/utils/FetchMeta"
 import { capitalize } from "../utils/ContentUtils";
-import { MenuItemsLoader } from '@/content/MenuItemsLoader';
+import { MenuItemsLoader } from '@/utils/MenuItemsLoader';
 
 export const headingSchema = z.union([
   z.string(),
