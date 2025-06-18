@@ -6,169 +6,126 @@ import { getCollectionMeta } from '@/utils/FetchMeta';
 import { capitalize } from '@/utils/ContentUtils';
 import { getCollectionNames } from '@/utils/CollectionUtils';
 
-import fs from 'fs/promises';
-import path from 'path';
-
-// Recursively find all JSON files under a directory (excluding menuItems.json and _meta.json)
-async function scanJSON(dir: string): Promise<string[]> {
-  let found: string[] = [];
-  const entries = await fs.readdir(dir, { withFileTypes: true });
-  for (const ent of entries) {
-    const full = path.join(dir, ent.name);
-    if (ent.isDirectory()) {
-      found.push(...await scanJSON(full));
-    } else if (
-      ent.isFile() &&
-      ent.name.endsWith('.json') &&
-      ent.name !== 'menuItems.json' &&
-      !ent.name.startsWith('_meta')
-    ) {
-      found.push(full);
-    }
-  }
-  return found;
-}
-
 export function MenuItemsLoader(): Loader {
   return {
     name: 'menu-items-loader',
     async load(context: LoaderContext) {
       const { store, logger } = context;
 
-      // ── 1) Clear & load primary menuItems.json ────────────────────────────
+      // 1) Clear & load your primary menuItems.json
       store.clear();
       await file('src/content/menuItems/menuItems.json').load(context);
 
-      // ── 2) PER-FILE addToMenu from MDX/MD ─────────────────────────────────
-      {
-        const mods = import.meta.glob<Record<string, any> & { frontmatter?: any }>(
-          '../content/**/*.{mdx,md}',
-          { eager: true }
-        );
-        for (const p in mods) {
-          if (/\/_meta\.(mdx|md)$/.test(p)) continue;
-          const mod  = mods[p]!;
-          const data = mod.frontmatter;
-          if (!data?.addToMenu) continue;
+      // 2) Eager-import all MDX, MD & JSON under src/content
+      const mdxMods  = import.meta.glob('../content/**/*.mdx',  { eager: true });
+      const mdMods   = import.meta.glob('../content/**/*.md',   { eager: true });
+      const jsonMods = import.meta.glob('../content/**/*.json', { eager: true });
+      const contentModules = { ...mdxMods, ...mdMods, ...jsonMods };
 
-          // derive collection & slug
-          const segs        = p.split('/');
-          const fileWithExt = segs.pop()!;      // e.g. "seo.mdx"
-          const collection  = segs.pop()!;      // e.g. "services"
-          const slug        = fileWithExt.replace(/\.(mdx|md)$/, '');
-          const fallback    = `/${collection}/${slug}`;
+      for (const path in contentModules) {
+        // skip any _meta.* files
+        if (/\/_meta\.(mdx|md|json)$/.test(path)) continue;
 
-          const recs = Array.isArray(data) ? data : [data];
-          for (const rec of recs) {
-            const ins = Array.isArray(rec.addToMenu)
-              ? rec.addToMenu
-              : [rec.addToMenu];
-            for (const instr of ins) {
-              const link = instr.link
-                ? instr.link.startsWith('/')
-                  ? instr.link
-                  : `/${instr.link}`
-                : fallback;
-              const id    = link.slice(1);
-              const menus = Array.isArray(instr.menu)
-                ? instr.menu
-                : [instr.menu];
+        const mod = (contentModules[path] as any);
+        // MDX/MD frontmatter or JSON default export
+        const raw = mod.frontmatter ?? mod.default;
+        if (!raw) continue;
 
-              store.set({ 
+        // normalize to array of “records”
+        const records = Array.isArray(raw) ? raw : [raw];
+
+        // derive collection & fallback slug from file path
+        const segments         = path.split('/');
+        const fileNameWithExt  = segments.pop()!;
+        const collection       = segments.pop()!;
+        const fileSlug         = fileNameWithExt.replace(/\.(mdx|md|json)$/, '');
+
+        for (const rec of records) {
+          if (!rec.addToMenu) continue;
+
+          const instructions = Array.isArray(rec.addToMenu)
+            ? rec.addToMenu
+            : [rec.addToMenu];
+
+          for (const instr of instructions) {
+            // build link: explicit → absolute; else fallback /<collection>/<rec.id||fileSlug>
+            const link = instr.link
+              ? instr.link.startsWith('/')
+                ? instr.link
+                : `/${instr.link}`
+              : `/${collection}/${rec.id ?? fileSlug}`;
+
+            const id    = link.slice(1);
+            const menus = Array.isArray(instr.menu) ? instr.menu : [instr.menu];
+
+            store.set({
+              id,
+              data: {
                 id,
-                data: {
-                  id,
-                  title: instr.title || rec.title || capitalize(slug),
-                  link,
-                  parent: instr.parent ?? null,
-                  ...(typeof instr.order === 'number' ? { order: instr.order } : {}),
-                  openInNewTab: instr.openInNewTab ?? false,
-                  menu: menus,
-                },
-              });
-            }
+                title: instr.title || rec.title || capitalize(rec.id ?? fileSlug),
+                link,
+                parent: instr.parent ?? null,
+                ...(typeof instr.order === 'number' ? { order: instr.order } : {}),
+                openInNewTab: instr.openInNewTab ?? false,
+                menu: menus,
+              },
+            });
           }
         }
       }
 
-      // ── 3) PER-FILE addToMenu from JSON files ───────────────────────────────
-      {
-        const contentRoot = path.join(process.cwd(), 'src', 'content');
-        const jsonFiles   = await scanJSON(contentRoot);
+      // 3) Inject collection-level addToMenu & itemsAddToMenu from each _meta.*
+      const dynamic = getCollectionNames().filter(c => c !== 'menus' && c !== 'menuItems');
+      for (const coll of dynamic) {
+        const meta    = await getCollectionMeta(coll);
+        const entries = await getCollection(coll);
 
-        for (const abs of jsonFiles) {
-          let raw: any;
-          try {
-            raw = JSON.parse(await fs.readFile(abs, 'utf-8'));
-          } catch {
-            continue;
-          }
-          const recs = Array.isArray(raw) ? raw : [raw];
-          const rel  = path.relative(contentRoot, abs).split(path.sep);
-          const collection = rel.shift()!;
-          const fileSlug   = rel.join('/').replace(/\.json$/, '');
-          const fallback   = `/${collection}/${fileSlug}`;
+        // 3a) collection-level addToMenu
+        if (Array.isArray(meta.addToMenu)) {
+          for (const instr of meta.addToMenu) {
+            const link = instr.link?.startsWith('/')
+              ? instr.link
+              : `/${instr.link || coll}`;
+            const id    = link.slice(1);
+            const menus = Array.isArray(instr.menu) ? instr.menu : [instr.menu];
 
-          for (const rec of recs) {
-            if (!rec.addToMenu) continue;
-            const ins = Array.isArray(rec.addToMenu)
-              ? rec.addToMenu
-              : [rec.addToMenu];
-            for (const instr of ins) {
-              const link = instr.link
-                ? instr.link.startsWith('/')
-                  ? instr.link
-                  : `/${instr.link}`
-                : fallback;
-              const id    = link.slice(1);
-              const menus = Array.isArray(instr.menu)
-                ? instr.menu
-                : [instr.menu];
-
-              store.set({
+            store.set({
+              id,
+              data: {
                 id,
-                data: {
-                  id,
-                  title: instr.title || rec.title || capitalize(rec.id ?? fileSlug),
-                  link,
-                  parent: instr.parent ?? null,
-                  ...(typeof instr.order === 'number' ? { order: instr.order } : {}),
-                  openInNewTab: instr.openInNewTab ?? false,
-                  menu: menus,
-                },
-              });
-            }
+                title: instr.title || capitalize(coll),
+                link,
+                parent: instr.parent ?? null,
+                ...(typeof instr.order === 'number' ? { order: instr.order } : {}),
+                openInNewTab: instr.openInNewTab ?? false,
+                menu: menus,
+              },
+            });
           }
         }
-      }
 
-      // ── 4) COLLECTION-LEVEL addToMenu & itemsAddToMenu via getCollectionMeta ─
-      {
-        const allColls = getCollectionNames().filter(
-          (c) => c !== 'menus' && c !== 'menuItems'
-        );
+        // 3b) per-file itemsAddToMenu
+        if (Array.isArray(meta.itemsAddToMenu)) {
+          for (const entry of entries) {
+            const existing = Array.isArray((entry.data as any).addToMenu)
+              ? (entry.data as any).addToMenu
+              : [];
+            const combined = [...existing, ...meta.itemsAddToMenu];
 
-        for (const coll of allColls) {
-          // fetch your parsed _meta.* frontmatter
-          const meta = getCollectionMeta(coll);
-          const entries = await getCollection(coll);
-
-          // 4a) collection-level addToMenu
-          if (Array.isArray(meta.addToMenu)) {
-            for (const instr of meta.addToMenu) {
+            for (const instr of combined) {
               const link = instr.link?.startsWith('/')
                 ? instr.link
-                : `/${instr.link || coll}`;
+                : instr.link
+                  ? `/${instr.link}`
+                  : `/${coll}/${entry.slug}`;
               const id    = link.slice(1);
-              const menus = Array.isArray(instr.menu)
-                ? instr.menu
-                : [instr.menu];
+              const menus = Array.isArray(instr.menu) ? instr.menu : [instr.menu];
 
               store.set({
                 id,
                 data: {
                   id,
-                  title: instr.title || capitalize(coll),
+                  title: instr.title || entry.data.title || entry.slug,
                   link,
                   parent: instr.parent ?? null,
                   ...(typeof instr.order === 'number' ? { order: instr.order } : {}),
@@ -176,45 +133,6 @@ export function MenuItemsLoader(): Loader {
                   menu: menus,
                 },
               });
-            }
-          }
-
-          // 4b) itemsAddToMenu: look in BOTH top-level and defaultSection
-          const itemsAdd =
-            meta.itemsAddToMenu ??
-            (meta.defaultSection as any)?.itemsAddToMenu;
-
-          if (Array.isArray(itemsAdd)) {
-            for (const entry of entries) {
-              for (const instr of itemsAdd) {
-                // allow per-entry parent override if requested
-                const parent = instr.respectHierarchy
-                  ? entry.data.parent ?? instr.parent
-                  : instr.parent;
-
-                const link = instr.link?.startsWith('/')
-                  ? instr.link
-                  : instr.link
-                    ? `/${instr.link}`
-                    : `/${coll}/${entry.slug}`;
-                const id    = link.slice(1);
-                const menus = Array.isArray(instr.menu)
-                  ? instr.menu
-                  : [instr.menu];
-
-                store.set({
-                  id,
-                  data: {
-                    id,
-                    title: instr.title || entry.data.title || entry.slug,
-                    link,
-                    parent: parent ?? null,
-                    ...(typeof instr.order === 'number' ? { order: instr.order } : {}),
-                    openInNewTab: instr.openInNewTab ?? false,
-                    menu: menus,
-                  },
-                });
-              }
             }
           }
         }
