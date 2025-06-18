@@ -253,4 +253,11 @@ export const collections = {
           .optional(),
       }),
   }),
+  serviceAreas: defineCollection({
+    loader: file("src/content/serviceAreas/serviceAreas.json"), // file-loaded collection
+    schema: ({ image }) =>
+      baseSchema({ image }).extend({
+        tags: z.array(z.string()).optional(),
+      }),
+  }),
 };
