@@ -112,7 +112,7 @@ export const ItemsAddToMenuFields = z.object({
   respectHierarchy: z
     .boolean()
     .optional()
-    .default(false),
+    .default(true),
 });
 
 const buttonSchema = z.object({

@@ -21,9 +21,9 @@ export function MenuItemsLoader(): Loader {
       const jsonMods = import.meta.glob("../content/**/*.json", { eager: true });
       const contentModules = { ...mdxMods, ...mdMods, ...jsonMods };
 
-      // 2a) per-file addToMenu (works in dev+build)
+      // 2a) per-file addToMenu (works in dev + build)
       for (const path in contentModules) {
-        if (/\/_meta\.(mdx|md|json)$/.test(path)) continue;
+        if (/\/\/_meta\.(mdx|md|json)$/.test(path)) continue;
 
         const mod = contentModules[path] as any;
         const raw = mod.frontmatter ?? mod.default;
@@ -101,25 +101,41 @@ export function MenuItemsLoader(): Loader {
           }
         }
 
-        // 3b) per-file itemsAddToMenu (now build-safe!)
+        // 3b) per-file itemsAddToMenu (with respectHierarchy)
         if (Array.isArray(meta.itemsAddToMenu)) {
           for (const path in contentModules) {
-            // only files in this collection’s folder, skip its _meta.*
             if (!path.includes(`../content/${coll}/`)) continue;
-            if (/\/_meta\.(mdx|md|json)$/.test(path)) continue;
+            if (/\/\/_meta\.(mdx|md|json)$/.test(path)) continue;
+
+            const mod = contentModules[path] as any;
+            const fm = mod.frontmatter ?? {};
 
             const segments = path.split("/");
             const fileNameWithExt = segments.pop()!;
-            const folder = segments.pop()!;
-            if (folder !== coll) continue;
             const fileSlug = fileNameWithExt.replace(/\.(mdx|md|json)$/, "");
 
-            for (const instr of meta.itemsAddToMenu) {
+            for (const instr of meta.itemsAddToMenu!) {
+              // build link
               const link = instr.link?.startsWith("/")
                 ? instr.link
                 : instr.link
                 ? `/${instr.link}`
                 : `/${coll}/${fileSlug}`;
+
+              // determine parentId, prefixing collection if needed
+              let parentId: string | null = null;
+              if (instr.respectHierarchy && fm.parent) {
+                if (fm.parent.startsWith("/")) {
+                  parentId = fm.parent.slice(1);
+                } else if (fm.parent.includes("/")) {
+                  parentId = fm.parent;
+                } else {
+                  parentId = `${coll}/${fm.parent}`;
+                }
+              } else {
+                parentId = instr.parent ?? null;
+              }
+
               const id = link.slice(1);
               const menus = Array.isArray(instr.menu)
                 ? instr.menu
@@ -131,10 +147,10 @@ export function MenuItemsLoader(): Loader {
                   id,
                   title:
                     instr.title ||
-                    (contentModules[path].frontmatter?.title as string) ||
-                    fileSlug,
+                    (fm.title as string) ||
+                    capitalize(fileSlug),
                   link,
-                  parent: instr.parent ?? null,
+                  parent: parentId,
                   ...(typeof instr.order === "number" && { order: instr.order }),
                   openInNewTab: instr.openInNewTab ?? false,
                   menu: menus,
