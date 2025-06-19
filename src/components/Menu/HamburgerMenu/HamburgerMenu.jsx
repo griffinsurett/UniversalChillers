@@ -1,12 +1,12 @@
 // src/components/Menu/HamburgerMenu/HamburgerMenu.jsx
 import React, { useState, useEffect, Suspense, Children } from "react";
 import Modal from "@/components/Modal.jsx";
-import ClientItemsTemplate from "@/components/Section/ItemsTemplates/ClientItemsTemplate.jsx";
+import ClientItemsTemplate from "@/components/ItemsTemplates/ClientItemsTemplate.jsx";
 import MobileMenuItem from "./MenuItem.jsx";
 
 export default function HamburgerMenu({
   checkboxId,
-  allItems = [],     // flat list of “mainMenu” items
+  allItems = [], // flat list of “mainMenu” items
   shared,
   cfg = {},
 }) {
@@ -46,8 +46,13 @@ export default function HamburgerMenu({
   // Debug: log slug and parent of each menu item
   useEffect(() => {
     console.group("[HamburgerMenu] allItems parent mapping");
-    allItems.forEach(item => {
-      console.log(`id: %c${item.id}`, 'font-weight:bold', ", parent:", item.data.parent);
+    allItems.forEach((item) => {
+      console.log(
+        `id: %c${item.id}`,
+        "font-weight:bold",
+        ", parent:",
+        item.data.parent
+      );
     });
     console.groupEnd();
   }, [allItems]);
@@ -96,7 +101,7 @@ export default function HamburgerMenu({
               component: finalMenuItemComponent,
               props: {
                 ...finalMenuItemProps,
-                allItems,   // entire flat “mainMenu” array
+                allItems, // entire flat “mainMenu” array
                 checkboxId,
                 onItemClick: closeMenu,
               },

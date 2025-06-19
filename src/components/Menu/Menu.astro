@@ -1,6 +1,6 @@
 ---
 // src/components/Menu/Menu.astro
-import ItemsTemplate from "@/components/Section/ItemsTemplates/ItemsTemplate.astro";
+import ItemsTemplate from "@/components/ItemsTemplates/ItemsTemplate.astro";
 import { queryItems } from "@/utils/CollectionQueryUtils.js";
 import { sortItems } from "@/utils/sortItems.js";
 import MenuItem from "./MenuItem.astro";
@@ -98,96 +98,110 @@ let sortedMobileItems = Array.isArray(allMenuEntries)
 const desktopRoots = allMenuEntries.filter((i) => !i.data.parent);
 ---
 
-{!responsive && !hamburgerOnly && (
-  <nav aria-label="Main">
-    <ItemsTemplate
-      items={desktopRoots}
-      collection={collection}
-      query={query}
-      sortBy={sortBy}
-      sortOrder={sortOrder}
-      manualOrder={manualOrder}
-      HasPage={HasPage}
-      itemsClass={desktop.itemsClass}
-      itemClass={desktop.itemClass}
-      ItemComponent={{ 
-        component: desktop.menuItem.component,
-        props: {
-         ...desktop.menuItem.props,
-         allItems: sortedMobileItems
-       } 
-      }}
-      role="menubar"
-    />
-  </nav>
-)}
-
-{responsive && !hamburgerOnly && (
-  <>
-    <div class="hidden md:block">
-      <nav aria-label="Main">
-        <ItemsTemplate
-          items={desktopRoots}
-          collection={collection}
-          query={query}
-          sortBy={sortBy}
-          sortOrder={sortOrder}
-          manualOrder={manualOrder}
-          HasPage={HasPage}
-          itemsClass={desktop.itemsClass}
-          itemClass={desktop.itemClass}
-          ItemComponent={{
-            component: desktop.menuItem.component,
-            props: {
-              ...desktop.menuItem.props,
-              allItems: sortedMobileItems,
-            },
-          }}
-          role="menubar"
-        />
-      </nav>
-    </div>
-
-    <div class="block md:hidden items-center">
-      <input type="checkbox" id={mobile.checkboxId} class="hidden" />
-      <label for={mobile.checkboxId} class="relative w-6 h-6 cursor-pointer" aria-label="Toggle menu">
-        <HamburgerIcon
-          client:load
-          hamburgerTransform={mobile.hamburgerTransform}
-          checkboxId={mobile.checkboxId}
-        />
-      </label>
-
-      <HamburgerMenu
-        client:media={breakpoint}
-        checkboxId={mobile.checkboxId}
-        allItems={allMenuEntries}
-        shared={{ collection, query, sortOrder, HasPage }}
-        cfg={{ itemsClass: mobile.itemsClass, menuItem: mobile.menuItem }}
+{
+  !responsive && !hamburgerOnly && (
+    <nav aria-label="Main">
+      <ItemsTemplate
+        items={desktopRoots}
+        collection={collection}
+        query={query}
+        sortBy={sortBy}
+        sortOrder={sortOrder}
+        manualOrder={manualOrder}
+        HasPage={HasPage}
+        itemsClass={desktop.itemsClass}
+        itemClass={desktop.itemClass}
+        ItemComponent={{
+          component: desktop.menuItem.component,
+          props: {
+            ...desktop.menuItem.props,
+            allItems: sortedMobileItems,
+          },
+        }}
+        role="menubar"
       />
-    </div>
-  </>
-)}
+    </nav>
+  )
+}
 
-{hamburgerOnly && (
+{
+  responsive && !hamburgerOnly && (
     <>
-    <div class="block items-center">
-      <input type="checkbox" id={mobile.checkboxId} class="hidden" />
-      <label for={mobile.checkboxId} class="relative w-6 h-6 cursor-pointer" aria-label="Toggle menu">
-        <HamburgerIcon
-          client:load
-          hamburgerTransform={mobile.hamburgerTransform}
-          checkboxId={mobile.checkboxId}
-        />
-      </label>
+      <div class="hidden md:block">
+        <nav aria-label="Main">
+          <ItemsTemplate
+            items={desktopRoots}
+            collection={collection}
+            query={query}
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            manualOrder={manualOrder}
+            HasPage={HasPage}
+            itemsClass={desktop.itemsClass}
+            itemClass={desktop.itemClass}
+            ItemComponent={{
+              component: desktop.menuItem.component,
+              props: {
+                ...desktop.menuItem.props,
+                allItems: sortedMobileItems,
+              },
+            }}
+            role="menubar"
+          />
+        </nav>
+      </div>
 
-      <HamburgerMenu
-        client:media={breakpoint}
-        checkboxId={mobile.checkboxId}
-        allItems={allMenuEntries}
-        shared={{ collection, query, sortOrder, HasPage }}
-        cfg={{ itemsClass: mobile.itemsClass, menuItem: mobile.menuItem }}
-      />
-    </div>
-  </>
-)}
+      <div class="block md:hidden items-center">
+        <input type="checkbox" id={mobile.checkboxId} class="hidden" />
+        <label
+          for={mobile.checkboxId}
+          class="relative w-6 h-6 cursor-pointer"
+          aria-label="Toggle menu"
+        >
+          <HamburgerIcon
+            client:load
+            hamburgerTransform={mobile.hamburgerTransform}
+            checkboxId={mobile.checkboxId}
+          />
+        </label>
+
+        <HamburgerMenu
+          client:media={breakpoint}
+          checkboxId={mobile.checkboxId}
+          allItems={allMenuEntries}
+          shared={{ collection, query, sortOrder, HasPage }}
+          cfg={{ itemsClass: mobile.itemsClass, menuItem: mobile.menuItem }}
+        />
+      </div>
+    </>
+  )
+}
+
+{
+  hamburgerOnly && (
+    <>
+      <div class="block items-center">
+        <input type="checkbox" id={mobile.checkboxId} class="hidden" />
+        <label
+          for={mobile.checkboxId}
+          class="relative w-6 h-6 cursor-pointer"
+          aria-label="Toggle menu"
+        >
+          <HamburgerIcon
+            client:load
+            hamburgerTransform={mobile.hamburgerTransform}
+            checkboxId={mobile.checkboxId}
+          />
+        </label>
+
+        <HamburgerMenu
+          client:media={breakpoint}
+          checkboxId={mobile.checkboxId}
+          allItems={allMenuEntries}
+          shared={{ collection, query, sortOrder, HasPage }}
+          cfg={{ itemsClass: mobile.itemsClass, menuItem: mobile.menuItem }}
+        />
+      </div>
+    </>
+  )
+}
