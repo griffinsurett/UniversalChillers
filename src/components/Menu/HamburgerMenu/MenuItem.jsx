@@ -2,8 +2,6 @@
 import React, { useState } from "react";
 import { getChildItems } from "@/utils/menuUtils.js";
 import ClientItemsTemplate from "@/components/ItemsTemplates/ClientItemsTemplate.jsx";
-
-// ↓↓↓ Import shared Button
 import Button from "@/components/Button/Button.jsx";
 
 export default function MobileMenuItem({
