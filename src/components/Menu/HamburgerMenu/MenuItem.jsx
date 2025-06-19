@@ -1,5 +1,6 @@
 // src/components/Menu/HamburgerMenu/MenuItem.jsx
 import React, { useState } from "react";
+import { normalizeRef } from "@/utils/ContentUtils";
 import { getChildItems } from "@/utils/menuUtils.js";
 import ClientItemsTemplate from "@/components/ItemsTemplates/ClientItemsTemplate.jsx";
 import Button from "@/components/Button/Button.jsx";
@@ -19,7 +20,7 @@ export default function MobileMenuItem({
   const [open, setOpen] = useState(false);
 
   // 1) Compute this item’s ID (stable identifier)
-  const thisId = item.data.id ?? item.data.link.replace(/^\//, "");
+const thisId = normalizeRef(item.slug || item.id);
 
   // 2) DRY’d‐out: find direct children using our helper
   const children = getChildItems(thisId, allItems);
@@ -59,7 +60,11 @@ export default function MobileMenuItem({
         <Button
           as="a"
           variant="link"
-          href={item.data.link}
+          href={// if you’ve explicitly set data.link, use that…
+    item.data.link
+      ? // otherwise build `/collection/slug-or-id`
+        item.data.link
+      : `/${collectionName}/${thisId}`}
           className={`flex w-full ${linkClass}`}
           onClick={onItemClick}
         >

@@ -14,7 +14,7 @@ const {
   itemClass = "",
   linkClass = "",
   hierarchical = false,
-  /* full submenu descriptor */
+  collectionName,
   submenu = {
     component: null,
     itemsClass: "",
@@ -31,8 +31,7 @@ const {
 } = Astro.props;
 
 /* 1) Compute this item’s stable ID */
-const thisId = item.data.id ?? normalizeRef(item.data.link);
-
+const thisId = normalizeRef(item.slug || item.id);
 /* 2) Find direct children via helper */
 const childItems = getChildItems(thisId, allItems);
 const hasChildren = hierarchical && childItems.length > 0;
@@ -40,44 +39,55 @@ const hasChildren = hierarchical && childItems.length > 0;
 /* 3) Resolve submenu component */
 const SubmenuComponent = submenu.component ?? Submenu;
 ---
+
 <li role="none" class={`group relative menu-item ${itemClass}`}>
   {/** ── REPLACE <a> WITH <Button as="a"> ── **/}
   <Button
     variant="link"
     as="a"
-    href={item.data.link}
+    href={// if you’ve explicitly set data.link, use that…
+    item.data.link
+      ? // otherwise build `/collection/slug-or-id`
+        item.data.link
+      : `/${collectionName}/${thisId}`}
     class={linkClass}
     rel="noopener noreferrer"
     role="menuitem"
     aria-haspopup={hasChildren ? "true" : undefined}
     tabindex="0"
   >
-    {item.data.icon && (
-      <img
-        src={item.data.icon}
-        alt=""
-        class="w-5 h-5 bg-[var(--color-accent)] rounded-full"
-        aria-hidden="true"
-      />
-    )}
+    {
+      item.data.icon && (
+        <img
+          src={item.data.icon}
+          alt=""
+          class="w-5 h-5 bg-[var(--color-accent)] rounded-full"
+          aria-hidden="true"
+        />
+      )
+    }
     <span>{item.data.title}</span>
 
-    {hasChildren && (
-      <span
-        class="submenu-arrow ml-1 text-sm transform transition-transform duration-200"
-        aria-hidden="true"
-      >
-        ▼
-      </span>
-    )}
+    {
+      hasChildren && (
+        <span
+          class="submenu-arrow ml-1 text-sm transform transition-transform duration-200"
+          aria-hidden="true"
+        >
+          ▼
+        </span>
+      )
+    }
   </Button>
 
-  {hasChildren && (
-    <SubmenuComponent
-      allItems={allItems}
-      parentId={thisId}
-      childItems={childItems}
-      submenu={submenu}
-    />
-  )}
+  {
+    hasChildren && (
+      <SubmenuComponent
+        allItems={allItems}
+        parentId={thisId}
+        childItems={childItems}
+        submenu={submenu}
+      />
+    )
+  }
 </li>

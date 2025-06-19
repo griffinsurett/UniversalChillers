@@ -1,56 +1,84 @@
 ---
-/** Generic <Form> wrapper
- *
- * Props
- * ─────────────────────────────────────────────────────────────
- * name            – unique form name (default "generic-form")
- * method          – HTTP method (default "post")
- * action          – optional success redirect URL
- * honeypotName    – name of the hidden honeypot field (default "bot-field")
- * formClass       – extra classes on <form>
- * submitClass     – default Tailwind classes for the fallback button
- * submitLabel     – text for the fallback button (default "Submit")
- *
- * Slots
- * ─────────────────────────────────────────────────────────────
- * default         – your input fields
- * submit          – optional custom submit content; if omitted we render a
- *                   default <Button />
- */
+// src/components/Forms/Form.astro
 import Button from "@/components/Button/Button";
+import { SiteData } from "@/content/SiteData";
 
 const {
   name = "generic-form",
   method = "post",
   action,
+  class: className = "",
+  formLabel = "",
+  labelClass = "",
   formClass = "",
   submitClass = "w-full mt-[var(--spacing-sm)] justify-center cursor-pointer",
   submitLabel = "Submit",
   enableSuccessBanner = false,
   successBannerMessage = "Thank you for your submission!",
   successBannerClass = "p-[var(--spacing-sm)] bg-primary text-bg border border-[var(--color-border)]",
+  // new props:
+  showConsent = true,
+  consentText = `I consent to have ${SiteData.title} store my submitted information so they can respond`,
+  consentLearnMoreLabel = "Learn more",
+  consentLearnMoreUrl = "/privacy-policy",
+  consentWrapperClass = "flex items-start text-left text-text mb-[var(--spacing-md)]",
+  consentInputClass = "mr-[var(--spacing-sm)] mt-[4px] w-4 h-4",
+  consentLabelClass = labelClass + " m-0",
 } = Astro.props;
 ---
 
-<form
-  name={name}
-  method={method}
-  action={action}
-  class={`w-full p-[var(--spacing-md)] ${formClass}`}
-  data-success-banner={enableSuccessBanner}
-  data-success-message={successBannerMessage}
-  data-success-class={successBannerClass}
->
-  <slot />
+<div class={className}>
+  {
+    formLabel && (
+      <label class={labelClass} for={name}>
+        {formLabel}
+      </label>
+    )
+  }
+  <form
+    id={name}
+    name={name}
+    method={method}
+    action={action}
+    class={formClass}
+    data-success-banner={enableSuccessBanner}
+    data-success-message={successBannerMessage}
+    data-success-class={successBannerClass}
+  >
+    <slot />
 
-  {Astro.slots.has("submit") ? (
-    <slot name="submit" />
-  ) : (
-    <Button type="submit" variant="primary" className={submitClass}>
-      {submitLabel}
-    </Button>
-  )}
-</form>
+    {/** — inject consent checkbox here — */}
+    {
+      showConsent && (
+        <div class={consentWrapperClass}>
+          <input
+            type="checkbox"
+            id="consent"
+            name="consent"
+            required
+            class={consentInputClass}
+          />
+          <label for="consent" class={consentLabelClass}>
+            {consentText}&nbsp;
+            <a href={consentLearnMoreUrl} class="underline">
+              {consentLearnMoreLabel}
+            </a>
+          </label>
+        </div>
+      )
+    }
+
+    {
+      Astro.slots.has("submit") ? (
+        <slot name="submit" />
+      ) : (
+        <Button type="submit" variant="primary" className={submitClass}>
+          {submitLabel}
+        </Button>
+      )
+    }
+  </form>
+</div>
 
 <script is:inline>
   document.addEventListener("DOMContentLoaded", () => {

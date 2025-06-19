@@ -22,19 +22,16 @@ import MobileMenuItem from "@/components/Menu/HamburgerMenu/MenuItem.jsx";
     />
     <div class="ml-[var(--spacing-sm)]">
       <div class="text-xl font-bold">{SiteData.title}</div>
-      <div class="text-sm text-gray-600">{SiteData.tagline}</div>
+      <div class="text-sm text-text">{SiteData.tagline}</div>
     </div>
   </a>
 
   <Menu
-    collection="menuItems"
-    query="relatedItem:menus:mainMenu"
     sortOrder="asc"
     manualOrder={true}
     responsive={true}
     breakpoint="(max-width: 767px)"
     hamburgerOnly={false}
-    
     desktop={{
       itemsClass: "flex gap-[var(--spacing-md)]",
       itemClass : "",
