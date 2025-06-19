@@ -6,11 +6,10 @@ import MobileMenuItem from "./MenuItem.jsx";
 
 export default function HamburgerMenu({
   checkboxId,
-  allItems = [],     // now is just the flat list of “mainMenu” items
+  allItems = [],     // flat list of “mainMenu” items
   shared,
   cfg = {},
 }) {
-  console.log(allItems, "allItems in HamburgerMenu");
   const { itemsClass = "", menuItem = {} } = cfg;
   const finalMenuItemComponent = menuItem.component || MobileMenuItem;
   const sortBy = shared.sortBy ?? undefined;
@@ -44,6 +43,15 @@ export default function HamburgerMenu({
     },
   };
 
+  // Debug: log slug and parent of each menu item
+  useEffect(() => {
+    console.group("[HamburgerMenu] allItems parent mapping");
+    allItems.forEach(item => {
+      console.log(`id: %c${item.id}`, 'font-weight:bold', ", parent:", item.data.parent);
+    });
+    console.groupEnd();
+  }, [allItems]);
+
   const [open, setOpen] = useState(false);
   useEffect(() => {
     const box = document.getElementById(checkboxId);
@@ -53,7 +61,7 @@ export default function HamburgerMenu({
     return () => box.removeEventListener("change", sync);
   }, [checkboxId]);
 
-const closeMenu = () => {
+  const closeMenu = () => {
     setOpen(false);
     const box = document.getElementById(checkboxId);
     if (box) {
@@ -72,9 +80,7 @@ const closeMenu = () => {
       overlayClass="bg-black bg-opacity-75"
       closeButton={true}
       closeButtonClass="absolute top-4 right-4 p-2"
-      onClose={() => {
-        closeMenu();
-      }}
+      onClose={closeMenu}
     >
       <nav
         aria-label="Mobile Menu"
@@ -82,7 +88,7 @@ const closeMenu = () => {
       >
         <Suspense fallback={<div className="p-4">Loading…</div>}>
           <ClientItemsTemplate
-            key={menuItem.id || menuItem.slug }
+            key={menuItem.id || menuItem.slug}
             items={roots}
             collectionName={shared.collection}
             HasPage={shared.HasPage}
@@ -101,7 +107,6 @@ const closeMenu = () => {
             sortOrder={sortOrder}
           />
         </Suspense>
-        
       </nav>
     </Modal>
   );

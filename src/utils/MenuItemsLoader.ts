@@ -1,52 +1,49 @@
 // src/utils/MenuItemsLoader.ts
-import { file, Loader } from "astro/loaders";
-import type { LoaderContext } from "astro/loaders";
-import { getCollectionMeta } from "@/utils/FetchMeta";
-import { capitalize } from "@/utils/ContentUtils";
-import { getCollectionNames } from "@/utils/CollectionUtils";
+import { file, Loader } from 'astro/loaders';
+import type { LoaderContext } from 'astro/loaders';
+import { getCollectionMeta } from '@/utils/FetchMeta';
+import { capitalize, normalizeRef } from '@/utils/ContentUtils';
+import { getCollectionNames } from '@/utils/CollectionUtils';
 
 export function MenuItemsLoader(): Loader {
   return {
-    name: "menu-items-loader",
+    name: 'menu-items-loader',
     async load(context: LoaderContext) {
       const { store, logger } = context;
 
-      // 1) Clear & load your primary menuItems.json
+      // 1) Clear & load primary menuItems.json
       store.clear();
-      await file("src/content/menuItems/menuItems.json").load(context);
+      await file('src/content/menuItems/menuItems.json').load(context);
 
-      // 2) Eager-import all MDX, MD & JSON under src/content
-      const mdxMods = import.meta.glob("../content/**/*.mdx", { eager: true });
-      const mdMods = import.meta.glob("../content/**/*.md", { eager: true });
-      const jsonMods = import.meta.glob("../content/**/*.json", { eager: true });
-      const contentModules = { ...mdxMods, ...mdMods, ...jsonMods };
+      // 2) Eager-import all content modules
+      const mdxMods = import.meta.glob('../content/**/*.mdx', { eager: true });
+      const mdMods = import.meta.glob('../content/**/*.md', { eager: true });
+      const jsonMods = import.meta.glob('../content/**/*.json', { eager: true });
+      const contentModules = { ...mdxMods, ...mdMods, ...jsonMods } as Record<string, any>;
 
-      // 2a) per-file addToMenu (works in dev+build)
+      // 2a) per-file addToMenu
       for (const path in contentModules) {
-        if (/\/_meta\.(mdx|md|json)$/.test(path)) continue;
-
-        const mod = contentModules[path] as any;
+        if (/\/(_meta)\.(mdx|md|json)$/.test(path)) continue;
+        const mod = contentModules[path];
         const raw = mod.frontmatter ?? mod.default;
         if (!raw) continue;
 
         const records = Array.isArray(raw) ? raw : [raw];
-        const segments = path.split("/");
-        const fileNameWithExt = segments.pop()!;
-        const collection = segments.pop()!;
-        const fileSlug = fileNameWithExt.replace(/\.(mdx|md|json)$/, "");
+        const segs = path.split('/');
+        const fileName = segs.pop()!;
+        const coll = segs.pop()!;
+        const fileSlug = fileName.replace(/\.(mdx|md|json)$/, '');
 
         for (const rec of records) {
           if (!rec.addToMenu) continue;
-          const instructions = Array.isArray(rec.addToMenu)
-            ? rec.addToMenu
-            : [rec.addToMenu];
+          const instrs = Array.isArray(rec.addToMenu) ? rec.addToMenu : [rec.addToMenu];
 
-          for (const instr of instructions) {
+          for (const instr of instrs) {
             const link = instr.link
-              ? instr.link.startsWith("/")
+              ? instr.link.startsWith('/')
                 ? instr.link
                 : `/${instr.link}`
-              : `/${collection}/${rec.id ?? fileSlug}`;
+              : `/${coll}/${rec.id ?? fileSlug}`;
             const id = link.slice(1);
             const menus = Array.isArray(instr.menu) ? instr.menu : [instr.menu];
 
@@ -54,13 +51,10 @@ export function MenuItemsLoader(): Loader {
               id,
               data: {
                 id,
-                title:
-                  instr.title ||
-                  rec.title ||
-                  capitalize(rec.id ?? fileSlug),
+                title: instr.title || rec.title || capitalize(rec.id ?? fileSlug),
                 link,
                 parent: instr.parent ?? null,
-                ...(typeof instr.order === "number" && { order: instr.order }),
+                ...(typeof instr.order === 'number' && { order: instr.order }),
                 openInNewTab: instr.openInNewTab ?? false,
                 menu: menus,
               },
@@ -69,18 +63,16 @@ export function MenuItemsLoader(): Loader {
         }
       }
 
-      // 3) collection-level addToMenu & itemsAddToMenu from each _meta.*
-      const dynamic = getCollectionNames().filter(
-        (c) => c !== "menus" && c !== "menuItems"
-      );
+      // 3) collection-level addToMenu & itemsAddToMenu
+      const dynamic = getCollectionNames().filter(c => c !== 'menus' && c !== 'menuItems');
 
       for (const coll of dynamic) {
         const meta = await getCollectionMeta(coll);
 
-        // 3a) collection-level addToMenu
+        // 3a) meta.addToMenu
         if (Array.isArray(meta.addToMenu)) {
           for (const instr of meta.addToMenu) {
-            const link = instr.link?.startsWith("/")
+            const link = instr.link?.startsWith('/')
               ? instr.link
               : `/${instr.link || coll}`;
             const id = link.slice(1);
@@ -93,7 +85,7 @@ export function MenuItemsLoader(): Loader {
                 title: instr.title || capitalize(coll),
                 link,
                 parent: instr.parent ?? null,
-                ...(typeof instr.order === "number" && { order: instr.order }),
+                ...(typeof instr.order === 'number' && { order: instr.order }),
                 openInNewTab: instr.openInNewTab ?? false,
                 menu: menus,
               },
@@ -101,41 +93,51 @@ export function MenuItemsLoader(): Loader {
           }
         }
 
-        // 3b) per-file itemsAddToMenu (now build-safe!)
+        // 3b) meta.itemsAddToMenu
         if (Array.isArray(meta.itemsAddToMenu)) {
           for (const path in contentModules) {
-            // only files in this collection’s folder, skip its _meta.*
             if (!path.includes(`../content/${coll}/`)) continue;
-            if (/\/_meta\.(mdx|md|json)$/.test(path)) continue;
+            if (/\/(_meta)\.(mdx|md|json)$/.test(path)) continue;
 
-            const segments = path.split("/");
-            const fileNameWithExt = segments.pop()!;
-            const folder = segments.pop()!;
-            if (folder !== coll) continue;
-            const fileSlug = fileNameWithExt.replace(/\.(mdx|md|json)$/, "");
+            const mod = contentModules[path];
+            const raw = mod.frontmatter ?? {};
+            const segs = path.split(`../content/${coll}/`)[1].split('/');
+            const fileName = segs.pop()!;
+            const nested = segs; // subfolders
+            const fileSlug = fileName.replace(/\.(mdx|md|json)$/, '');
+            const routeParts = [coll, ...nested, fileSlug];
+            const defaultLink = `/${routeParts.join('/')}`;
 
             for (const instr of meta.itemsAddToMenu) {
-              const link = instr.link?.startsWith("/")
+              const link = instr.link?.startsWith('/')
                 ? instr.link
                 : instr.link
-                ? `/${instr.link}`
-                : `/${coll}/${fileSlug}`;
+                  ? `/${instr.link}`
+                  : defaultLink;
               const id = link.slice(1);
-              const menus = Array.isArray(instr.menu)
-                ? instr.menu
-                : [instr.menu];
+              const menus = Array.isArray(instr.menu) ? instr.menu : [instr.menu];
+
+              // Determine parent: frontmatter overrides when respectHierarchy
+              let parent = null;
+              if (instr.respectHierarchy && raw.parent) {
+                const parentSlug = normalizeRef(raw.parent);
+                parent = { id: `${coll}/${parentSlug}`, collection: 'menuItems' };
+              } else {
+                const parentId = instr.parent?.id;
+                const parentCol = instr.parent?.collection;
+                parent = parentId
+                  ? { id: parentId, collection: parentCol }
+                  : null;
+              }
 
               store.set({
                 id,
                 data: {
                   id,
-                  title:
-                    instr.title ||
-                    (contentModules[path].frontmatter?.title as string) ||
-                    fileSlug,
+                  title: instr.title || raw.title || fileSlug,
                   link,
-                  parent: instr.parent ?? null,
-                  ...(typeof instr.order === "number" && { order: instr.order }),
+                  parent,
+                  ...(typeof instr.order === 'number' && { order: instr.order }),
                   openInNewTab: instr.openInNewTab ?? false,
                   menu: menus,
                 },
@@ -145,9 +147,7 @@ export function MenuItemsLoader(): Loader {
         }
       }
 
-      logger.info(
-        `[menu-items-loader] loaded ${store.keys().length} items`
-      );
+      logger.info(`[menu-items-loader] loaded ${store.keys().length} items`);
     },
   };
 }
