@@ -1,5 +1,5 @@
 // src/components/Menu/HamburgerMenu/MenuItem.jsx
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import { getChildItems } from "@/utils/menuUtils.js";
 import ClientItemsTemplate from "@/components/ItemsTemplates/ClientItemsTemplate.jsx";
 
@@ -23,11 +23,9 @@ export default function MobileMenuItem({
   // 1) Compute this item’s ID (stable identifier)
   const thisId = item.data.id ?? item.data.link.replace(/^\//, "");
 
- // 2) Memoize children lookup so it only recalcs when thisId or allItems change
-  const children = useMemo(
-    () => getChildItems(thisId, allItems),
-    [thisId, allItems]
-  );
+  // 2) DRY’d‐out: find direct children using our helper
+  const children = getChildItems(thisId, allItems);
+  const hasKids = hierarchical && children.length > 0;
 
   return (
     <div className={`w-full ${itemClass}`}>
