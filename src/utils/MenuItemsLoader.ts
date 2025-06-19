@@ -129,7 +129,6 @@ export function MenuItemsLoader(): Loader {
                   ? { id: parentId, collection: parentCol }
                   : null;
               }
-
               store.set({
                 id,
                 data: {
