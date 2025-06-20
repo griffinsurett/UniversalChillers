@@ -42,6 +42,6 @@ export const ButtonVariants = {
     },
   },
   link: {
-    variantClasses: "text-text hover:text-primary",
+    variantClasses: "text-text hover:text-secondary",
   },
 };

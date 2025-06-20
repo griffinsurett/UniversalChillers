@@ -26,46 +26,48 @@ export default function MobileMenuItem({
   const thisId = getMenuId(item);
   const children = getChildItems(thisId, allItems);
   const hasKids = hasMenuChildren(item, allItems, hierarchical);
+  const link = getMenuLink(item, collectionName);
 
   return (
-    <div className={`w-full ${itemClass}`}>
-      {hasKids ? (
-        <Button
-          as="button"
-          variant="link"
-          tabIndex={0}
-          onClick={() => setOpen((p) => !p)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              setOpen((p) => !p);
-            }
-          }}
-          className={`flex w-full items-center justify-between ${linkClass}`}
-          aria-haspopup="true"
-          aria-expanded={open}
-        >
-          <span>{item.data.title}</span>
-          <span
-            className={`transform transition-transform duration-200 ${
-              open ? "rotate-180" : ""
-            }`}
-            aria-hidden="true"
-          >
-            ▼
-          </span>
-        </Button>
-      ) : (
+    <div className={`menu-item w-full ${itemClass}`}>
+      <div className={`flex w-full items-center justify-between ${linkClass}`}>
+        {/* Title always navigates */}
         <Button
           as="a"
           variant="link"
-          href={getMenuLink(item, collectionName)}
-          className={`flex w-full ${linkClass}`}
+          href={link}
+          className="flex-1 text-left"
           onClick={onItemClick}
         >
           {item.data.title}
         </Button>
-      )}
+
+        {/* Only show a toggle arrow if there are children */}
+        {hasKids && (
+          <Button
+            as="button"
+            variant="link"
+            tabIndex={0}
+            onClick={() => setOpen((prev) => !prev)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                setOpen((prev) => !prev);
+              }
+            }}
+            className="ml-2 p-1"
+            aria-haspopup="true"
+            aria-expanded={open}
+          >
+            <span
+              className={`submenu-arrow`}
+              aria-hidden="true"
+            >
+              ▼
+            </span>
+          </Button>
+        )}
+      </div>
 
       {hasKids && open && (
         <div className="ml-4 border-l border-gray-200">
@@ -87,6 +89,7 @@ export default function MobileMenuItem({
                 checkboxId,
                 collectionName,
                 HasPage,
+                onItemClick,
               },
             }}
           />

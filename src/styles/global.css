@@ -90,10 +90,19 @@ p {
   transition: opacity 0.2s ease-in-out;
 }
 
+.submenu-arrow {
+    @apply inline-block transform transition-transform duration-200;
+  }
+
 /* Show only the hovered <li>’s direct submenu */
 .menu-item:hover > .submenu {
   opacity: 1;
   pointer-events: auto;
+}
+
+.menu-item:hover > button > .submenu-arrow,
+.menu-item:focus-within > button > .submenu-arrow {
+  transform: rotate(180deg);
 }
 
 /* Rotate only the arrow of the directly hovered <li> */
@@ -111,6 +120,11 @@ p {
 .menu-item:focus-within > a > .submenu-arrow {
   transform: rotate(180deg);
 }
+
+ /* flip whenever the toggle-button is expanded */
+  button[aria-expanded="true"] > .submenu-arrow {
+    @apply rotate-180;
+  }
 }
 
 @keyframes fade-in-up {
