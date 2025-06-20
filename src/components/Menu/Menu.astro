@@ -101,7 +101,7 @@ const desktopRoots = getRootItems(allMenuEntries);
         aria-label="Toggle menu"
       >
         <HamburgerIcon
-          client:load
+          client:media={breakpoint}
           hamburgerTransform={mobile.hamburgerTransform}
           checkboxId={mobile.checkboxId}
         />

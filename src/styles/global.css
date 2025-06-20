@@ -90,8 +90,12 @@ p {
   transition: opacity 0.2s ease-in-out;
 }
 
+.menu-item {
+  cursor: pointer;
+}
+
 .submenu-arrow {
-    @apply inline-block transform transition-transform duration-200;
+    @apply inline-block transform transition-transform duration-200 cursor-pointer;
   }
 
 /* Show only the hovered <li>’s direct submenu */
