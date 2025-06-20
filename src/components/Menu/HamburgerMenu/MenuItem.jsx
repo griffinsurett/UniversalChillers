@@ -1,6 +1,5 @@
 // src/components/Menu/HamburgerMenu/MenuItem.jsx
 import React, { useState } from "react";
-import { normalizeRef } from "@/utils/ContentUtils";
 import { getChildItems } from "@/utils/menuUtils.js";
 import ClientItemsTemplate from "@/components/ItemsTemplates/ClientItemsTemplate.jsx";
 import Button from "@/components/Button/Button.jsx";
@@ -21,9 +20,7 @@ export default function MobileMenuItem({
   const [open, setOpen] = useState(false);
 
   // 1) Compute this item’s ID (stable identifier)
-  const thisId = getItemKey(
-    item /*, "data" if your slug/id live under item.data */
-  );
+  const thisId = getItemKey(item);
 
   // 2) DRY’d‐out: find direct children using our helper
   const children = getChildItems(thisId, allItems);
