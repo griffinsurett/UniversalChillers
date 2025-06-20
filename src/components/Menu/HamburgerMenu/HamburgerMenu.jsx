@@ -3,6 +3,7 @@ import React, { useState, useEffect, Suspense, Children } from "react";
 import Modal from "@/components/Modal.jsx";
 import ClientItemsTemplate from "@/components/ItemsTemplates/ClientItemsTemplate.jsx";
 import MobileMenuItem from "./MenuItem.jsx";
+import { getItemKey } from "@/utils/getItemKey.js";
 
 export default function HamburgerMenu({
   checkboxId,
@@ -14,6 +15,7 @@ export default function HamburgerMenu({
   const finalMenuItemComponent = menuItem.component || MobileMenuItem;
   const sortBy = shared.sortBy ?? undefined;
   const sortOrder = shared.sortOrder ?? undefined;
+const thisId = getItemKey(menuItem);
 
   const finalMenuItemProps = {
     itemClass:
@@ -93,7 +95,7 @@ export default function HamburgerMenu({
       >
         <Suspense fallback={<div className="p-4">Loading…</div>}>
           <ClientItemsTemplate
-            key={menuItem.id || menuItem.slug}
+            key={thisId}
             items={roots}
             collectionName={shared.collection}
             HasPage={shared.HasPage}

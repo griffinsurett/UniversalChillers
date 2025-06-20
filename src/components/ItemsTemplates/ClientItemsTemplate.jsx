@@ -3,6 +3,7 @@ import React, { Suspense, useMemo } from "react";
 import Carousel from "./Carousel";
 import { resolveCSRComponent } from "@/utils/resolveItemComponent.js";
 import { sortItems } from "@/utils/sortItems.js";
+import { getItemKey } from "@/utils/getItemKey.js";
 
 export default function ClientItemsTemplate({
   items = [],
@@ -54,7 +55,7 @@ export default function ClientItemsTemplate({
           itemClass={itemClass}
           renderItem={(item) => (
             <Comp
-              key={item.slug || item.id}
+              key={getItemKey(item)}
               item={item}
               collectionName={collectionName}
               HasPage={HasPage}
@@ -65,9 +66,9 @@ export default function ClientItemsTemplate({
       ) : (
         <ul className={itemsClass}>
           {sorted.map((item) => (
-            <li className="contents" key={item.slug || item.id}>
+            <li className="contents" key={getItemKey(item)}>
               <Comp
-                key={item.slug}
+                key={getItemKey(item)}
                 item={item}
                 collectionName={collectionName}
                 HasPage={HasPage}

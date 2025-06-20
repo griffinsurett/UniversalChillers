@@ -4,6 +4,7 @@ import { queryItems } from "@/utils/CollectionQueryUtils.js";
 import { sortItems } from "@/utils/sortItems.js";
 import ClientItemsTemplate from "./ClientItemsTemplate.jsx";
 import { resolveSSRComponent } from "@/utils/resolveItemComponent.js";
+import { getItemKey } from "@/utils/getItemKey.js";
 
 const {
   collection,
@@ -95,7 +96,7 @@ const { RenderComponent, componentKey, componentProps } =
     {!client && (
       <ul class={itemsClass} {...rest}>
         {items.map((item) => (
-          <li class="contents" key={item.slug || item.data.slug || item.id}>
+          <li class="contents" key={getItemKey(item)}>
             <RenderComponent
               item={item}
               collectionName={collection}

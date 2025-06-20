@@ -1,5 +1,6 @@
 // src/components/LoopComponents/AccordionItem.jsx
 import React, { useState } from "react";
+import { getItemKey } from "@/utils/getItemKey.js";
 
 export default function AccordionItem({
   item,
@@ -11,7 +12,7 @@ export default function AccordionItem({
   const toggle = () => setOpen((prev) => !prev);
 
   return (
-    <article className={itemClass}>
+    <article className={itemClass} id={"accordion-item-" + getItemKey(item)}>
       {/* Header: clicking toggles open/closed */}
       <div
         onClick={toggle}

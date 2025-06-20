@@ -1,5 +1,6 @@
 // src/components/Carousel.jsx
 import React, { useState, useRef, useEffect } from "react";
+import { getItemKey } from "@/utils/getItemKey.js";
 
 export default function Carousel({
   items,
@@ -41,7 +42,8 @@ export default function Carousel({
     });
   }, [index]);
 
-  const arrowStyles = "absolute top-1/2 transform -translate-y-1/2 z-10 p-2 text-xl";
+  const arrowStyles =
+    "absolute top-1/2 transform -translate-y-1/2 z-10 p-2 text-xl";
 
   return (
     <div className="relative overflow-hidden contents">
@@ -80,10 +82,7 @@ export default function Carousel({
         style={{ WebkitOverflowScrolling: "touch" }}
       >
         {items.map((item) => (
-          <li
-            key={item.slug}
-            className={`contents`}
-          >
+          <li key={getItemKey(item)} className={`contents`}>
             {renderItem(item)}
           </li>
         ))}
