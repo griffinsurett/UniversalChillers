@@ -1,7 +1,7 @@
 ---
 // src/components/Menu/MenuItem.astro
 import { normalizeRef } from "@/utils/ContentUtils";
-// import { allMenuItems } from "./menu-data";
+import { getItemKey } from "@/utils/getItemKey.js";
 import Submenu from "./Submenu.astro";
 import { getChildItems } from "@/utils/menuUtils.js";
 
@@ -45,11 +45,11 @@ const SubmenuComponent = submenu.component ?? Submenu;
   <Button
     variant="link"
     as="a"
-    href={// if you’ve explicitly set data.link, use that…
-    item.data.link
-      ? // otherwise build `/collection/slug-or-id`
-        item.data.link
-      : `/${collectionName}/${thisId}`}
+    href={
+      item.data?.link
+        ? item.data.link
+        : `/${collectionName}/${thisId}`
+    }
     class={linkClass}
     rel="noopener noreferrer"
     role="menuitem"
