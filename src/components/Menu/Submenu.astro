@@ -7,7 +7,7 @@ const {
   allItems = [],
   parentId,
   childItems = [],
-
+  collectionName,
   /* Submenu descriptor passed down the chain */
   submenu = {
     component: MenuItem,
@@ -27,6 +27,7 @@ const {
 
 {childItems.length ? (
   <ItemsTemplate
+    collection={collectionName} 
     items={childItems}
     itemsClass={`submenu ${submenu.itemsClass}`}
     itemClass=""

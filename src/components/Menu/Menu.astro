@@ -116,6 +116,7 @@ const desktopRoots = allMenuEntries.filter((i) => !i.data.parent);
           props: {
             ...desktop.menuItem.props,
             allItems: sortedMobileItems,
+            collectionName: collection,
           },
         }}
         role="menubar"
@@ -144,6 +145,7 @@ const desktopRoots = allMenuEntries.filter((i) => !i.data.parent);
               props: {
                 ...desktop.menuItem.props,
                 allItems: sortedMobileItems,
+                collectionName: collection,
               },
             }}
             role="menubar"

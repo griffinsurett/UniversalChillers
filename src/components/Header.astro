@@ -27,11 +27,14 @@ import MobileMenuItem from "@/components/Menu/HamburgerMenu/MenuItem.jsx";
   </a>
 
   <Menu
+    collection="services"
+    query="getAll"
     sortOrder="asc"
     manualOrder={true}
     responsive={true}
     breakpoint="(max-width: 767px)"
     hamburgerOnly={false}
+    
     desktop={{
       itemsClass: "flex gap-[var(--spacing-md)]",
       itemClass : "",

@@ -103,6 +103,7 @@ export default function HamburgerMenu({
                 ...finalMenuItemProps,
                 allItems, // entire flat “mainMenu” array
                 checkboxId,
+                collectionName: shared.collection,
                 onItemClick: closeMenu,
               },
             }}
