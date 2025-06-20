@@ -1,18 +1,19 @@
 // src/utils/CurrentEntry.ts
 import type { AstroGlobal } from 'astro';
+import { getItemKey } from '@/utils/getItemKey.js';
 
 /**
- * getCurrentEntryId(Astro: AstroGlobal): string
- *
- * This tries to derive the "slug" or unique ID for the current page.
- * 1. If Astro.props.collection.slug is available, we use that.
- * 2. Otherwise, we parse the URL pathname to get the final segment.
- *    e.g. "/projects/business-landing" => "business-landing"
+ * Derive the current entry’s stable key (slug or id). Falls back to the
+ * last path segment if no entry object is provided.
  */
 export function getCurrentEntryId(Astro: AstroGlobal): string {
-  if (Astro.props && Astro.props.collection && Astro.props.collection.slug) {
-    return Astro.props.collection.slug;
+  // 1️⃣ If we have an `entry` prop, use our helper to extract slug|id
+  if (Astro.props?.entry) {
+    const key = getItemKey(Astro.props.entry);
+    if (key) return key;
   }
-  const segments = Astro.url.pathname.split('/').filter(Boolean);
-  return segments[segments.length - 1] || '';
+
+  // 2️⃣ Otherwise, fall back to the URL’s last segment
+  const segs = Astro.url.pathname.split('/').filter(Boolean);
+  return segs[segs.length - 1] || '';
 }

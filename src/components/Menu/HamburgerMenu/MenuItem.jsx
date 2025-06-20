@@ -1,9 +1,13 @@
 // src/components/Menu/HamburgerMenu/MenuItem.jsx
 import React, { useState } from "react";
-import { getChildItems } from "@/utils/menuUtils.js";
 import ClientItemsTemplate from "@/components/ItemsTemplates/ClientItemsTemplate.jsx";
 import Button from "@/components/Button/Button.jsx";
-import { getItemKey } from "@/utils/getItemKey.js";
+import {
+  getMenuId,
+  getMenuLink,
+  getChildItems,
+  hasMenuChildren,
+} from "@/utils/menuUtils.js";
 
 export default function MobileMenuItem({
   item,
@@ -19,26 +23,22 @@ export default function MobileMenuItem({
 }) {
   const [open, setOpen] = useState(false);
 
-  // 1) Compute this item’s ID (stable identifier)
-  const thisId = getItemKey(item);
-
-  // 2) DRY’d‐out: find direct children using our helper
+  const thisId = getMenuId(item);
   const children = getChildItems(thisId, allItems);
-  const hasKids = hierarchical && children.length > 0;
+  const hasKids = hasMenuChildren(item, allItems, hierarchical);
 
   return (
     <div className={`w-full ${itemClass}`}>
       {hasKids ? (
-        // ── REPLACE plain <button> WITH <Button as="button"> ──
         <Button
           as="button"
           variant="link"
           tabIndex={0}
-          onClick={() => setOpen((prev) => !prev)}
+          onClick={() => setOpen((p) => !p)}
           onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") {
               e.preventDefault();
-              setOpen((prev) => !prev);
+              setOpen((p) => !p);
             }
           }}
           className={`flex w-full items-center justify-between ${linkClass}`}
@@ -56,17 +56,10 @@ export default function MobileMenuItem({
           </span>
         </Button>
       ) : (
-        // ── LEAF NODE: still using <Button as="a"> ──
         <Button
           as="a"
           variant="link"
-          href={
-            // if you’ve explicitly set data.link, use that…
-            item.data.link
-              ? // otherwise build `/collection/slug-or-id`
-                item.data.link
-              : `/${collectionName}/${thisId}`
-          }
+          href={getMenuLink(item, collectionName)}
           className={`flex w-full ${linkClass}`}
           onClick={onItemClick}
         >
@@ -90,8 +83,8 @@ export default function MobileMenuItem({
                 itemClass: submenu.subMenuItem.props.itemClass,
                 linkClass: submenu.subMenuItem.props.linkClass,
                 hierarchical: submenu.subMenuItem.props.hierarchical,
-                submenu: submenu,
-                checkboxId: checkboxId,
+                submenu,
+                checkboxId,
                 collectionName,
                 HasPage,
               },

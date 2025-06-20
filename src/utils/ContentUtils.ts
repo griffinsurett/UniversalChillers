@@ -1,42 +1,30 @@
 // src/utils/ContentUtils.ts
+import { getItemKey } from "@/utils/getItemKey.js";
+
 export function getCanonicalSlug(entry: any): string {
-  // Try auto-generated slug first (for MDX/Markdown entries)
-  let slug = entry.slug;
-  // If there's a data object (e.g. from JSON or MDX frontmatter), try data.slug then data.id.
-  if (!slug && entry.data) {
-    slug = entry.data.slug || entry.data.id;
-  }
-  // Finally, check if entry has an id property directly.
-  if (!slug && entry.id) {
-    slug = entry.id;
-  }
-  if (!slug) {
+  const key = getItemKey(entry);
+  if (!key) {
     throw new Error("Missing both slug and id for entry");
   }
-  // Ensure both properties are in sync:
-  if (entry.data) {
-    entry.data.slug = slug;
-    entry.data.id = slug;
-  } else {
-    entry.slug = slug;
-    entry.id = slug;
-  }
-  return slug;
+  return key;
 }
 
+/**
+ * Normalize any reference (string or object) to its bare ID/slug.
+ */
 export function normalizeRef(ref: any): string {
-    if (typeof ref === 'string') {
-      return ref.trim().replace(/,$/, '');
-    } else if (typeof ref === 'object' && ref !== null) {
-      if (ref.slug) {
-        return ref.slug.trim().replace(/,$/, '');
-      }
-      if (ref.id) {
-        return ref.id.trim().replace(/,$/, '');
-      }
-    }
-    return '';
+  if (typeof ref === "string") {
+    return ref.trim().replace(/,$/, "");
   }
+
+  if (ref && typeof ref === "object") {
+    // centralize slug/id lookup
+    const key = getItemKey(ref);
+    return key.trim().replace(/,$/, "");
+  }
+
+  return "";
+}
 
   export function normalizePath(path: string): string {
     // If the path is just "/", leave it as is.

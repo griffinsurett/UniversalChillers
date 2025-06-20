@@ -2,13 +2,14 @@
 import { getCollection, getEntry, getEntries } from "astro:content";
 import { normalizeRef, toArray } from "./ContentUtils";
 import { collections } from "@/content/config";
+import { getItemKey } from "./getItemKey";
 
 /**
  * queryItems(queryType, collectionName, pathname)
  *
  * Supports the following query formats:
  *   • "getAll" or `getAll${collectionName}`
- *   • "related" or `related${collectionName}`       
+ *   • "related" or `related${collectionName}`
  *   • "parent" or `parent${collectionName}`
  *   • "children" or `children${collectionName}`
  *   • "sibling" or `sibling${collectionName}`
@@ -98,13 +99,12 @@ export async function queryItems(
     );
   }
 
-    // ────────────────────────────────────────────────────────────────────────
+  // ────────────────────────────────────────────────────────────────────────
   // 0d) "roots" or "roots{Collection}" ────────────────────────────────────
   if (queryType === "roots" || queryType === `roots${collectionName}`) {
     const all = await getCollection(collectionName);
     return all.filter((item) => !item.data.parent);
   }
-
 
   // ────────────────────────────────────────────────────────────────────────
   // 3) "relatedItem:<TargetCollection>:<TargetSlug>" ───────────────────────
@@ -184,7 +184,9 @@ export async function queryItems(
 
       // dedupe
       return Array.from(
-        combined.reduce((map, it) => map.set(it.slug, it), new Map()).values()
+        combined
+          .reduce((map, it) => map.set(getItemKey(it), it), new Map())
+          .values()
       );
     }
 
@@ -208,10 +210,7 @@ export async function queryItems(
     let indirectRelated: any[] = [];
     if (parentEntry) {
       for (const interColl of Object.keys(collections)) {
-        if (
-          interColl === routeCollectionName ||
-          interColl === collectionName
-        )
+        if (interColl === routeCollectionName || interColl === collectionName)
           continue;
         const intermediates = await getCollection(interColl);
         const relatedIntermediate = intermediates.filter((item) =>
@@ -231,7 +230,9 @@ export async function queryItems(
     }
 
     return Array.from(
-      indirectRelated.reduce((map, it) => map.set(it.slug, it), new Map()).values()
+      indirectRelated
+        .reduce((map, it) => map.set(it.slug, it), new Map())
+        .values()
     );
   }
 

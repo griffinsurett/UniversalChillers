@@ -1,5 +1,6 @@
 // src/utils/menuUtils.js
 import { normalizeRef } from "@/utils/ContentUtils";
+import { getItemKey } from "@/utils/getItemKey.js";
 
 /**
  * Given a parentId string (which may be either "foo" or "collection/foo")
@@ -19,4 +20,32 @@ export function getChildItems(parentId, allItems = []) {
     // else plain string parent (just a slug)
     return normalizeRef(p) === normParent;
   });
+}
+
+/**
+ * Stable ID for any item: slug || id
+ */
+export function getMenuId(item) {
+  return getItemKey(item);
+}
+
+/**
+ * URL to link‐to: either explicit data.link or /collection/ID
+ */
+export function getMenuLink(item, collectionName) {
+  return item.data?.link ?? `/${collectionName}/${getMenuId(item)}`;
+}
+
+/**
+ * Top‐level = no data.parent
+ */
+export function getRootItems(items) {
+  return items.filter((i) => !i.data?.parent);
+}
+
+/**
+ * “Do we have kids?” helper
+ */
+export function hasMenuChildren(item, allItems, hierarchical) {
+  return hierarchical && getChildItems(getMenuId(item), allItems).length > 0;
 }

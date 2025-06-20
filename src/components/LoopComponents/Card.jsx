@@ -1,4 +1,5 @@
 import Button from "@/components/Button/Button";
+import { getItemKey } from "@/utils/getItemKey";
 
 /**
  * Card component for rendering an individual item.
@@ -14,7 +15,7 @@ export default function Card({ item, itemClass, collectionName, HasPage }) {
       <h3 className="mb-[var(--spacing-sm)] text-[var(--color-text)]">{item.data.title}</h3>
       <p className="mb-[var(--spacing-sm)]">{item.data.description || item.body}</p>
       {effectiveHasPage && (
-        <Button href={`/${collectionName}/${item.slug}`}>
+        <Button href={`/${collectionName}/${getItemKey(item)}`}>
           View More Card
         </Button>
       )}

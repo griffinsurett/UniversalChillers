@@ -1,3 +1,4 @@
+// src/components/Menu/HamburgerMenu/HamburgerIcon.jsx
 import React, { useState, useEffect } from "react";
 
 export default function HamburgerIcon({
@@ -5,7 +6,7 @@ export default function HamburgerIcon({
   checkboxId,
 }) {
   const [open, setOpen] = useState(false);
-  // sync open state from the checkbox
+
   useEffect(() => {
     if (!hamburgerTransform) return;
     const box = document.getElementById(checkboxId);
