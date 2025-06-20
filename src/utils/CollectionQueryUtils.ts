@@ -279,8 +279,9 @@ export async function getParentItem(
     const currentItem = await getEntry(collectionName, currentSlug);
     if (!currentItem || !currentItem.data.parent) return null;
     const parentRef = currentItem.data.parent;
-    const parentSlug = normalizeRef(parentRef);
-    return await getEntry(collectionName, parentSlug);
+    const parentKey = normalizeRef(parentRef);
+    const parentEntry = await getEntry(collectionName, parentKey);
+    return parentEntry;
   } catch {
     return null;
   }
@@ -295,11 +296,12 @@ export async function getChildrenItems(
   currentSlug: string
 ) {
   const items = await getCollection(collectionName);
-  const normalizedCurrentSlug = normalizeRef(currentSlug);
+  const key = currentSlug; // already a slug/id
   return items.filter((item) => {
-    if (!item.data.parent) return false;
-    const parentSlug = normalizeRef(item.data.parent);
-    return parentSlug === normalizedCurrentSlug;
+    const parent = item.data.parent;
+    if (!parent) return false;
+    // normalizeRef(parent) still handles strings/objects
+    return normalizeRef(parent) === key;
   });
 }
 
@@ -311,24 +313,23 @@ export async function getSiblingItems(
   collectionName: string,
   currentSlug: string
 ) {
-  const currentItem = await getEntry(collectionName, currentSlug);
+  const currentKey = currentSlug;
+  const currentItem = await getEntry(collectionName, currentKey);
   if (!currentItem) return [];
-  const normalizedCurrentSlug = normalizeRef(currentSlug);
-  const parentRef = currentItem.data.parent;
   const items = await getCollection(collectionName);
-
+  const parentRef = currentItem.data.parent;
   if (parentRef) {
     const normalizedParent = normalizeRef(parentRef);
     return items.filter((item) => {
-      if (normalizeRef(item.slug) === normalizedCurrentSlug) return false;
-      if (!item.data.parent) return false;
+      // drop self
+      if (getItemKey(item) === currentKey) return false;
+      // must have same parent
       return normalizeRef(item.data.parent) === normalizedParent;
     });
   } else {
-    // If no parent, siblings are those with no parent (excluding itself)
+    // top‐level siblings: no parent, exclude itself
     return items.filter(
-      (item) =>
-        normalizeRef(item.slug) !== normalizedCurrentSlug && !item.data.parent
+      (item) => getItemKey(item) !== currentKey && !item.data.parent
     );
   }
 }
