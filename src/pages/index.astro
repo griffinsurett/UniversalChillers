@@ -4,12 +4,12 @@ import ExtendedLayout from "@/layouts/ExtendedLayout.astro";
 import Section from "@/components/Section/Section.astro";
 import Card from "@/components/LoopComponents/Card";
 ---
-<ExtendedLayout title="Welcome to Astro!" description="Your gateway to amazing projects.">
+<ExtendedLayout title="Welcome to Greactstro!" description="Your gateway to amazing projects.">
   <!-- Hero Section -->
 <Section
   variant="primaryHero"
-  heading={{ text: "Homepage", tagName: "h1" }}
-  description="Welcome to Astro!"
+  heading={{ before:"Welcome to ", text: "Greactstro", tagName: "h1" }}
+  description="Welcome to Greactstro!"
   buttons={[
     { text: "See Our CTA", link: "/contact-us", variant: "secondary" },
     { text: "Learn More About Us", link: "/about-us" },
