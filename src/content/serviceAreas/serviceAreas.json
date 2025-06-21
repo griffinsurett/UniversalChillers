@@ -7,13 +7,7 @@
   {
     "title": "Freehold",
     "id": "freehold",
-    "tags": ["monmouth-county", "central-jersey"],
-    "addToMenu": [
-      {
-        "menu": "mainMenu",
-        "title": "Freehold"
-      }
-    ]
+    "tags": ["monmouth-county", "central-jersey"]
   },
   {
     "title": "Howell",

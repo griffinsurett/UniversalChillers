@@ -11,24 +11,32 @@ import { desktopDefaults, mobileDefaults } from "./defaults.js";
 import { getRootItems } from "@/utils/menuUtils";
 
 const {
-  collection = "menuItems",
-  query = "relatedItem:menus:mainMenu",
+  // core data + sort
+  collection    = "menuItems",
+  query         = "relatedItem:menus:mainMenu",
   sortBy,
-  sortOrder = "asc",
-  manualOrder = true,
-  HasPage = false,
-  responsive = false,
-  breakpoint = "(max-width: 767px)",
+  sortOrder     = "asc",
+  manualOrder   = true,
+  HasPage       = false,
+
+  // layout flags
+  responsive    = false,
+  breakpoint    = "(max-width: 767px)",
   hamburgerOnly = false,
+
+  // detailed overrides (only used if responsive===true)
   desktop: desktopProp = {},
-  mobile: mobileProp = {},
+  mobile:  mobileProp  = {},
+
+  // when NOT responsive, you can configure these at the top level:
+  itemsClass: topItemsClass,
+  itemClass:  topItemClass,
+  menuItem:   topMenuItem,
+  checkboxId: topCheckboxId,
+  hamburgerTransform: topHamburgerTransform,
 } = Astro.props;
 
-// merge defaults + any overrides
-const desktop = { ...desktopDefaults, ...desktopProp };
-const mobile  = { ...mobileDefaults, ...mobileProp };
-
-// fetch & sort all entries
+// ─── fetch & sort all menu items ─────────────────────────────────
 let allMenuEntries = [];
 if (collection && query) {
   allMenuEntries = await queryItems(query, collection, Astro.url.pathname);
@@ -37,11 +45,40 @@ const sortedMobileItems = Array.isArray(allMenuEntries)
   ? sortItems(allMenuEntries, sortBy, sortOrder, manualOrder)
   : allMenuEntries;
 
-// only true top‐levels
+// ─── top‐level roots for desktop & mobile first‐level ───────────────
 const desktopRoots = getRootItems(allMenuEntries);
+
+// ─── build final desktop & mobile configs ─────────────────────────
+let desktopConfig, mobileConfig;
+
+if (responsive) {
+  desktopConfig = { ...desktopDefaults, ...desktopProp };
+  mobileConfig  = { ...mobileDefaults,  ...mobileProp  };
+} else if (hamburgerOnly) {
+  // only mobile/hamburger menu on all sizes:
+  mobileConfig = {
+    ...mobileDefaults,
+    ...mobileProp,
+    itemsClass:         topItemsClass        ?? mobileProp.itemsClass        ?? mobileDefaults.itemsClass,
+    itemClass:          topItemClass         ?? mobileProp.itemClass         ?? mobileDefaults.itemClass,
+    menuItem:           topMenuItem          ?? mobileProp.menuItem          ?? mobileDefaults.menuItem,
+    checkboxId:         topCheckboxId        ?? mobileProp.checkboxId        ?? mobileDefaults.checkboxId,
+    hamburgerTransform: topHamburgerTransform ?? mobileProp.hamburgerTransform ?? mobileDefaults.hamburgerTransform,
+  };
+} else {
+  // only desktop menu on all sizes:
+  desktopConfig = {
+    ...desktopDefaults,
+    ...desktopProp,
+    itemsClass: topItemsClass ?? desktopProp.itemsClass ?? desktopDefaults.itemsClass,
+    itemClass:  topItemClass  ?? desktopProp.itemClass  ?? desktopDefaults.itemClass,
+    menuItem:   topMenuItem   ?? desktopProp.menuItem   ?? desktopDefaults.menuItem,
+  };
+}
 ---
 
 {!responsive && !hamburgerOnly && (
+  <!-- ─── Desktop‐only ──────────────────────────────────────────────── -->
   <nav aria-label="Main">
     <ItemsTemplate
       items={desktopRoots}
@@ -51,12 +88,12 @@ const desktopRoots = getRootItems(allMenuEntries);
       sortOrder={sortOrder}
       manualOrder={manualOrder}
       HasPage={HasPage}
-      itemsClass={desktop.itemsClass}
-      itemClass={desktop.itemClass}
+      itemsClass={desktopConfig.itemsClass}
+      itemClass={desktopConfig.itemClass}
       ItemComponent={{
-        component: desktop.menuItem.component,
+        component: desktopConfig.menuItem.component,
         props: {
-          ...desktop.menuItem.props,
+          ...desktopConfig.menuItem.props,
           allItems: sortedMobileItems,
           collectionName: collection,
         },
@@ -67,6 +104,7 @@ const desktopRoots = getRootItems(allMenuEntries);
 )}
 
 {responsive && !hamburgerOnly && (
+  <!-- ─── Responsive: desktop + hamburger ─────────────────────────────── -->
   <>
     <div class="hidden md:block">
       <nav aria-label="Main">
@@ -78,12 +116,12 @@ const desktopRoots = getRootItems(allMenuEntries);
           sortOrder={sortOrder}
           manualOrder={manualOrder}
           HasPage={HasPage}
-          itemsClass={desktop.itemsClass}
-          itemClass={desktop.itemClass}
+          itemsClass={desktopConfig.itemsClass}
+          itemClass={desktopConfig.itemClass}
           ItemComponent={{
-            component: desktop.menuItem.component,
+            component: desktopConfig.menuItem.component,
             props: {
-              ...desktop.menuItem.props,
+              ...desktopConfig.menuItem.props,
               allItems: sortedMobileItems,
               collectionName: collection,
             },
@@ -94,22 +132,22 @@ const desktopRoots = getRootItems(allMenuEntries);
     </div>
 
     <div class="block md:hidden items-center">
-      <input type="checkbox" id={mobile.checkboxId} class="hidden" />
+      <input type="checkbox" id={mobileConfig.checkboxId} class="hidden" />
       <label
-        for={mobile.checkboxId}
+        for={mobileConfig.checkboxId}
         class="relative w-6 h-6 cursor-pointer"
         aria-label="Toggle menu"
       >
         <HamburgerIcon
-          client:media={breakpoint}
-          hamburgerTransform={mobile.hamburgerTransform}
-          checkboxId={mobile.checkboxId}
+          client:load
+          hamburgerTransform={mobileConfig.hamburgerTransform}
+          checkboxId={mobileConfig.hamburgerTransform ? mobileConfig.checkboxId : undefined}
         />
       </label>
 
       <HamburgerMenu
         client:media={breakpoint}
-        checkboxId={mobile.checkboxId}
+        checkboxId={mobileConfig.checkboxId}
         allItems={allMenuEntries}
         shared={{
           collection,
@@ -118,33 +156,40 @@ const desktopRoots = getRootItems(allMenuEntries);
           sortOrder,
           HasPage,
         }}
-        cfg={{ itemsClass: mobile.itemsClass, menuItem: mobile.menuItem }}
+        cfg={{ itemsClass: mobileConfig.itemsClass, menuItem: mobileConfig.menuItem }}
       />
     </div>
   </>
 )}
 
 {hamburgerOnly && (
+  <!-- ─── Hamburger‐only ─────────────────────────────────────────────── -->
   <div class="block items-center">
-    <input type="checkbox" id={mobile.checkboxId} class="hidden" />
+    <input type="checkbox" id={mobileConfig.checkboxId} class="hidden" />
     <label
-      for={mobile.checkboxId}
+      for={mobileConfig.checkboxId}
       class="relative w-6 h-6 cursor-pointer"
       aria-label="Toggle menu"
     >
       <HamburgerIcon
         client:load
-        hamburgerTransform={mobile.hamburgerTransform}
-        checkboxId={mobile.checkboxId}
+        hamburgerTransform={mobileConfig.hamburgerTransform}
+        checkboxId={mobileConfig.checkboxId}
       />
     </label>
 
     <HamburgerMenu
-      client:media={breakpoint}
-      checkboxId={mobile.checkboxId}
+      client:load
+      checkboxId={mobileConfig.checkboxId}
       allItems={allMenuEntries}
-      shared={{ collection, query, sortBy, sortOrder, HasPage }}
-      cfg={{ itemsClass: mobile.itemsClass, menuItem: mobile.menuItem }}
+      shared={{
+        collection,
+        query,
+        sortBy,
+        sortOrder,
+        HasPage,
+      }}
+      cfg={{ itemsClass: mobileConfig.itemsClass, menuItem: mobileConfig.menuItem }}
     />
   </div>
 )}

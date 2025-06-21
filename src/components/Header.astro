@@ -1,10 +1,10 @@
 ---
 // Header.astro
 import { SiteData } from "@/content/SiteData";
-import { Image }   from "astro:assets";
-import Menu        from "@/components/Menu/Menu.astro";
-import MenuItem    from "@/components/Menu/MenuItem.astro";
-import Submenu     from "@/components/Menu/Submenu.astro";
+import { Image } from "astro:assets";
+import Menu from "@/components/Menu/Menu.astro";
+import MenuItem from "@/components/Menu/MenuItem.astro";
+import Submenu from "@/components/Menu/Submenu.astro";
 import MobileMenuItem from "@/components/Menu/HamburgerMenu/MenuItem.jsx";
 ---
 
@@ -34,10 +34,9 @@ import MobileMenuItem from "@/components/Menu/HamburgerMenu/MenuItem.jsx";
     responsive={true}
     breakpoint="(max-width: 767px)"
     hamburgerOnly={false}
-    
     desktop={{
       itemsClass: "flex gap-[var(--spacing-md)]",
-      itemClass : "",
+      itemClass: "",
       menuItem: {
         component: MenuItem,
         props: {
@@ -64,16 +63,16 @@ import MobileMenuItem from "@/components/Menu/HamburgerMenu/MenuItem.jsx";
         },
       },
     }}
-
     mobile={{
       itemsClass: "flex flex-col gap-[var(--spacing-md)]",
-      itemClass : "p-[var(--spacing-sm)]",
+      itemClass: "p-[var(--spacing-sm)]",
 
       menuItem: {
         component: MobileMenuItem,
         props: {
-          itemClass:    "p-[var(--spacing-sm)] text-lg text-primary hover:text-secondary",
-          linkClass:    "w-full text-left",
+          itemClass:
+            "p-[var(--spacing-sm)] text-lg text-primary hover:text-secondary",
+          linkClass: "w-full text-left",
           hierarchical: true,
           submenu: {
             component: MobileMenuItem, // reuse for nested
@@ -81,10 +80,10 @@ import MobileMenuItem from "@/components/Menu/HamburgerMenu/MenuItem.jsx";
             subMenuItem: {
               component: MobileMenuItem,
               props: {
-                itemClass:    "p-[var(--spacing-sm)] text-base text-primary",
-                linkClass:    "w-full text-left",
+                itemClass: "p-[var(--spacing-sm)] text-base text-primary",
+                linkClass: "w-full text-left",
                 hierarchical: true,
-                subMenuItem:  null,
+                subMenuItem: null,
               },
             },
           },
@@ -92,7 +91,12 @@ import MobileMenuItem from "@/components/Menu/HamburgerMenu/MenuItem.jsx";
       },
       hamburgerTransform: true,
 
-      shared: { collection: "menuItems", query: "relatedItem:menus:mainMenu", sortOrder: "asc", HasPage: true },
+      shared: {
+        collection: "menuItems",
+        query: "relatedItem:menus:mainMenu",
+        sortOrder: "asc",
+        HasPage: true,
+      },
 
       checkboxId: "hamburger-menu-toggle",
     }}
