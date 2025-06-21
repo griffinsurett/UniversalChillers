@@ -74,7 +74,7 @@ export function resolveHeading(
   } else if (metaHeading) {
     return Array.isArray(metaHeading) ? metaHeading : [metaHeading];
   } else {
-    return [{ text: capitalize(collectionName), tagName: "h2" }];
+    return [{ text: capitalize(collectionName), tagName: "h3" }];
   }
 }
 

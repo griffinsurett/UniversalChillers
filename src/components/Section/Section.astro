@@ -185,8 +185,12 @@ const sectionId = generateSectionId(
 );
 
 // 8️⃣ Heading & description
-const finalHeadingArray = resolveHeading(heading, meta.heading, collectionName);
-const finalDescription = resolveDescription(description, meta.description);
+const headingProp = heading ?? defaultSection.heading;
+const finalHeadingArray = resolveHeading(
+  headingProp,
+  meta.heading,
+  collectionName
+);const finalDescription = resolveDescription(description, meta.description);
 
 // 9️⃣ Resolve item component + client
 const finalComponent = ItemComponent ?? defaultSection.component;
@@ -234,12 +238,30 @@ const itemsDefaultHasPage = meta.itemsHasPage ?? false;
       <div class={`section-heading-area  ${headingAreaClass}`}>
         {
           finalHeadingArray.map((head, i) => {
-            const headObj = typeof head === "string" ? { text: head } : head;
-            const Tag = headObj.tagName || "h2";
+            // normalize string → object
+            const H = typeof head === "string" ? { text: head } : head;
+
+            const Tag = H.tagName || "h2";
+            const wrapperCls = H.class || "";
+            const before = H.before || "";
+            const text = H.text || "";
+            const after = H.after || "";
+            const bc = H.beforeClass || "";
+            const tc = H.textClass || "";
+            const ac = H.afterClass || "";
+
             return (
-              <Heading key={i} tagName={Tag} className={headObj.class || ""}>
-                {headObj.text}
-              </Heading>
+              <Heading
+                key={i}
+                tagName={Tag}
+                className={wrapperCls}
+                before={before}
+                text={text}
+                after={after}
+                beforeClass={bc}
+                textClass={tc}
+                afterClass={ac}
+              />
             );
           })
         }

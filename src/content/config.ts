@@ -7,22 +7,28 @@ import { getCollectionMeta } from "@/utils/FetchMeta"
 import { capitalize } from "../utils/ContentUtils";
 import { MenuItemsLoader } from '@/utils/MenuItemsLoader';
 
+// 1️⃣ Define your two “object” shapes once:
+const SingleTextHeading = z.object({
+  text:    z.string(),
+  class:   z.string().optional(),
+  tagName: z.string().optional(),
+});
+
+const BeforeAfterHeading = SingleTextHeading.extend({
+  before:      z.string().optional(),
+  after:       z.string().optional(),
+  beforeClass: z.string().optional(),
+  textClass:   z.string().optional(),
+  afterClass:  z.string().optional(),
+});
+
+// 2️⃣ Build your union by re-using those:
 export const headingSchema = z.union([
-  z.string(),
-  z.object({
-    text: z.string(),
-    class: z.string().optional(),
-    tagName: z.string().optional(),
-  }),
-  z.array(
-    z.union([
-      z.string(),
-      z.object({
-        text: z.string(),
-        class: z.string().optional(),
-        tagName: z.string().optional(),
-      }),
-    ])
+  z.string(),                                 // plain string
+  BeforeAfterHeading,                         // the rich before/text/after object
+  SingleTextHeading,                          // the legacy text-only object
+  z.array(                                    // an array of any of the above
+    z.union([z.string(), BeforeAfterHeading, SingleTextHeading])
   ),
 ]);
 
