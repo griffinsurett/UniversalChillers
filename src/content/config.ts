@@ -1,10 +1,6 @@
 // src/content/config.ts
 import { file } from "astro/loaders";
 import { defineCollection, reference, z } from "astro:content";
-import type { LoaderContext } from 'astro/loaders';
-import { getCollection } from 'astro:content';
-import { getCollectionMeta } from "@/utils/FetchMeta"
-import { capitalize } from "../utils/ContentUtils";
 import { MenuItemsLoader } from '@/utils/MenuItemsLoader';
 
 // 1️⃣ Define your two “object” shapes once:
