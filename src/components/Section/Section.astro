@@ -205,6 +205,9 @@ if (isDynamic) {
 }
 
 // 1️⃣1️⃣ Slider merge from metadata
+// 1️⃣1️⃣ Slider merge from metadata (DEBUG)
+// console.log("🔍 defaultSection.slider =", defaultSection.slider);
+// console.log("🔍 rawSlider prop =", rawSlider)
 // Use the slider from props if provided, otherwise fall back to defaultSection.slider, or finally `{ enabled: false }`.
 const sliderConfig =
   rawSlider != null
@@ -212,6 +215,8 @@ const sliderConfig =
     : defaultSection.slider != null
       ? defaultSection.slider
       : { enabled: false };
+
+// console.log("🛠️ sliderConfig in Section:", sliderConfig);
 
 // 1️⃣1️⃣ Buttons array
 const effectiveButtons =

@@ -25,26 +25,26 @@ export default function ClientItemsTemplate({
     arrows: true,
   },
 }) {
-  /* 1. Sort once unless deps change */
   const sorted = useMemo(
     () => sortItems(items, sortBy, sortOrder, manualOrder),
-    [items, sortBy, sortOrder, manualOrder],
+    [items, sortBy, sortOrder, manualOrder]
   );
 
-  /* 2. Get a ready-made React.lazy component + extra props */
+  // console.log("🛠️ slider in ClientItemsTemplate:", slider);
+
   const { LazyComponent: Comp, componentProps } = useMemo(
     () => resolveCSRComponent(ItemComponent),
-    [ItemComponent],
+    [ItemComponent]
   );
 
   if (!Comp) return null;
 
-  /* 3. Render either carousel or plain list */
   return (
     <Suspense fallback={<div>Loading…</div>}>
       {slider.enabled ? (
         <Carousel
           items={sorted}
+          // NEW prop mapping here:
           slidesToShow={slider.slidesToShow}
           slidesToScroll={slider.slidesToScroll}
           infinite={slider.infinite}
@@ -56,6 +56,7 @@ export default function ClientItemsTemplate({
           renderItem={(item) => (
             <Comp
               key={getItemKey(item)}
+              className={itemClass} // apply itemClass here
               item={item}
               collectionName={collectionName}
               HasPage={HasPage}
@@ -69,6 +70,7 @@ export default function ClientItemsTemplate({
             <li className="contents" key={getItemKey(item)}>
               <Comp
                 key={getItemKey(item)}
+                className={itemClass}
                 item={item}
                 collectionName={collectionName}
                 HasPage={HasPage}

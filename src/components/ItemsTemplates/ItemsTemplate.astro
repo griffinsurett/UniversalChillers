@@ -23,6 +23,8 @@ const {
   ...rest
 } = Astro.props;
 
+// console.log("🛠️ slider prop in ItemsTemplate:", slider);
+
 /* 1. Fetch items */
 let items = initialItems || [];
 if (!initialItems && collection && query) {

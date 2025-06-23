@@ -1,29 +1,30 @@
 // src/content/config.ts
 import { file } from "astro/loaders";
 import { defineCollection, reference, z } from "astro:content";
-import { MenuItemsLoader } from '@/utils/MenuItemsLoader';
+import { MenuItemsLoader } from "@/utils/MenuItemsLoader";
 
 // 1️⃣ Define your two “object” shapes once:
 const SingleTextHeading = z.object({
-  text:    z.string(),
-  class:   z.string().optional(),
+  text: z.string(),
+  class: z.string().optional(),
   tagName: z.string().optional(),
 });
 
 const BeforeAfterHeading = SingleTextHeading.extend({
-  before:      z.string().optional(),
-  after:       z.string().optional(),
+  before: z.string().optional(),
+  after: z.string().optional(),
   beforeClass: z.string().optional(),
-  textClass:   z.string().optional(),
-  afterClass:  z.string().optional(),
+  textClass: z.string().optional(),
+  afterClass: z.string().optional(),
 });
 
 // 2️⃣ Build your union by re-using those:
 export const headingSchema = z.union([
-  z.string(),                                 // plain string
-  BeforeAfterHeading,                         // the rich before/text/after object
-  SingleTextHeading,                          // the legacy text-only object
-  z.array(                                    // an array of any of the above
+  z.string(), // plain string
+  BeforeAfterHeading, // the rich before/text/after object
+  SingleTextHeading, // the legacy text-only object
+  z.array(
+    // an array of any of the above
     z.union([z.string(), BeforeAfterHeading, SingleTextHeading])
   ),
 ]);
@@ -46,12 +47,12 @@ const CommonFields = {
 const CommonFieldsPlusSlug = {
   ...CommonFields,
   link: z.string().optional(),
-}
+};
 
 const CommonFieldsPlusId = {
   ...CommonFields,
   id: z.string().optional(),
-}
+};
 
 /**
  * MenuItemFields:
@@ -60,7 +61,9 @@ const CommonFieldsPlusId = {
  */
 
 const BaseMenuFields = {
-  parent: z.union([reference("menuItems"), z.array(reference("menuItems"))]).optional(),
+  parent: z
+    .union([reference("menuItems"), z.array(reference("menuItems"))])
+    .optional(),
   openInNewTab: z.boolean().default(false),
 };
 
@@ -70,7 +73,7 @@ const MenuReferenceField = {
   menu: z.union([reference("menus"), z.array(reference("menus"))]).optional(),
 };
 
-/** 
+/**
  * Each record in “menuItems.json” must match this schema.
  *   - id: string          (unique ID for this menuItem)
  *   - label?: string
@@ -111,10 +114,7 @@ export const ItemsAddToMenuFields = z.object({
   ...MenuReferenceField,
   ...BaseMenuFields,
   // NEW: if true, preserve the collection’s own parent–child structure
-  respectHierarchy: z
-    .boolean()
-    .optional()
-    .default(true),
+  respectHierarchy: z.boolean().optional().default(true),
 });
 
 const buttonSchema = z.object({
@@ -123,6 +123,18 @@ const buttonSchema = z.object({
   link: z.string().optional(),
   variant: z.enum(["primary", "secondary", "underline"]).optional(),
 });
+
+// Define a “responsive number” type once:
+const responsiveNumber = z.union([
+  z.number(),
+  z.object({
+    base: z.number(),        // required “base” breakpoint
+    sm:   z.number().optional(),
+    md:   z.number().optional(),
+    lg:   z.number().optional(),
+    xl:   z.number().optional(),
+  }),
+]);
 
 const sectionSchema = z.object({
   collection: z.string().optional(),
@@ -155,7 +167,7 @@ const sectionSchema = z.object({
       autoplay: z.boolean().optional(),
       autoplaySpeed: z.number().optional(),
       infinite: z.boolean().optional(),
-      slidesToShow: z.number().optional(),
+      slidesToShow: responsiveNumber.optional(),
       slidesToScroll: z.number().optional(),
       arrows: z.boolean().optional(),
     })
@@ -200,7 +212,7 @@ const baseSchema = ({ image }: { image: Function }) =>
         video: z.string().optional(),
       })
       .optional(),
-  })
+  });
 
 export const collections = {
   // ── menus.json (flat list of menus) ──
@@ -223,7 +235,7 @@ export const collections = {
         parent: z
           .union([reference("services"), z.array(reference("services"))])
           .optional(),
-      })
+      }),
   }),
   projects: defineCollection({
     schema: ({ image }) =>
