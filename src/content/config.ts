@@ -1,7 +1,6 @@
 // src/content/config.ts
-import { z } from "astro:content";
+import { z, defineCollection, reference } from "astro:content";
 import { file } from "astro/loaders";
-import { defineCollection, reference } from "astro:content";
 import { MenuItemsLoader } from "@/utils/MenuItemsLoader";
 
 // import all shared Zod schemas from our new schema.ts

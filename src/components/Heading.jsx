@@ -1,5 +1,4 @@
-import React from 'react';
-
+// src/components/Heading.jsx
 export default function Heading({
   tagName: Tag = 'h2',
   className = '',

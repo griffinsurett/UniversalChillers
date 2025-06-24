@@ -50,7 +50,7 @@ export default function HamburgerMenu({
     >
       <nav
         aria-label="Mobile Menu"
-        className="w-full h-full flex flex-col items-center justify-center"
+        className="h-full flex flex-col text-center items-center justify-center"
       >
         <Suspense fallback={<div className="p-4">Loading…</div>}>
           <ClientItemsTemplate
@@ -69,8 +69,8 @@ export default function HamburgerMenu({
                 onItemClick: closeMenu,
               },
             }}
-            itemsClass="flex flex-col items-center space-y-6 text-lg"
-            itemClass=""
+            itemsClass={itemsClass}
+            itemClass={menuItem.props.itemClass}
             sortBy={sortBy}
             sortOrder={sortOrder}
           />

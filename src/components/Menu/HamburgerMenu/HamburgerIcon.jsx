@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 export default function HamburgerIcon({
   hamburgerTransform,
   checkboxId,
+  className = "cursor-pointer",
 }) {
   const [open, setOpen] = useState(false);
 
@@ -18,26 +19,29 @@ export default function HamburgerIcon({
   }, [hamburgerTransform, checkboxId]);
 
   return (
-    <div className="relative w-6 h-6 z-[999999]">
+    <div className={`relative w-6 h-6 z-[999999] ${className}`}>
+      {/* Top bar */}
       <span
         className={[
-          "absolute left-0 block h-0.5 w-full bg-current transition-transform duration-300",
+          "absolute left-0 block h-0.5 w-full bg-current transition-transform duration-300 origin-center",
           open && hamburgerTransform
             ? "top-1/2 rotate-45"
             : "top-1/4",
         ].join(" ")}
       />
+
+      {/* Middle bar */}
       <span
         className={[
-          "absolute left-0 block h-0.5 w-full bg-current transition-opacity duration-300",
-          open && hamburgerTransform
-            ? "opacity-0"
-            : "top-1/2",
+          "absolute left-0 block h-0.5 w-full bg-current transition-opacity duration-300 top-1/2",
+          open && hamburgerTransform ? "opacity-0" : "opacity-100",
         ].join(" ")}
       />
+
+      {/* Bottom bar */}
       <span
         className={[
-          "absolute left-0 block h-0.5 w-full bg-current transition-transform duration-300",
+          "absolute left-0 block h-0.5 w-full bg-current transition-transform duration-300 origin-center",
           open && hamburgerTransform
             ? "top-1/2 -rotate-45"
             : "top-3/4",

@@ -2,22 +2,25 @@
 @import "tailwindcss";
 
 @layer utilities {
-  .menu-item {
+.menu-item {
     @apply relative cursor-pointer;
   }
 
-  /* 2) Hide all submenus by default */
+  /* 2) Hide all submenus by default, *and* take them out of flow */
   .submenu {
-    @apply opacity-0 pointer-events-none transition-opacity duration-200 ease-in-out w-max whitespace-nowrap;
+    @apply absolute top-full left-0 z-10    /* absolutely position under the parent */
+           opacity-0 pointer-events-none    /* keep the hide/disable logic */
+           transition-opacity duration-200 ease-in-out 
+           w-max whitespace-nowrap;
   }
 
-  /* 3) Show submenu on hover or focus (all levels) */
+  /* 3) Show submenu on hover or focus */
   .menu-item:hover > .submenu,
   .menu-item:focus-within > .submenu {
     @apply opacity-100 pointer-events-auto;
   }
 
-  /* 4) Only nested submenus (grandchildren+) fly out to the right */
+  /* 4) Nested submenus (grandchildren+) fly out to the right */
   .submenu .menu-item > .submenu {
     @apply absolute top-0 left-full z-20;
   }

@@ -56,5 +56,6 @@ export const mobileDefaults = {
   shared: {},
   cfg: {},
   checkboxId: "hamburger-menu-toggle",
+  hamburgerIconClass: "",
   hamburgerTransform: false,
 };

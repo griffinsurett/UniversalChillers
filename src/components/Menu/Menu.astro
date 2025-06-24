@@ -17,16 +17,24 @@ const {
   sortOrder     = "asc",
   manualOrder   = true,
   HasPage       = false,
+
+  // responsive
   responsive    = false,
   breakpoint    = "(max-width: 767px)",
   hamburgerOnly = false,
+
+  // overrides
   desktop: desktopProp = {},
   mobile:  mobileProp  = {},
   itemsClass: topItemsClass,
   itemClass:  topItemClass,
   menuItem:   topMenuItem,
-  checkboxId: topCheckboxId,
-  hamburgerTransform: topHamburgerTransform,
+
+  // your new label & icon classes:
+  checkboxId:          topCheckboxId,
+  hamburgerTransform:  topHamburgerTransform,
+  hamburgerLabelClass: topHamburgerLabelClass,
+  hamburgerIconClass:  topHamburgerIconClass,
 } = Astro.props;
 
 // ─── fetch & sort all menu items ─────────────────────────────────
@@ -45,33 +53,100 @@ const desktopRoots = getRootItems(allMenuEntries);
 let desktopConfig, mobileConfig;
 
 if (responsive) {
-  desktopConfig = { ...desktopDefaults, ...desktopProp };
-  mobileConfig  = { ...mobileDefaults,  ...mobileProp  };
-} else if (hamburgerOnly) {
-  // only mobile/hamburger menu on all sizes:
-  mobileConfig = {
-    ...mobileDefaults,
-    ...mobileProp,
-    itemsClass:         topItemsClass        ?? mobileProp.itemsClass        ?? mobileDefaults.itemsClass,
-    itemClass:          topItemClass         ?? mobileProp.itemClass         ?? mobileDefaults.itemClass,
-    menuItem:           topMenuItem          ?? mobileProp.menuItem          ?? mobileDefaults.menuItem,
-    checkboxId:         topCheckboxId        ?? mobileProp.checkboxId        ?? mobileDefaults.checkboxId,
-    hamburgerTransform: topHamburgerTransform ?? mobileProp.hamburgerTransform ?? mobileDefaults.hamburgerTransform,
-  };
-} else {
-  // only desktop menu on all sizes:
+  // desktop deep-merge
+  const overrideDesktopMI = desktopProp.menuItem || {};
   desktopConfig = {
     ...desktopDefaults,
     ...desktopProp,
     itemsClass: topItemsClass ?? desktopProp.itemsClass ?? desktopDefaults.itemsClass,
     itemClass:  topItemClass  ?? desktopProp.itemClass  ?? desktopDefaults.itemClass,
-    menuItem:   topMenuItem   ?? desktopProp.menuItem   ?? desktopDefaults.menuItem,
+    menuItem: {
+      component: overrideDesktopMI.component ?? desktopDefaults.menuItem.component,
+      props: {
+        ...desktopDefaults.menuItem.props,
+        ...overrideDesktopMI.props,
+      },
+    },
   };
+
+  // mobile deep-merge + pull in label/icon classes
+  const overrideMobileMI = mobileProp.menuItem || {};
+  mobileConfig = {
+    ...mobileDefaults,
+    ...mobileProp,
+    itemsClass:         topItemsClass        ?? mobileProp.itemsClass        ?? mobileDefaults.itemsClass,
+    itemClass:          topItemClass         ?? mobileProp.itemClass         ?? mobileDefaults.itemClass,
+    menuItem: {
+      component: overrideMobileMI.component ?? mobileDefaults.menuItem.component,
+      props: {
+        ...mobileDefaults.menuItem.props,
+        ...overrideMobileMI.props,
+      },
+    },
+    checkboxId:         topCheckboxId        ?? mobileProp.checkboxId        ?? mobileDefaults.checkboxId,
+    hamburgerTransform: topHamburgerTransform ?? mobileProp.hamburgerTransform ?? mobileDefaults.hamburgerTransform,
+    hamburgerLabelClass: topHamburgerLabelClass
+      ?? mobileProp.hamburgerLabelClass
+      ?? mobileDefaults.hamburgerLabelClass,
+    hamburgerIconClass:  topHamburgerIconClass
+      ?? mobileProp.hamburgerIconClass
+      ?? mobileDefaults.hamburgerIconClass,
+  };
+}
+else if (hamburgerOnly) {
+  // only mobile
+  const overrideMobileMI = topMenuItem || mobileProp.menuItem || {};
+  mobileConfig = {
+    ...mobileDefaults,
+    ...mobileProp,
+    itemsClass:         topItemsClass        ?? mobileProp.itemsClass        ?? mobileDefaults.itemsClass,
+    itemClass:          topItemClass         ?? mobileProp.itemClass         ?? mobileDefaults.itemClass,
+    menuItem: {
+      component: overrideMobileMI.component ?? mobileDefaults.menuItem.component,
+      props: {
+        ...mobileDefaults.menuItem.props,
+        ...overrideMobileMI.props,
+      },
+    },
+    checkboxId:         topCheckboxId        ?? mobileProp.checkboxId        ?? mobileDefaults.checkboxId,
+    hamburgerTransform: topHamburgerTransform ?? mobileProp.hamburgerTransform ?? mobileDefaults.hamburgerTransform,
+    hamburgerLabelClass: topHamburgerLabelClass
+      ?? mobileProp.hamburgerLabelClass
+      ?? mobileDefaults.hamburgerLabelClass,
+    hamburgerIconClass:  topHamburgerIconClass
+      ?? mobileProp.hamburgerIconClass
+      ?? mobileDefaults.hamburgerIconClass,
+  };
+}
+else {
+  // only desktop
+  const overrideDesktopMI = topMenuItem || desktopProp.menuItem || {};
+  desktopConfig = {
+    ...desktopDefaults,
+    ...desktopProp,
+    itemsClass: topItemsClass ?? desktopProp.itemsClass ?? desktopDefaults.itemsClass,
+    itemClass:  topItemClass  ?? desktopProp.itemClass  ?? desktopDefaults.itemClass,
+    menuItem: {
+      component: overrideDesktopMI.component ?? desktopDefaults.menuItem.component,
+      props: {
+        ...desktopDefaults.menuItem.props,
+        ...overrideDesktopMI.props,
+      },
+    },
+  };
+}
+
+// ─── center & bump up weight on mobile items ───────────────────────
+if (mobileConfig) {
+  mobileConfig.itemsClass = `${mobileConfig.itemsClass} flex flex-col justify-center items-center`;
+  mobileConfig.menuItem.props.itemClass = mobileConfig.menuItem.props.itemClass
+    .replace(/h5/g, "h2")
+    .replace(/h6/g, "h2");
 }
 ---
 
 {!responsive && !hamburgerOnly && (
-//  ─── Desktop‐only ──────────────────────────────────────────────── 
+  // <!-- Desktop only -->
   <nav aria-label="Main">
     <ItemsTemplate
       items={desktopRoots}
@@ -83,6 +158,7 @@ if (responsive) {
       HasPage={HasPage}
       itemsClass={desktopConfig.itemsClass}
       itemClass={desktopConfig.itemClass}
+      role="menubar"
       ItemComponent={{
         component: desktopConfig.menuItem.component,
         props: {
@@ -91,14 +167,13 @@ if (responsive) {
           collectionName: collection,
         },
       }}
-      role="menubar"
     />
   </nav>
 )}
 
 {responsive && !hamburgerOnly && (
-  // ─── Responsive: desktop + hamburger ─────────────────────────────── 
   <>
+    {/* <!-- Desktop at md+ --> */}
     <div class="hidden md:block">
       <nav aria-label="Main">
         <ItemsTemplate
@@ -111,6 +186,7 @@ if (responsive) {
           HasPage={HasPage}
           itemsClass={desktopConfig.itemsClass}
           itemClass={desktopConfig.itemClass}
+          role="menubar"
           ItemComponent={{
             component: desktopConfig.menuItem.component,
             props: {
@@ -119,22 +195,23 @@ if (responsive) {
               collectionName: collection,
             },
           }}
-          role="menubar"
         />
       </nav>
     </div>
 
-    <div class="block md:hidden items-center" >
+    {/* <!-- Mobile at sm–md --> */}
+    <div class="block md:hidden">
       <input type="checkbox" id={mobileConfig.checkboxId} class="hidden" />
-      <label
-        for={mobileConfig.checkboxId}
-        class="relative w-6 h-6 cursor-pointer"
-        aria-label="Toggle menu"
-      >
+       <label
+      for={mobileConfig.checkboxId}
+      class={mobileConfig.hamburgerLabelClass}
+      aria-label="Toggle menu"
+    >
         <HamburgerIcon
           client:media={breakpoint}
+          checkboxId={mobileConfig.checkboxId} 
           hamburgerTransform={mobileConfig.hamburgerTransform}
-          checkboxId={mobileConfig.hamburgerTransform ? mobileConfig.checkboxId : undefined}
+          className={mobileConfig.hamburgerIconClass}
         />
       </label>
 
@@ -149,26 +226,30 @@ if (responsive) {
           sortOrder,
           HasPage,
         }}
-        cfg={{ itemsClass: mobileConfig.itemsClass, menuItem: mobileConfig.menuItem }}
+        cfg={{
+          itemsClass: mobileConfig.itemsClass,
+          menuItem:   mobileConfig.menuItem,
+        }}
       />
     </div>
   </>
 )}
 
 {hamburgerOnly && (
-  // ─── Hamburger‐only ─────────────────────────────────────────────── 
-  <div class="block items-center">
+  // <!-- Hamburger only everywhere -->
+  <div class="block">
     <input type="checkbox" id={mobileConfig.checkboxId} class="hidden" />
     <label
       for={mobileConfig.checkboxId}
-      class="relative w-6 h-6 cursor-pointer"
+      class={`${mobileConfig.hamburgerLabelClass}`}
       aria-label="Toggle menu"
     >
-      <HamburgerIcon
-        client:load
-        hamburgerTransform={mobileConfig.hamburgerTransform}
-        checkboxId={mobileConfig.checkboxId}
-      />
+       <HamburgerIcon
+          client:media={breakpoint}
+          checkboxId={mobileConfig.checkboxId} 
+          hamburgerTransform={mobileConfig.hamburgerTransform}
+          className={mobileConfig.hamburgerIconClass}
+        />
     </label>
 
     <HamburgerMenu
@@ -182,7 +263,10 @@ if (responsive) {
         sortOrder,
         HasPage,
       }}
-      cfg={{ itemsClass: mobileConfig.itemsClass, menuItem: mobileConfig.menuItem }}
+      cfg={{
+        itemsClass: mobileConfig.itemsClass,
+        menuItem:   mobileConfig.menuItem,
+      }}
     />
   </div>
 )}

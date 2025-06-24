@@ -29,7 +29,7 @@ export default function MobileMenuItem({
   const link = getMenuLink(item, collectionName);
 
   return (
-    <div className={`menu-item w-full ${itemClass}`}>
+    <div className={`menu-item ${itemClass}`}>
       <div className={`flex w-full items-center justify-between ${linkClass}`}>
         {/* Title always navigates */}
         <Button
