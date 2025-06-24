@@ -1,5 +1,5 @@
 // src/utils/FetchMeta.ts
-import { metaSchema } from "@/content/config";
+import { metaSchema } from "@/content/schema";
 
 // Eagerly import all possible meta files
 const mdxModules = import.meta.glob<{ frontmatter?: Record<string, any> }>(

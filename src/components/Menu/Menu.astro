@@ -3,8 +3,6 @@
 import ItemsTemplate from "@/components/ItemsTemplates/ItemsTemplate.astro";
 import { queryItems } from "@/utils/CollectionQueryUtils.js";
 import { sortItems } from "@/utils/sortItems.js";
-import MenuItem from "./MenuItem.astro";
-import Submenu from "./Submenu.astro";
 import HamburgerMenu from "./HamburgerMenu/HamburgerMenu.jsx";
 import HamburgerIcon from "./HamburgerMenu/HamburgerIcon";
 import { desktopDefaults, mobileDefaults } from "./defaults.js";
@@ -19,17 +17,11 @@ const {
   sortOrder     = "asc",
   manualOrder   = true,
   HasPage       = false,
-
-  // layout flags
   responsive    = false,
   breakpoint    = "(max-width: 767px)",
   hamburgerOnly = false,
-
-  // detailed overrides (only used if responsive===true)
   desktop: desktopProp = {},
   mobile:  mobileProp  = {},
-
-  // when NOT responsive, you can configure these at the top level:
   itemsClass: topItemsClass,
   itemClass:  topItemClass,
   menuItem:   topMenuItem,
