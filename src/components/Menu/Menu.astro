@@ -9,6 +9,7 @@ import HamburgerMenu from "./HamburgerMenu/HamburgerMenu.jsx";
 import HamburgerIcon from "./HamburgerMenu/HamburgerIcon";
 import { desktopDefaults, mobileDefaults } from "./defaults.js";
 import { getRootItems } from "@/utils/menuUtils";
+import "./styles.css";
 
 const {
   // core data + sort
@@ -78,7 +79,7 @@ if (responsive) {
 ---
 
 {!responsive && !hamburgerOnly && (
-  <!-- ─── Desktop‐only ──────────────────────────────────────────────── -->
+//  ─── Desktop‐only ──────────────────────────────────────────────── 
   <nav aria-label="Main">
     <ItemsTemplate
       items={desktopRoots}
@@ -104,7 +105,7 @@ if (responsive) {
 )}
 
 {responsive && !hamburgerOnly && (
-  <!-- ─── Responsive: desktop + hamburger ─────────────────────────────── -->
+  // ─── Responsive: desktop + hamburger ─────────────────────────────── 
   <>
     <div class="hidden md:block">
       <nav aria-label="Main">
@@ -131,7 +132,7 @@ if (responsive) {
       </nav>
     </div>
 
-    <div class="block md:hidden items-center">
+    <div class="block md:hidden items-center" >
       <input type="checkbox" id={mobileConfig.checkboxId} class="hidden" />
       <label
         for={mobileConfig.checkboxId}
@@ -139,7 +140,7 @@ if (responsive) {
         aria-label="Toggle menu"
       >
         <HamburgerIcon
-          client:load
+          client:media={breakpoint}
           hamburgerTransform={mobileConfig.hamburgerTransform}
           checkboxId={mobileConfig.hamburgerTransform ? mobileConfig.checkboxId : undefined}
         />
@@ -163,7 +164,7 @@ if (responsive) {
 )}
 
 {hamburgerOnly && (
-  <!-- ─── Hamburger‐only ─────────────────────────────────────────────── -->
+  // ─── Hamburger‐only ─────────────────────────────────────────────── 
   <div class="block items-center">
     <input type="checkbox" id={mobileConfig.checkboxId} class="hidden" />
     <label

@@ -82,41 +82,6 @@ p {
 .hide-scrollbar::-webkit-scrollbar {
   display: none;             /* Chrome, Safari, Opera */
 }
-
- /* 1) Keep each menu-item as the positioning anchor */
-  .menu-item {
-    @apply relative cursor-pointer;
-  }
-
-  /* 2) Hide all submenus by default */
-  .submenu {
-    @apply opacity-0 pointer-events-none transition-opacity duration-200 ease-in-out w-max whitespace-nowrap;
-  }
-
-  /* 3) Show submenu on hover or focus (all levels) */
-  .menu-item:hover > .submenu,
-  .menu-item:focus-within > .submenu {
-    @apply opacity-100 pointer-events-auto;
-  }
-
-  /* 4) Only nested submenus (grandchildren+) fly out to the right */
-  .submenu .menu-item > .submenu {
-    @apply absolute top-0 left-full ml-2 z-20;
-  }
-
-  /* 5) Prepare the arrow for flips */
-  .submenu-arrow {
-    @apply inline-block transform transition-transform duration-200 cursor-pointer;
-  }
-
-  /* 6) Rotate arrow on hover/focus or aria-expanded */
-  .menu-item:hover > a > .submenu-arrow,
-  .menu-item:focus-within > a > .submenu-arrow,
-  .menu-item:hover > button > .submenu-arrow,
-  .menu-item:focus-within > button > .submenu-arrow,
-  button[aria-expanded="true"] > .submenu-arrow {
-    @apply rotate-180;
-  }
 }
 
 @keyframes fade-in-up {

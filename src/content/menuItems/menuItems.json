@@ -38,22 +38,5 @@
     "order": 9,
     "openInNewTab": false,
     "menu": ["mainMenu", "footerMenu"]
-  },
-  {
-    "id": "blog",
-    "title": "Blog",
-    "link": "/blog",
-    "openInNewTab": false,
-    "parent": "about-us",
-    "menu": "mainMenu"
-  },
-  {
-    "id": "book",
-    "title": "Book",
-    "link": "/book",
-    "openInNewTab": false,
-    "parent": "blog",
-    "menu": "mainMenu"
-
   }
 ]
