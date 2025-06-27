@@ -15,6 +15,15 @@ import {
  * Only collection‐specific extensions (e.g. beforeImage/afterImage) remain here.
  */
 export const collections = {
+    // __ contact.json ────────────────────────────────────────
+  contact: defineCollection({
+    loader: file("src/content/contact/contact.json"),
+    schema: ({ image }) =>
+      baseSchema({ image }).extend({
+        linkPrefix: z.string().optional(),
+      }),
+  }),
+
   // ── menus.json ─────────────────────────────────────────
   menus: defineCollection({
     loader: file("src/content/menus/menus.json"),

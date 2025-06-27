@@ -1,4 +1,4 @@
-// src/utils/menuUtils.js
+// src/utils/menuUtils.ts
 import { normalizeRef } from "@/utils/ContentUtils";
 import { getItemKey } from "@/utils/getItemKey.js";
 

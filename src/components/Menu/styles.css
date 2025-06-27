@@ -1,36 +1,37 @@
-/* 1) Keep each menu-item as the positioning anchor */
+/* src/components/Menu/styles.css */
 @import "tailwindcss";
 
 @layer utilities {
-.menu-item {
+  .menu-item {
     @apply relative cursor-pointer;
   }
 
-  /* 2) Hide all submenus by default, *and* take them out of flow */
   .submenu {
-    @apply absolute top-full left-0 z-10    /* absolutely position under the parent */
-           opacity-0 pointer-events-none    /* keep the hide/disable logic */
-           transition-opacity duration-200 ease-in-out 
+    @apply absolute top-full left-0 z-10
+           opacity-0 pointer-events-none
+           transition-opacity duration-200 ease-in-out
            w-max whitespace-nowrap;
   }
 
-  /* 3) Show submenu on hover or focus */
+  /* Show a submenu whenever
+     • its parent <li.menu-item> is hovered/focused, or
+     • *any* part of that submenu (including deeper fly-outs) is hovered/focused */
   .menu-item:hover > .submenu,
-  .menu-item:focus-within > .submenu {
+  .menu-item:focus-within > .submenu,
+  .submenu:hover,
+  .submenu:focus-within {
     @apply opacity-100 pointer-events-auto;
   }
 
-  /* 4) Nested submenus (grandchildren+) fly out to the right */
+  /* Position nested fly-outs to the right of their parent submenu */
   .submenu .menu-item > .submenu {
     @apply absolute top-0 left-full z-20;
   }
 
-  /* 5) Prepare the arrow for flips */
   .submenu-arrow {
     @apply inline-block transform transition-transform duration-200 cursor-pointer;
   }
 
-  /* 6) Rotate arrow on hover/focus or aria-expanded */
   .menu-item:hover > a > .submenu-arrow,
   .menu-item:focus-within > a > .submenu-arrow,
   .menu-item:hover > button > .submenu-arrow,

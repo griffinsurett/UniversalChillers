@@ -23,7 +23,7 @@ export function MenuItemsLoader(): Loader {
 
       // 2a) per-file addToMenu
       for (const path in contentModules) {
-        if (/\/(_meta)\.(mdx|md|json)$/.test(path)) continue;
+        if (/\/_meta\.(mdx|md|json)$/.test(path)) continue;
         const mod = contentModules[path];
         const raw = mod.frontmatter ?? mod.default;
         if (!raw) continue;
@@ -44,7 +44,8 @@ export function MenuItemsLoader(): Loader {
                 ? instr.link
                 : `/${instr.link}`
               : `/${coll}/${rec.id ?? fileSlug}`;
-            const id = link.slice(1);
+            // use custom id if provided, else derive from link
+            const id = instr.id ?? link.slice(1);
             const menus = Array.isArray(instr.menu) ? instr.menu : [instr.menu];
 
             store.set({
@@ -75,7 +76,8 @@ export function MenuItemsLoader(): Loader {
             const link = instr.link?.startsWith('/')
               ? instr.link
               : `/${instr.link || coll}`;
-            const id = link.slice(1);
+            // respect custom id if present
+            const id = instr.id ?? link.slice(1);
             const menus = Array.isArray(instr.menu) ? instr.menu : [instr.menu];
 
             store.set({
@@ -97,7 +99,7 @@ export function MenuItemsLoader(): Loader {
         if (Array.isArray(meta.itemsAddToMenu)) {
           for (const path in contentModules) {
             if (!path.includes(`../content/${coll}/`)) continue;
-            if (/\/(_meta)\.(mdx|md|json)$/.test(path)) continue;
+            if (/\/_meta\.(mdx|md|json)$/.test(path)) continue;
 
             const mod = contentModules[path];
             const raw = mod.frontmatter ?? {};
@@ -114,7 +116,7 @@ export function MenuItemsLoader(): Loader {
                 : instr.link
                   ? `/${instr.link}`
                   : defaultLink;
-              const id = link.slice(1);
+              const id = instr.id ?? link.slice(1);
               const menus = Array.isArray(instr.menu) ? instr.menu : [instr.menu];
 
               // Determine parent: frontmatter overrides when respectHierarchy

@@ -1,12 +1,25 @@
 ---
-// src/pages/contact-us.astro
-import SecondaryHero from "@/components/Section/StaticSections/SecondaryHero.astro";
-import ExtendedLayout from "../layouts/ExtendedLayout.astro";
+title: "Contact Us"
+description: "Get in touch with Cleanomatic"
+keywords: ["contact", "cleaning services", "get in touch with Cleanomatic"]
+hasPage: true
+itemsHasPage: false
+defaultSection: 
+    component: ContactCard
+addToMenu:
+  - id: "contact-main"
+    menu: "mainMenu"
+    title: "Contact Us"
+    order: 6
+  - id: "contact-footer"
+    menu: "footerMenu"
+    title: "Contact Us"
+    order: 1
+---
 import { ContactData, SiteData } from "@/content/SiteData";
 import ContactForm from "@/components/Form/Forms/ContactForm.astro";
 import Section from "@/components/Section/Section.astro";
----
-<ExtendedLayout title="Contact Us" description={`Get in touch with ${SiteData.title}`}>
+
   <Section
   variant="secondaryHero"
   heading={[{ text: "Contact Us", tagName: "h1", class: "h1 text-bg" }]}
@@ -17,7 +30,7 @@ import Section from "@/components/Section/Section.astro";
     <h1>Contact Us</h1>
     <p>
       If you have any questions, please email us at 
-      <a href=`mailto:${ContactData.email}`>{ContactData.email}</a>
+      <a href={`mailto:${ContactData.email}`}>{ContactData.email}</a>
       or call 
       <a href={`tel:${ContactData.phone}`}>{ContactData.phone}</a>.
     </p>
@@ -29,6 +42,7 @@ import Section from "@/components/Section/Section.astro";
       name="contact-form"
       enableSuccessBanner={true}
       successBannerMessage="Thank you for your message. We will get in touch with you shortly."
-      successBannerClass="p-[var(--spacing-sm)] bg-primary text-bg border border-[var(--color-border)] bg-light-opacity">
-    
-</ExtendedLayout>
+      successBannerClass="p-[var(--spacing-sm)] bg-primary text-bg border border-[var(--color-border)] bg-light-opacity"
+    />
+    </section>
+     

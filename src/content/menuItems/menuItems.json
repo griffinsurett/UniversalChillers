@@ -30,13 +30,5 @@
     "order": 1,
     "openInNewTab": false,
     "menu": "footerMenu"
-  },
-  {
-    "id": "contact-us",
-    "title": "Contact Us",
-    "link": "/contact-us",
-    "order": 9,
-    "openInNewTab": false,
-    "menu": ["mainMenu", "footerMenu"]
   }
 ]

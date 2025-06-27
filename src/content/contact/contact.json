@@ -1,0 +1,20 @@
+[
+  {
+    "id": "cell",
+    "title": "7329950995",
+    "tags": ["phone"],
+    "linkPrefix": "tel:"
+  },
+  {
+    "id": "office",
+    "title": "7329720909",
+    "tags": ["phone"],
+    "linkPrefix": "tel:"
+  },
+  {
+    "id": "email",
+    "title": "cleanomaticnj@gmail.com",
+    "tags": ["email"],
+    "linkPrefix": "mailto:"
+  }
+]
