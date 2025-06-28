@@ -24,6 +24,14 @@ export const collections = {
       }),
   }),
 
+  // socialMedia.json ────────────────────────────────
+  socialMedia: defineCollection({
+    loader: file("src/content/socialMedia/socialMedia.json"),
+    schema: ({ image }) => baseSchema({ image }).extend({
+      link: z.string().optional(),
+    }),
+  }),
+
   // ── menus.json ─────────────────────────────────────────
   menus: defineCollection({
     loader: file("src/content/menus/menus.json"),

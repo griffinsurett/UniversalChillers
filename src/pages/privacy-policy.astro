@@ -1,11 +1,15 @@
 ---
 // src/pages/privacy-policy.astro
-import SecondaryHero from "@/components/Section/StaticSections/SecondaryHero.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { SiteData, ContactData } from "@/content/SiteData";
+import { SiteData } from "@/content/SiteData";
+import { getCollection } from "astro:content";
 import { formatPhoneNumber } from "@/utils/ContentUtils";
 import IntegrationsSnippet from "@/components/PrivacyPolicy/IntegrationsSnippet.astro";
 import Section from "@/components/Section/Section.astro";
+
+const contacts = await getCollection("contact");
+const emailEntry = contacts.find((c) => c.id === "email");
+const phoneEntry = contacts.find((c) => c.id === "phone");
 
 const effectiveDate = "May 14, 2025";
 
@@ -59,9 +63,11 @@ let sectionNumber = 0;
     <p>
       We retain your personal information (e.g., contact details and form
       submissions) indefinitely to support your ongoing relationship with us. If
-      you’d like your data removed at any time, please <a
-        href={`mailto:${ContactData.email}`}>contact us</a
-      > and we will delete it.
+      you’d like your data removed at any time, please 
+    <a href={`${emailEntry.data.linkPrefix}${emailEntry.data.title}`}>
+      {emailEntry.data.title}
+    </a>
+       and we will delete it.
     </p>
 
     {/* Pass the next auto‑incremented number to your snippet */}
@@ -95,9 +101,10 @@ let sectionNumber = 0;
     <p>
       Depending on your jurisdiction, you may have rights to access, correct, or
       delete your personal data. To exercise these rights, email us at{" "}
-      <a href={`mailto:${ContactData.email}`}>
-        {ContactData.email}
-      </a>.
+    <a href={`${emailEntry.data.linkPrefix}${emailEntry.data.title}`}>
+      {emailEntry.data.title}
+    </a>
+      .
     </p>
 
     <h2>{`${++sectionNumber}. Changes to This Policy`}</h2>
@@ -111,17 +118,21 @@ let sectionNumber = 0;
     <ul>
       <li>
         <strong>Email:</strong>{" "}
-        <a href={`mailto:${ContactData.email}`}>{ContactData.email}</a>
+        <a href={`${emailEntry.data.linkPrefix}${emailEntry.data.title}`}>
+      {emailEntry.data.title}
+    </a>
       </li>
       <li>
         <strong>Phone:</strong>
         <ul>
-          <a href={`mailto:${ContactData.phone}`}>{formatPhoneNumber(ContactData.phone)}</a>
+           <a href={`${phoneEntry.data.linkPrefix}${phoneEntry.data.title}`}>
+            {formatPhoneNumber(phoneEntry.data.title)}
+          </a>
         </ul>
       </li>
       <li>
         <strong>Address:</strong>
-        {ContactData.address}
+        {SiteData.address || "Not provided"}
       </li>
     </ul>
   </section>

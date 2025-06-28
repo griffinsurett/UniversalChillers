@@ -1,7 +1,6 @@
 ---
 title: "Contact Us"
-description: "Get in touch with Cleanomatic"
-keywords: ["contact", "cleaning services", "get in touch with Cleanomatic"]
+description: "Get in touch with Us"
 hasPage: true
 itemsHasPage: false
 defaultSection: 
@@ -16,9 +15,10 @@ addToMenu:
     title: "Contact Us"
     order: 1
 ---
-import { ContactData, SiteData } from "@/content/SiteData";
+import { SiteData } from "@/content/SiteData";
 import ContactForm from "@/components/Form/Forms/ContactForm.astro";
 import Section from "@/components/Section/Section.astro";
+import ItemsTemplate from "@/components/ItemsTemplates/ItemsTemplate.astro";
 
   <Section
   variant="secondaryHero"
@@ -26,23 +26,24 @@ import Section from "@/components/Section/Section.astro";
   description={`Get in touch with ${SiteData.title}`}
 />
 
-  <section class="p-[var(--spacing-lg)]">
-    <h1>Contact Us</h1>
-    <p>
-      If you have any questions, please email us at 
-      <a href={`mailto:${ContactData.email}`}>{ContactData.email}</a>
-      or call 
-      <a href={`tel:${ContactData.phone}`}>{ContactData.phone}</a>.
-    </p>
-  </section>
-  <section class="p-[var(--spacing-lg)]">
-    <h2>Contact Form</h2>
-    <p>Fill out the form below and we will get back to you as soon as possible.</p>
+<Section childSlotClass="flex" headingAreaClass="text-center" heading="Get in Touch" description="Fill out the form below and we will get back to you as soon as possible.">
+<Section
+  collection="contact"
+  query="getAll"
+  heading="Contact Information"
+  >
+ <ItemsTemplate
+  collection="socialMedia"
+  query="getAll"
+  itemsClass="flex"
+  />
+  </Section>
+  <Section class="bg-light">
     <ContactForm
       name="contact-form"
       enableSuccessBanner={true}
       successBannerMessage="Thank you for your message. We will get in touch with you shortly."
       successBannerClass="p-[var(--spacing-sm)] bg-primary text-bg border border-[var(--color-border)] bg-light-opacity"
     />
-    </section>
-     
+    </Section>
+     </Section>

@@ -1,6 +1,7 @@
 ---
 import MenuItem from "@/components/Menu/MenuItem.astro";
 import Menu from "@/components/Menu/Menu.astro";
+import { SiteData } from "@/content/SiteData";
 ---
 
 <footer class="p-[var(--spacing-md)]">
@@ -13,6 +14,6 @@ import Menu from "@/components/Menu/Menu.astro";
     itemClass=""
   />
   <p class="mt-[var(--spacing-md)] text-[var(--font-size-sm)]">
-    &copy; {new Date().getFullYear()} Cleanomatic. All rights reserved.
+    &copy; {new Date().getFullYear()} {SiteData.title} LLC All rights reserved.
   </p>
 </footer>

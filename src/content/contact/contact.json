@@ -1,19 +1,13 @@
 [
   {
-    "id": "cell",
-    "title": "7329950995",
-    "tags": ["phone"],
-    "linkPrefix": "tel:"
-  },
-  {
-    "id": "office",
-    "title": "7329720909",
+    "id": "phone",
+    "title": "7329391309",
     "tags": ["phone"],
     "linkPrefix": "tel:"
   },
   {
     "id": "email",
-    "title": "cleanomaticnj@gmail.com",
+    "title": "griffinswebservices@gmail.com",
     "tags": ["email"],
     "linkPrefix": "mailto:"
   }

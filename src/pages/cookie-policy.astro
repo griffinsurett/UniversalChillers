@@ -2,9 +2,15 @@
 // src/pages/cookie-policy.astro
 import SecondaryHero from "@/components/Section/StaticSections/SecondaryHero.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { SiteData, ContactData } from "@/content/SiteData";
+import { SiteData } from "@/content/SiteData";
 import { formatPhoneNumber } from "@/utils/ContentUtils";
 import Section from "@/components/Section/Section.astro";
+import { SiteData } from "@/content/SiteData";
+import { getCollection } from "astro:content";
+
+const contacts = await getCollection("contact");
+const emailEntry = contacts.find((c) => c.id === "email");
+const phoneEntry = contacts.find((c) => c.id === "phone");
 
 const effectiveDate = "May 14, 2025";
 ---
@@ -70,11 +76,16 @@ const effectiveDate = "May 14, 2025";
     <h2>Contact Us</h2>
     <p>If you have questions, reach us at:</p>
     <ul>
-      <li>Email: <a href={`mailto:${ContactData.email}`}>{ContactData.email}</a></li>
+      <li>Email: 
+<a href={`${emailEntry.data.linkPrefix}${emailEntry.data.title}`}>
+        {emailEntry.data.title}
+      </a>      </li>
       <li>Phone:
-          <a href={ContactData.phone}>{formatPhoneNumber(ContactData.phone)}</a>
-      </li>
-      <li>Address: {ContactData.address}</li>
+<a href={`${phoneEntry.data.linkPrefix}${phoneEntry.data.title}`}>
+      {formatPhoneNumber(phoneEntry.data.title)}
+    </a>      
+  </li>
+      <li>Address: {SiteData.address}</li>
     </ul>
   </section>
 
