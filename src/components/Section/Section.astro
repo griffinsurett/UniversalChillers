@@ -31,6 +31,7 @@ import {
 import { capitalize } from "@/utils/ContentUtils";
 
 const {
+  tagName: rawTagName,
   variant: rawVariant,
   collection: collectionName,
   query: queryType,
@@ -84,6 +85,17 @@ if (variantName) {
   const variantsModule = await import("./SectionVariants.js");
   variantDefaults = variantsModule.SectionVariants?.[variantName] ?? {};
 }
+
+// 4️⃣ Decide which element/tag to render:
+//    1) explicit <Section tag="…">
+//    2) variantDefaults.tagName
+//    3) defaultSection.tagName
+//    4) fallback to "section"
+const Element =
+  rawTagName ??
+  variantDefaults.tagName ??
+  defaultSection.tagName ??
+  "section";
 
 // 4️⃣ Merge all class props
 const sectionClass = mergeClass(
@@ -230,7 +242,7 @@ const buttonsArray = resolveButtonsArray(
 const itemsDefaultHasPage = meta.itemsHasPage ?? false;
 ---
 
-<section
+<Element
   id={sectionId}
   data-collection={collectionName}
   class={`${sectionClass} relative w-full`}
