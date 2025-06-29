@@ -28,6 +28,7 @@ import ItemsTemplate from "@/components/ItemsTemplates/ItemsTemplate.astro";
 
 <Section childSlotClass="flex" headingAreaClass="text-center" heading="Get in Touch" description="Fill out the form below and we will get back to you as soon as possible.">
 <Section
+  tagName="div"
   collection="contact"
   query="getAll"
   heading="Contact Information"
@@ -38,7 +39,7 @@ import ItemsTemplate from "@/components/ItemsTemplates/ItemsTemplate.astro";
   itemsClass="flex"
   />
   </Section>
-  <Section class="bg-light">
+  <Section tagName="div" class="bg-light">
     <ContactForm
       name="contact-form"
       enableSuccessBanner={true}
