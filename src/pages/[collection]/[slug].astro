@@ -13,13 +13,9 @@ export async function getStaticPaths() {
   const names = Object.keys(collections);
   const paths: Array<{ params: { collection: string; slug: string }; props: any }> = [];
 
+    // 1) Build static paths based solely on itemsHasPage  per-entry hasPage
   for (const coll of names) {
-    // Skip the built‑in menus and menuItems collections
-    if (coll === "menus" || coll === "menuItems") {
-      continue;
-    }
-
-    // Safely load collection meta
+    // load collection-level meta; default to true if missing
     let meta;
     try {
       meta = getCollectionMeta(coll);
@@ -27,15 +23,13 @@ export async function getStaticPaths() {
       meta = {};
     }
 
+    // if *no* item pages should ever be generated for this collection, skip it entirely
+    if (meta.itemsHasPage === false) continue;
+
     const entries = await getCollection(coll);
-    const { itemsHasPage = true } = meta;
-
-    entries.forEach((e) => {
-      if (e.data.hasPage === undefined) e.data.hasPage = itemsHasPage;
-    });
-
     entries
-      .filter((e) => e.data.hasPage)
+      // skip any entry whose own frontmatter hasPage === false
+      .filter((entry) => entry.data.hasPage !== false)
       .forEach((entry) => {
         paths.push({
           params: { collection: coll, slug: getCanonicalSlug(entry) },
