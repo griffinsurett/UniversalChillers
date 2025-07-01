@@ -2,34 +2,12 @@
 // src/pages/sample.astro
 import Button from '@/components/Button/Button';
 import AstroIcon from '@/assets/astro.svg';
+import BaseLayout from '@/layouts/BaseLayout.astro';
 ---
-
+<BaseLayout>
 <!-- Primary variant using imported Astro.svg -->
-<Button variant="primary" icon={AstroIcon}>
+<Button variant="primary">
   Primary Button
 </Button>
 
-<!-- Secondary variant using inline SVG -->
-<!-- <Button variant="secondary" icon={
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="16"
-    height="16"
-    fill="currentColor"
-    viewBox="0 0 16 16"
-  >
-    <path d="M8 0l2.39 4.85L16 5.64l-4 3.88.94 5.48L8 12.79l-4.94 2.21L4 9.52 0 5.64l5.61-.79L8 0z"/>
-  </svg>
-}>
-  Secondary Button
-</Button> -->
-
-<!-- Underline variant with emoji icon -->
-<Button variant="underline" icon="🚀" iconPosition="left" hoverIcon={false} animateIcon={false}>
-  Launch
-</Button>
-
-<!-- Link variant without icon -->
-<Button variant="link">
-  Learn More
-</Button>
+</BaseLayout>

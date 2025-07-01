@@ -8,7 +8,7 @@ import { collections } from "@/content/config";
 import { getCollectionMeta } from "@/utils/FetchMeta";
 import { getCanonicalSlug } from "@/utils/ContentUtils";
 
-// 1) Build static paths, skipping "menus" and "menuItems"
+// 1) Build static paths
 export async function getStaticPaths() {
   const names = Object.keys(collections);
   const paths: Array<{ params: { collection: string; slug: string }; props: any }> = [];

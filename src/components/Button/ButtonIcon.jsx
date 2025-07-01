@@ -1,6 +1,4 @@
 // src/components/Button/ButtonIcon.jsx
-import React from "react";
-
 export default function ButtonIcon({
   showIcon,
   element,
@@ -12,6 +10,7 @@ export default function ButtonIcon({
 }) {
   if (!showIcon) return null;
 
+  // Build container classes for hover/animation
   let iconContainerClasses = "";
   if (hoverOnly) {
     iconContainerClasses = animateIcon
@@ -25,12 +24,11 @@ export default function ButtonIcon({
     iconContainerClasses = position === "right" ? "ml-2 inline-flex" : "inline-flex";
   }
 
-  const containerClass =
-    iconCustomClass.includes("hidden")
-      ? iconCustomClass
-      : `${iconCustomClass} ${iconContainerClasses}`.trim();
+  const containerClass = iconCustomClass.includes("hidden")
+    ? iconCustomClass
+    : `${iconCustomClass} ${iconContainerClasses}`.trim();
 
-  // Inline element override
+  // 1) Inline JSX/SVG override
   if (element) {
     const CustomIcon = typeof element === "function" ? element : () => element;
     return (
@@ -40,15 +38,15 @@ export default function ButtonIcon({
     );
   }
 
-  // Explicit src override (static fallback)
+  // 2) URL‐based icon
   if (src) {
     return (
       <span className={containerClass}>
-        <img src={src} alt="" className="h-4 w-auto" loading="lazy" />
+        <img src={src.src} alt="" className="h-4 w-auto" loading="lazy" />
       </span>
     );
   }
 
-  // Neither supplied
+  // 3) Nothing else → no icon
   return null;
 }
