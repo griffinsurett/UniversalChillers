@@ -1,19 +1,17 @@
 // src/components/Button/ButtonIcon.jsx
 export default function ButtonIcon({
-  showIcon,
-  element,
-  src,
-  hoverOnly,
-  animateIcon,
-  position,
-  iconCustomClass = ""
+  icon,
+  hoverOnly = false,
+  animateIcon = false,
+  position = "right",
+  className = "",
 }) {
-  if (!showIcon) return null;
+  if (icon == null) return null;
 
-  // Build container classes for hover/animation
-  let iconContainerClasses = "";
+  // hover/animation container (UNCHANGED)
+  let hoverClasses = "";
   if (hoverOnly) {
-    iconContainerClasses = animateIcon
+    hoverClasses = animateIcon
       ? position === "right"
         ? "inline-flex w-0 overflow-hidden transform -translate-x-4 opacity-0 transition-all duration-300 ease-in-out group-hover:w-auto group-hover:ml-2 group-hover:translate-x-0 group-hover:opacity-100"
         : "inline-flex w-0 overflow-hidden transform translate-x-4 opacity-0 transition-all duration-300 ease-in-out group-hover:w-auto group-hover:mr-2 group-hover:translate-x-0 group-hover:opacity-100"
@@ -21,32 +19,50 @@ export default function ButtonIcon({
       ? "inline-flex w-0 overflow-hidden opacity-0 transition-all duration-300 ease-in-out group-hover:w-auto group-hover:ml-2 group-hover:opacity-100"
       : "inline-flex w-0 overflow-hidden opacity-0 transition-all duration-300 ease-in-out group-hover:w-auto group-hover:mr-2 group-hover:opacity-100";
   } else {
-    iconContainerClasses = position === "right" ? "ml-2 inline-flex" : "inline-flex";
+    hoverClasses = position === "right" ? "ml-2 inline-flex" : "inline-flex";
   }
 
-  const containerClass = iconCustomClass.includes("hidden")
-    ? iconCustomClass
-    : `${iconCustomClass} ${iconContainerClasses}`.trim();
+  const containerClass = className
+    ? `${className} ${hoverClasses}`.trim()
+    : hoverClasses;
 
-  // 1) Inline JSX/SVG override
-  if (element) {
-    const CustomIcon = typeof element === "function" ? element : () => element;
+  // 1) React element / inline SVG
+  if (typeof icon === "object" && (icon.$$typeof || typeof icon === "function")) {
+    const Element = icon;
+    return <span className={containerClass}><Element /></span>;
+  }
+
+  // 2) imported asset (object with .src) or URL string
+  if (typeof icon === "object" && icon.src) {
     return (
       <span className={containerClass}>
-        <CustomIcon />
+        <img src={icon.src} alt="" className="h-4 w-auto" loading="lazy" />
       </span>
     );
   }
-
-  // 2) URL‐based icon
-  if (src) {
-    return (
-      <span className={containerClass}>
-        <img src={src.src} alt="" className="h-4 w-auto" loading="lazy" />
-      </span>
-    );
+  if (typeof icon === "string") {
+    // emoji or URL or raw SVG string
+    const isUrl = icon.startsWith("http") || icon.startsWith("/");
+    const isSvgText = icon.trim().startsWith("<svg");
+    if (isUrl) {
+      return (
+        <span className={containerClass}>
+          <img src={icon} alt="" className="h-4 w-auto" loading="lazy" />
+        </span>
+      );
+    }
+    if (isSvgText) {
+      return (
+        <span
+          className={containerClass}
+          // dangerously insert raw SVG
+          dangerouslySetInnerHTML={{ __html: icon }}
+        />
+      );
+    }
+    // fallback: render as text (emoji or glyph)
+    return <span className={containerClass}>{icon}</span>;
   }
 
-  // 3) Nothing else → no icon
   return null;
 }

@@ -11,71 +11,81 @@ export default function Button({
   className = "",
   href,
   variant = "primary",
-  iconProps = {},
+  iconProps = {},      // ← grouped icon props
   showIcon = true,
   ...props
 }) {
   const { variantClasses, buttonClasses, iconDefaults } =
     ButtonVariants[variant] || ButtonVariants.primary;
 
-  // Merge defaults ⇢ overrides
-  const merged = { ...iconDefaults, ...iconProps };
+  // Merge defaults → overrides
   const {
-    element,
-    src,
-    position = "right",
-    className: iconCustomClass = "",
-    hoverOnly,
-    animateIcon,
-  } = merged;
+    icon: defaultIcon,
+    hoverOnly: defaultHover,
+    animateIcon: defaultAnimate,
+    position: defaultPosition = "right",
+    className: defaultIconClass = ""
+  } = iconDefaults;
+
+  const {
+    icon: overrideIcon,
+    hoverOnly: overrideHover,
+    animateIcon: overrideAnimate,
+    position: overridePosition,
+    className: overrideIconClass
+  } = iconProps;
+
+  const finalIcon        = overrideIcon      ?? defaultIcon;
+  const finalHoverOnly   = overrideHover     ?? defaultHover;
+  const finalAnimateIcon = overrideAnimate   ?? defaultAnimate;
+  const finalPosition    = overridePosition  ?? defaultPosition;
+  const finalIconClass   = overrideIconClass ?? defaultIconClass;
 
   let combinedClasses = [className, variantClasses, buttonClasses]
     .filter(Boolean)
     .join(" ");
 
-  const computedDisabled = disabled ?? false;
-  const ComponentFinal = computedDisabled
+  const isDisabled = disabled ?? false;
+  const Tag = isDisabled
     ? "button"
     : ComponentProp || (href ? "a" : "button");
 
-  const additionalProps = { ...props };
-  if (ComponentFinal === "button") {
-    additionalProps.disabled = computedDisabled;
+  const extra = { ...props };
+  if (Tag === "button") {
+    extra.disabled = isDisabled;
   } else {
-    additionalProps.href = computedDisabled ? undefined : href;
-    if (computedDisabled) combinedClasses += " pointer-events-none opacity-50";
+    extra.href = isDisabled ? undefined : href;
+    if (isDisabled) combinedClasses += " pointer-events-none opacity-50";
   }
 
   return (
-    <ComponentFinal
-      {...(ComponentFinal === "button" ? { type } : { href: additionalProps.href })}
-      onClick={computedDisabled ? undefined : onClick}
+    <Tag
+      {...(Tag === "button" ? { type } : {})}
+      onClick={isDisabled ? undefined : onClick}
       className={combinedClasses}
-      {...(ComponentFinal === "button" ? additionalProps : {})}
+      {...extra}
     >
-      {showIcon && position === "left" && (
+      {showIcon && finalPosition === "left" && (
         <ButtonIcon
-          showIcon={showIcon}
-          element={element}
-          src={src}
-          hoverOnly={hoverOnly}
-          animateIcon={animateIcon}
-          position={position}
-          iconCustomClass={iconCustomClass}
+          icon={finalIcon}
+          hoverOnly={finalHoverOnly}
+          animateIcon={finalAnimateIcon}
+          position="left"
+          className={finalIconClass}
         />
       )}
+
       {children}
-      {showIcon && position === "right" && (
+
+      {showIcon && finalPosition === "right" && (
         <ButtonIcon
-          showIcon={showIcon}
-          element={element}
-          src={src}
-          hoverOnly={hoverOnly}
-          animateIcon={animateIcon}
-          position={position}
-          iconCustomClass={iconCustomClass}
+          icon={finalIcon}
+          hoverOnly={finalHoverOnly}
+          animateIcon={finalAnimateIcon}
+          position="right"
+          className={finalIconClass}
         />
       )}
-    </ComponentFinal>
+    </Tag>
   );
 }
