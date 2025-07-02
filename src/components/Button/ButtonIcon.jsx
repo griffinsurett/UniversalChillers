@@ -1,4 +1,6 @@
 // src/components/Button/ButtonIcon.jsx
+import Icon from "../Icon/Icon";
+
 export default function ButtonIcon({
   icon,
   hoverOnly = false,
@@ -8,7 +10,7 @@ export default function ButtonIcon({
 }) {
   if (icon == null) return null;
 
-  // hover/animation container (UNCHANGED)
+  // hover/animation container
   let hoverClasses = "";
   if (hoverOnly) {
     hoverClasses = animateIcon
@@ -26,43 +28,9 @@ export default function ButtonIcon({
     ? `${className} ${hoverClasses}`.trim()
     : hoverClasses;
 
-  // 1) React element / inline SVG
-  if (typeof icon === "object" && (icon.$$typeof || typeof icon === "function")) {
-    const Element = icon;
-    return <span className={containerClass}><Element /></span>;
-  }
-
-  // 2) imported asset (object with .src) or URL string
-  if (typeof icon === "object" && icon.src) {
-    return (
-      <span className={containerClass}>
-        <img src={icon.src} alt="" className="h-4 w-auto" loading="lazy" />
-      </span>
-    );
-  }
-  if (typeof icon === "string") {
-    // emoji or URL or raw SVG string
-    const isUrl = icon.startsWith("http") || icon.startsWith("/");
-    const isSvgText = icon.trim().startsWith("<svg");
-    if (isUrl) {
-      return (
-        <span className={containerClass}>
-          <img src={icon} alt="" className="h-4 w-auto" loading="lazy" />
-        </span>
-      );
-    }
-    if (isSvgText) {
-      return (
-        <span
-          className={containerClass}
-          // dangerously insert raw SVG
-          dangerouslySetInnerHTML={{ __html: icon }}
-        />
-      );
-    }
-    // fallback: render as text (emoji or glyph)
-    return <span className={containerClass}>{icon}</span>;
-  }
-
-  return null;
+  return (
+    <span className={containerClass}>
+      <Icon icon={icon} className="h-4 w-auto" />
+    </span>
+  );
 }

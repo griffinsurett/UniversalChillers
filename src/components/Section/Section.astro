@@ -92,7 +92,10 @@ if (variantName) {
 //    3) defaultSection.tagName
 //    4) fallback to "section"
 const Element =
-  rawTagName ?? variantDefaults.tagName ?? defaultSection.tagName ?? "section";
+  rawTagName ??
+  variantDefaults.tagName ??
+  defaultSection.tagName ??
+  "section";
 
 // 4️⃣ Merge all class props
 const sectionClass = mergeClass(
@@ -199,8 +202,7 @@ const finalHeadingArray = resolveHeading(
   headingProp,
   meta.heading,
   collectionName
-);
-const finalDescription = resolveDescription(description, meta.description);
+);const finalDescription = resolveDescription(description, meta.description);
 
 // 9️⃣ Resolve item component + client
 const finalComponent = ItemComponent ?? defaultSection.component;
@@ -351,7 +353,6 @@ const itemsDefaultHasPage = meta.itemsHasPage ?? false;
                   variant: "primary",
                 };
                 const props = { ...defaults, ...btn };
-
                 return (
                   <Button
                     key={idx}
@@ -360,15 +361,7 @@ const itemsDefaultHasPage = meta.itemsHasPage ?? false;
                     ariaLabel={props.text}
                     variant={props.variant}
                     showIcon={props.showIcon}
-                    iconProps={{
-                      ...(props.iconProps || {}),
-                      icon: props.iconProps?.icon ?? props.icon,
-                      position: props.iconProps?.position ?? props.iconPosition,
-                      hoverOnly: props.iconProps?.hoverOnly ?? props.hoverOnly,
-                      animateIcon:
-                        props.iconProps?.animateIcon ?? props.animateIcon,
-                      className: props.iconProps?.className ?? props.iconClass,
-                    }}
+                    iconProps={props.iconProps}
                   >
                     {props.text}
                   </Button>
@@ -391,24 +384,15 @@ const itemsDefaultHasPage = meta.itemsHasPage ?? false;
                   variant: "primary",
                 };
                 const props = { ...defaults, ...btn };
-
                 return (
                   <Button
                     key={idx}
                     href={props.link}
-                    className={props.class}
+                    class={props.class}
                     ariaLabel={props.text}
                     variant={props.variant}
                     showIcon={props.showIcon}
-                    iconProps={{
-                      ...(props.iconProps || {}),
-                      icon: props.iconProps?.icon ?? props.icon,
-                      position: props.iconProps?.position ?? props.iconPosition,
-                      hoverOnly: props.iconProps?.hoverOnly ?? props.hoverOnly,
-                      animateIcon:
-                        props.iconProps?.animateIcon ?? props.animateIcon,
-                      className: props.iconProps?.className ?? props.iconClass,
-                    }}
+                    iconProps={props.iconProps}
                   >
                     {props.text}
                   </Button>
@@ -461,24 +445,15 @@ const itemsDefaultHasPage = meta.itemsHasPage ?? false;
                 variant: "primary",
               };
               const props = { ...defaults, ...btn };
-
               return (
                 <Button
                   key={idx}
                   href={props.link}
-                  className={props.class}
+                  class={props.class}
                   ariaLabel={props.text}
                   variant={props.variant}
                   showIcon={props.showIcon}
-                  iconProps={{
-                    ...(props.iconProps || {}),
-                    icon: props.iconProps?.icon ?? props.icon,
-                    position: props.iconProps?.position ?? props.iconPosition,
-                    hoverOnly: props.iconProps?.hoverOnly ?? props.hoverOnly,
-                    animateIcon:
-                      props.iconProps?.animateIcon ?? props.animateIcon,
-                    className: props.iconProps?.className ?? props.iconClass,
-                  }}
+                  iconProps={props.iconProps}
                 >
                   {props.text}
                 </Button>
@@ -501,24 +476,15 @@ const itemsDefaultHasPage = meta.itemsHasPage ?? false;
                 variant: "primary",
               };
               const props = { ...defaults, ...btn };
-
               return (
                 <Button
                   key={idx}
                   href={props.link}
-                  className={props.class}
+                  class={props.class}
                   ariaLabel={props.text}
                   variant={props.variant}
                   showIcon={props.showIcon}
-                  iconProps={{
-                    ...(props.iconProps || {}),
-                    icon: props.iconProps?.icon ?? props.icon,
-                    position: props.iconProps?.position ?? props.iconPosition,
-                    hoverOnly: props.iconProps?.hoverOnly ?? props.hoverOnly,
-                    animateIcon:
-                      props.iconProps?.animateIcon ?? props.animateIcon,
-                    className: props.iconProps?.className ?? props.iconClass,
-                  }}
+                  iconProps={props.iconProps}
                 >
                   {props.text}
                 </Button>
@@ -536,4 +502,4 @@ const itemsDefaultHasPage = meta.itemsHasPage ?? false;
       )
     }
   </div>
-</Element>
+</section>
