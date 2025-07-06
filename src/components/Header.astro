@@ -1,11 +1,12 @@
 ---
-// Header.astro
 import { SiteData } from "@/content/SiteData";
 import { Image } from "astro:assets";
 import Menu from "@/components/Menu/Menu.astro";
 import MenuItem from "@/components/Menu/MenuItem.astro";
 import Submenu from "@/components/Menu/Submenu.astro";
 import MobileMenuItem from "@/components/Menu/HamburgerMenu/MenuItem.jsx";
+
+const breakpoint = "md";
 ---
 
 <header class="flex justify-between items-center p-[var(--spacing-md)] bg-bg">
@@ -32,13 +33,14 @@ import MobileMenuItem from "@/components/Menu/HamburgerMenu/MenuItem.jsx";
     sortOrder="asc"
     manualOrder={true}
     responsive={true}
-    breakpoint="(max-width: 767px)"
+    breakpoint={breakpoint}
     hamburgerOnly={false}
+
     desktop={{
       itemsClass: "flex gap-[var(--spacing-md)]",
       itemClass: "",
       menuItem: {
-        component: MenuItem,
+        // component: MenuItem,
         props: {
           itemClass: "px-2 py-1 text-primary hover:text-secondary",
           linkClass:
@@ -63,6 +65,7 @@ import MobileMenuItem from "@/components/Menu/HamburgerMenu/MenuItem.jsx";
         },
       },
     }}
+
     mobile={{
       itemsClass: "flex flex-col gap-[var(--spacing-md)]",
       itemClass: "p-[var(--spacing-sm)]",
@@ -75,7 +78,7 @@ import MobileMenuItem from "@/components/Menu/HamburgerMenu/MenuItem.jsx";
           linkClass: "w-full text-left",
           hierarchical: true,
           submenu: {
-            component: MobileMenuItem, // reuse for nested
+            component: MobileMenuItem,
             itemsClass: "ml-4 border-l border-gray-200",
             subMenuItem: {
               component: MobileMenuItem,
@@ -89,14 +92,12 @@ import MobileMenuItem from "@/components/Menu/HamburgerMenu/MenuItem.jsx";
           },
         },
       },
-
       shared: {
         collection: "menuItems",
         query: "relatedItem:menus:mainMenu",
         sortOrder: "asc",
         HasPage: true,
       },
-
       checkboxId: "hamburger-menu-toggle",
     }}
   />

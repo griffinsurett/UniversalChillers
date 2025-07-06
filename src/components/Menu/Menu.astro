@@ -1,43 +1,46 @@
 ---
-// src/components/Menu/Menu.astro
+// Menu.astro
 import ItemsTemplate from "@/components/ItemsTemplates/ItemsTemplate.astro";
 import { queryItems } from "@/utils/CollectionQueryUtils.js";
 import { sortItems } from "@/utils/sortItems.js";
 import HamburgerMenu from "./HamburgerMenu/HamburgerMenu.jsx";
 import HamburgerIcon from "./HamburgerMenu/HamburgerIcon";
 import { desktopDefaults, mobileDefaults } from "./defaults.js";
-import { getRootItems } from "@/utils/menuUtils";
+import { getRootItems } from "@/utils/menuUtils.js";
+import { breakpointClasses, maxWidth, minWidth } from "@/utils/breakpoint.js";
 import "./styles.css";
 
 const {
-  // core data + sort
+  // ── core data + sort
   collection    = "menuItems",
   query         = "relatedItem:menus:mainMenu",
   sortBy,
   sortOrder     = "asc",
   manualOrder   = true,
   HasPage       = false,
-
-  // responsive
   responsive    = false,
-  breakpoint    = "(max-width: 767px)",
+  breakpoint    = "md",
   hamburgerOnly = false,
-
-  // overrides
   desktop: desktopProp = {},
   mobile:  mobileProp  = {},
   itemsClass: topItemsClass,
   itemClass:  topItemClass,
   menuItem:   topMenuItem,
-
-  // your new label & icon classes:
   checkboxId:          topCheckboxId,
   hamburgerTransform:  topHamburgerTransform,
   hamburgerLabelClass: topHamburgerLabelClass,
   hamburgerIconClass:  topHamburgerIconClass,
 } = Astro.props;
 
-// ─── fetch & sort all menu items ─────────────────────────────────
+// derive hydration media‐queries
+const mobileQuery  = maxWidth(breakpoint);
+const desktopQuery = minWidth(breakpoint);
+
+// pull in shared show/hide classes
+const { desktop: desktopClass, mobile: mobileClass } =
+  breakpointClasses[breakpoint] || breakpointClasses.md;
+
+// ── fetch & sort all menu entries ─────────────────────────────────
 let allMenuEntries = [];
 if (collection && query) {
   allMenuEntries = await queryItems(query, collection, Astro.url.pathname);
@@ -46,14 +49,14 @@ const sortedMobileItems = Array.isArray(allMenuEntries)
   ? sortItems(allMenuEntries, sortBy, sortOrder, manualOrder)
   : allMenuEntries;
 
-// ─── top‐level roots for desktop & mobile first‐level ───────────────
+// ── top‐level roots for desktop & mobile first‐level ───────────────
 const desktopRoots = getRootItems(allMenuEntries);
 
-// ─── build final desktop & mobile configs ─────────────────────────
+// ── build final desktop & mobile configs ─────────────────────────
 let desktopConfig, mobileConfig;
 
 if (responsive) {
-  // desktop deep-merge
+  // desktop deep‐merge
   const overrideDesktopMI = desktopProp.menuItem || {};
   desktopConfig = {
     ...desktopDefaults,
@@ -62,14 +65,11 @@ if (responsive) {
     itemClass:  topItemClass  ?? desktopProp.itemClass  ?? desktopDefaults.itemClass,
     menuItem: {
       component: overrideDesktopMI.component ?? desktopDefaults.menuItem.component,
-      props: {
-        ...desktopDefaults.menuItem.props,
-        ...overrideDesktopMI.props,
-      },
+      props:     { ...desktopDefaults.menuItem.props, ...overrideDesktopMI.props },
     },
   };
 
-  // mobile deep-merge + pull in label/icon classes
+  // mobile deep‐merge + label/icon classes
   const overrideMobileMI = mobileProp.menuItem || {};
   mobileConfig = {
     ...mobileDefaults,
@@ -78,19 +78,12 @@ if (responsive) {
     itemClass:          topItemClass         ?? mobileProp.itemClass         ?? mobileDefaults.itemClass,
     menuItem: {
       component: overrideMobileMI.component ?? mobileDefaults.menuItem.component,
-      props: {
-        ...mobileDefaults.menuItem.props,
-        ...overrideMobileMI.props,
-      },
+      props:     { ...mobileDefaults.menuItem.props, ...overrideMobileMI.props },
     },
     checkboxId:         topCheckboxId        ?? mobileProp.checkboxId        ?? mobileDefaults.checkboxId,
     hamburgerTransform: topHamburgerTransform ?? mobileProp.hamburgerTransform ?? mobileDefaults.hamburgerTransform,
-    hamburgerLabelClass: topHamburgerLabelClass
-      ?? mobileProp.hamburgerLabelClass
-      ?? mobileDefaults.hamburgerLabelClass,
-    hamburgerIconClass:  topHamburgerIconClass
-      ?? mobileProp.hamburgerIconClass
-      ?? mobileDefaults.hamburgerIconClass,
+    hamburgerLabelClass:topHamburgerLabelClass ?? mobileProp.hamburgerLabelClass ?? mobileDefaults.hamburgerLabelClass,
+    hamburgerIconClass: topHamburgerIconClass ?? mobileProp.hamburgerIconClass ?? mobileDefaults.hamburgerIconClass,
   };
 }
 else if (hamburgerOnly) {
@@ -103,19 +96,12 @@ else if (hamburgerOnly) {
     itemClass:          topItemClass         ?? mobileProp.itemClass         ?? mobileDefaults.itemClass,
     menuItem: {
       component: overrideMobileMI.component ?? mobileDefaults.menuItem.component,
-      props: {
-        ...mobileDefaults.menuItem.props,
-        ...overrideMobileMI.props,
-      },
+      props:     { ...mobileDefaults.menuItem.props, ...overrideMobileMI.props },
     },
     checkboxId:         topCheckboxId        ?? mobileProp.checkboxId        ?? mobileDefaults.checkboxId,
     hamburgerTransform: topHamburgerTransform ?? mobileProp.hamburgerTransform ?? mobileDefaults.hamburgerTransform,
-    hamburgerLabelClass: topHamburgerLabelClass
-      ?? mobileProp.hamburgerLabelClass
-      ?? mobileDefaults.hamburgerLabelClass,
-    hamburgerIconClass:  topHamburgerIconClass
-      ?? mobileProp.hamburgerIconClass
-      ?? mobileDefaults.hamburgerIconClass,
+    hamburgerLabelClass:topHamburgerLabelClass ?? mobileProp.hamburgerLabelClass ?? mobileDefaults.hamburgerLabelClass,
+    hamburgerIconClass: topHamburgerIconClass ?? mobileProp.hamburgerIconClass ?? mobileDefaults.hamburgerIconClass,
   };
 }
 else {
@@ -128,15 +114,12 @@ else {
     itemClass:  topItemClass  ?? desktopProp.itemClass  ?? desktopDefaults.itemClass,
     menuItem: {
       component: overrideDesktopMI.component ?? desktopDefaults.menuItem.component,
-      props: {
-        ...desktopDefaults.menuItem.props,
-        ...overrideDesktopMI.props,
-      },
+      props:     { ...desktopDefaults.menuItem.props, ...overrideDesktopMI.props },
     },
   };
 }
 
-// ─── center & bump up weight on mobile items ───────────────────────
+// ── center & bump up weight on mobile items ───────────────────────
 if (mobileConfig) {
   mobileConfig.itemsClass = `${mobileConfig.itemsClass} flex flex-col justify-center items-center`;
   mobileConfig.menuItem.props.itemClass = mobileConfig.menuItem.props.itemClass
@@ -146,7 +129,7 @@ if (mobileConfig) {
 ---
 
 {!responsive && !hamburgerOnly && (
-  // <!-- Desktop only -->
+  // Desktop only 
   <nav aria-label="Main">
     <ItemsTemplate
       items={desktopRoots}
@@ -163,7 +146,7 @@ if (mobileConfig) {
         component: desktopConfig.menuItem.component,
         props: {
           ...desktopConfig.menuItem.props,
-          allItems: sortedMobileItems,
+          allItems:      sortedMobileItems,
           collectionName: collection,
         },
       }}
@@ -173,8 +156,8 @@ if (mobileConfig) {
 
 {responsive && !hamburgerOnly && (
   <>
-    {/* <!-- Desktop at md+ --> */}
-    <div class="hidden md:block">
+    {/* DESKTOP MENU (SSR hidden, CSS shows ≥ breakpoint, hydrate ≥ breakpoint) */}
+    <div class={desktopClass}>
       <nav aria-label="Main">
         <ItemsTemplate
           items={desktopRoots}
@@ -191,7 +174,7 @@ if (mobileConfig) {
             component: desktopConfig.menuItem.component,
             props: {
               ...desktopConfig.menuItem.props,
-              allItems: sortedMobileItems,
+              allItems:      sortedMobileItems,
               collectionName: collection,
             },
           }}
@@ -199,24 +182,23 @@ if (mobileConfig) {
       </nav>
     </div>
 
-    {/* <!-- Mobile at sm–md --> */}
-    <div class="block md:hidden">
+    {/* MOBILE MENU (SSR shown, CSS hides ≥ breakpoint, hydrate ≤ breakpoint) */}
+    <div class={mobileClass}>
       <input type="checkbox" id={mobileConfig.checkboxId} class="hidden" />
-       <label
-      for={mobileConfig.checkboxId}
-      class={mobileConfig.hamburgerLabelClass}
-      aria-label="Toggle menu"
-    >
+      <label
+        for={mobileConfig.checkboxId}
+        class={mobileConfig.hamburgerLabelClass}
+        aria-label="Toggle menu"
+      >
         <HamburgerIcon
-          client:media={breakpoint}
-          checkboxId={mobileConfig.checkboxId} 
+          client:media={mobileQuery}
+          checkboxId={mobileConfig.checkboxId}
           hamburgerTransform={mobileConfig.hamburgerTransform}
           className={mobileConfig.hamburgerIconClass}
         />
       </label>
-
       <HamburgerMenu
-        client:media={breakpoint}
+        client:media={mobileQuery}
         checkboxId={mobileConfig.checkboxId}
         allItems={allMenuEntries}
         shared={{
@@ -236,24 +218,23 @@ if (mobileConfig) {
 )}
 
 {hamburgerOnly && (
-  // <!-- Hamburger only everywhere -->
-  <div class="block">
+  // Hamburger only everywhere 
+  <div class={mobileClass} client:media={mobileQuery}>
     <input type="checkbox" id={mobileConfig.checkboxId} class="hidden" />
     <label
       for={mobileConfig.checkboxId}
-      class={`${mobileConfig.hamburgerLabelClass}`}
+      class={mobileConfig.hamburgerLabelClass}
       aria-label="Toggle menu"
     >
-       <HamburgerIcon
-          client:media={breakpoint}
-          checkboxId={mobileConfig.checkboxId} 
-          hamburgerTransform={mobileConfig.hamburgerTransform}
-          className={mobileConfig.hamburgerIconClass}
-        />
+      <HamburgerIcon
+        client:media={mobileQuery}
+        checkboxId={mobileConfig.checkboxId}
+        hamburgerTransform={mobileConfig.hamburgerTransform}
+        className={mobileConfig.hamburgerIconClass}
+      />
     </label>
-
     <HamburgerMenu
-      client:load
+      client:media={mobileQuery}
       checkboxId={mobileConfig.checkboxId}
       allItems={allMenuEntries}
       shared={{
