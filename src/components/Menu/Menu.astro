@@ -219,35 +219,35 @@ if (mobileConfig) {
 
 {hamburgerOnly && (
   // Hamburger only everywhere 
-  <div class={mobileClass} client:media={mobileQuery}>
-    <input type="checkbox" id={mobileConfig.checkboxId} class="hidden" />
-    <label
-      for={mobileConfig.checkboxId}
-      class={mobileConfig.hamburgerLabelClass}
-      aria-label="Toggle menu"
-    >
-      <HamburgerIcon
+  <div>
+      <input type="checkbox" id={mobileConfig.checkboxId} class="hidden" />
+      <label
+        for={mobileConfig.checkboxId}
+        class={mobileConfig.hamburgerLabelClass}
+        aria-label="Toggle menu"
+      >
+        <HamburgerIcon
+          client:media={mobileQuery}
+          checkboxId={mobileConfig.checkboxId}
+          hamburgerTransform={mobileConfig.hamburgerTransform}
+          className={mobileConfig.hamburgerIconClass}
+        />
+      </label>
+      <HamburgerMenu
         client:media={mobileQuery}
         checkboxId={mobileConfig.checkboxId}
-        hamburgerTransform={mobileConfig.hamburgerTransform}
-        className={mobileConfig.hamburgerIconClass}
+        allItems={allMenuEntries}
+        shared={{
+          collection,
+          query,
+          sortBy,
+          sortOrder,
+          HasPage,
+        }}
+        cfg={{
+          itemsClass: mobileConfig.itemsClass,
+          menuItem:   mobileConfig.menuItem,
+        }}
       />
-    </label>
-    <HamburgerMenu
-      client:media={mobileQuery}
-      checkboxId={mobileConfig.checkboxId}
-      allItems={allMenuEntries}
-      shared={{
-        collection,
-        query,
-        sortBy,
-        sortOrder,
-        HasPage,
-      }}
-      cfg={{
-        itemsClass: mobileConfig.itemsClass,
-        menuItem:   mobileConfig.menuItem,
-      }}
-    />
-  </div>
+    </div>
 )}
