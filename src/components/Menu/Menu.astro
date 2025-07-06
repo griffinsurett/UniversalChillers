@@ -227,14 +227,14 @@ if (mobileConfig) {
         aria-label="Toggle menu"
       >
         <HamburgerIcon
-          client:media={mobileQuery}
+          client:load
           checkboxId={mobileConfig.checkboxId}
           hamburgerTransform={mobileConfig.hamburgerTransform}
           className={mobileConfig.hamburgerIconClass}
         />
       </label>
       <HamburgerMenu
-        client:media={mobileQuery}
+        client:load
         checkboxId={mobileConfig.checkboxId}
         allItems={allMenuEntries}
         shared={{
