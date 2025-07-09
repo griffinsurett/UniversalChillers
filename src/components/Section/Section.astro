@@ -52,6 +52,7 @@ const {
   itemPlacement: rawItemPlacement = "",
   childPlacement: rawChildPlacement = "",
   buttonsPlacement: rawButtonsPlacement = "",
+  imageColumnClass: rawImageColumnClass = "",
   childSlotClass: rawChildSlotClass = "",
   client: rawClient,
   slider: rawSlider,
@@ -133,6 +134,12 @@ const topContentClass = mergeClass(
   defaultSection.topContentClass,
   rawTopContentClass
 );
+const imageColumnClass = mergeClass(
+  variantDefaults.imageColumnClass,
+  defaultSection.imageColumnClass,
+  rawImageColumnClass
+);
+
 const childSlotClass = mergeClass(
   variantDefaults.childSlotClass,
   defaultSection.childSlotClass,
@@ -251,6 +258,7 @@ const itemsDefaultHasPage = meta.itemsHasPage ?? false;
   {backgroundMedia && <BackgroundMedia backgroundMedia={backgroundMedia} />}
 
   <div class={`${contentClass} relative z-10 ${isDynamic ? "" : ""}`}>
+
     <div class={`top-content-section ${topContentClass}`}>
       <div class={`section-heading-area  ${headingAreaClass}`}>
         {
@@ -403,6 +411,12 @@ const itemsDefaultHasPage = meta.itemsHasPage ?? false;
       }
     </div>
 
+      {/* ── optional “image column” */}
+    <div class={imageColumnClass}>
+      {/* or let callers drop in a static <Image> or anything */}
+      <slot name="imageColumn" />
+    </div>
+    
     {
       /* ︎︎🆕 Default items in content-section (only if no heading/top placement) */
     }
