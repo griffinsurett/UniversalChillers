@@ -1,19 +1,17 @@
-// src/components/Carousel.jsx
 import React, { useState, useRef, useEffect, useLayoutEffect } from "react";
 import { getItemKey } from "@/utils/getItemKey.js";
 
-// Tailwind’s default breakpoints
+// Tailwind breakpoints
 const BREAKPOINTS = { sm: 640, md: 768, lg: 1024, xl: 1280 };
 
-// Resolve a number OR a responsive map like { base:1, sm:2, md:3, lg:4 }
 function resolveSlidesToShow(config, width) {
   if (typeof config === "number") return config;
   let count = config.base ?? 1;
-  Object.entries(config).forEach(([bp, val]) => {
+  for (const [bp, val] of Object.entries(config)) {
     if (bp !== "base" && width >= (BREAKPOINTS[bp] || 0)) {
       count = val;
     }
-  });
+  }
   return count;
 }
 
@@ -24,7 +22,11 @@ export default function Carousel({
   autoplay = false,
   autoplaySpeed = 3000,
   arrows = true,
-  containerClass = "",
+  dots = false,
+  dotContainerClass = "flex justify-center mt-4 gap-2",
+  dotClass = "w-3 h-3 rounded-full bg-gray-300",
+  dotActiveClass = "bg-black scale-125",
+  itemsClass = "",
   itemClass = "",
   slidesToShow = 1,
   renderItem,
@@ -38,7 +40,6 @@ export default function Carousel({
   const lastScrollRef = useRef(0);
   const total = items.length;
 
-  // 1️⃣ Responsive slide count
   useLayoutEffect(() => {
     if (typeof slidesToShow === "number") return;
     function update() {
@@ -49,22 +50,18 @@ export default function Carousel({
     return () => window.removeEventListener("resize", update);
   }, [slidesToShow]);
 
-  // 2️⃣ Autoplay: use setTimeout so it resets on every index change
   useEffect(() => {
     if (!autoplay) return;
     const timer = setTimeout(() => {
       setIndex((i) => {
         const nxt = i + slidesToScroll;
         const max = total - visibleCount;
-        if (infinite) return nxt % total;
-        return Math.min(nxt, Math.max(max, 0));
+        return infinite ? nxt % total : Math.min(nxt, Math.max(max, 0));
       });
     }, autoplaySpeed);
     return () => clearTimeout(timer);
-  // include index so any manual setIndex (arrows or drag) restarts the timer
   }, [autoplay, autoplaySpeed, slidesToScroll, infinite, total, visibleCount, index]);
 
-  // 3️⃣ Track scroll position during drag and snap once on release
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
@@ -108,7 +105,6 @@ export default function Carousel({
     };
   }, []);
 
-  // 4️⃣ Snap to the correct slide whenever `index` changes programmatically
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
@@ -120,8 +116,10 @@ export default function Carousel({
 
   const arrowStyles = "absolute top-1/2 transform -translate-y-1/2 z-10 p-2 text-xl";
 
+  const pageCount = Math.ceil(total / slidesToScroll);
+
   return (
-    <div className="relative overflow-hidden">
+    <>
       {arrows && (
         <>
           <button
@@ -132,13 +130,11 @@ export default function Carousel({
           </button>
           <button
             className={`${arrowStyles} right-0`}
-            onClick={() =>
-              setIndex((i) => {
-                const nxt = i + slidesToScroll;
-                const max = infinite ? total - 1 : total - visibleCount;
-                return infinite ? nxt % total : Math.min(nxt, Math.max(max, 0));
-              })
-            }
+            onClick={() => {
+              const nxt = index + slidesToScroll;
+              const max = infinite ? total - 1 : total - visibleCount;
+              setIndex(infinite ? nxt % total : Math.min(nxt, Math.max(max, 0)));
+            }}
           >
             ›
           </button>
@@ -152,7 +148,7 @@ export default function Carousel({
           w-full m-0 p-0
           overflow-x-auto overflow-y-hidden
           snap-x snap-mandatory hide-scrollbar
-          ${containerClass}
+          ${itemsClass}
         `}
         style={{ WebkitOverflowScrolling: "touch" }}
       >
@@ -162,7 +158,7 @@ export default function Carousel({
           return (
             <li
               key={key}
-              className="flex-shrink-0 snap-start"
+              className={`flex-shrink-0 snap-start ${itemClass}`}
               style={{ flex: `0 0 ${basis}`, maxWidth: basis }}
             >
               {renderItem(item)}
@@ -170,6 +166,21 @@ export default function Carousel({
           );
         })}
       </ul>
-    </div>
+
+      {dots && (
+        <div className={dotContainerClass}>
+          {Array.from({ length: pageCount }).map((_, dotIndex) => {
+            const isActive = Math.floor(index / slidesToScroll) === dotIndex;
+            return (
+              <button
+                key={dotIndex}
+                onClick={() => setIndex(dotIndex * slidesToScroll)}
+                className={`${dotClass} ${isActive ? dotActiveClass : ""}`}
+              />
+            );
+          })}
+        </div>
+      )}
+    </>
   );
 }

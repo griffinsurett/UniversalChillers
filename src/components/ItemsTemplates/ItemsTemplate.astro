@@ -101,6 +101,7 @@ const { RenderComponent, componentKey, componentProps } =
           <li class="contents" key={getItemKey(item)}>
             <RenderComponent
               item={item}
+              itemClass={itemClass}
               collectionName={collection}
               HasPage={HasPage}
               {...componentProps}

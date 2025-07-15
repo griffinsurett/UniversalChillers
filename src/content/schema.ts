@@ -135,18 +135,21 @@ export const sectionSchema = z.object({
   sortBy: z.enum(["date", "title", "slug", "id"]).optional(),
   sortOrder: z.enum(["asc", "desc"]).optional(),
   client: z.enum(["load", "idle", "visible"]).optional(),
-  slider: z
-    .object({
-      enabled: z.boolean(),
-      hideScrollbar: z.boolean().optional(),
-      autoplay: z.boolean().optional(),
-      autoplaySpeed: z.number().optional(),
-      infinite: z.boolean().optional(),
-      slidesToShow: responsiveNumber.optional(),
-      slidesToScroll: z.number().optional(),
-      arrows: z.boolean().optional(),
-    })
-    .optional(),
+ slider: z
+  .object({
+    enabled: z.boolean(),
+    hideScrollbar: z.boolean().optional(),
+    autoplay: z.boolean().optional(),
+    autoplaySpeed: z.number().optional(),
+    infinite: z.boolean().optional(),
+    slidesToShow: responsiveNumber.optional(),
+    slidesToScroll: z.number().optional(),
+    arrows: z.boolean().optional(),
+    dots: z.boolean().optional(),
+    dotContainerClass: z.string().optional(),
+    dotClass: z.string().optional(),
+    dotActiveClass: z.string().optional(),
+  }).optional(),
 });
 
 // Top‐level meta schema for _meta.mdx

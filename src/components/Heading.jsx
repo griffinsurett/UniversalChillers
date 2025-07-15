@@ -1,4 +1,3 @@
-// src/components/Heading.jsx
 export default function Heading({
   tagName: Tag = 'h2',
   className = '',
@@ -6,27 +5,35 @@ export default function Heading({
   text,
   after,
   beforeClass = '',
-  textClass   = '',
-  afterClass  = '',
+  textClass = '',
+  afterClass = '',
   children,
   ...props
 }) {
-  // if any of our "before/text/after" props are set, render those
+  const tagLevel = typeof Tag === 'string' ? Tag.toLowerCase() : 'h2';
+
+  // Regex to check if className already includes h1 to h6
+  const hasManualHeadingClass = /\bh[1-6]\b/.test(className);
+
+  // If no manual heading class is found, add default based on tag
+  const finalClassName = hasManualHeadingClass
+    ? className
+    : `${tagLevel} ${className}`.trim();
+
   const isPropBased = before !== undefined || text !== undefined || after !== undefined;
 
   if (isPropBased) {
     return (
-      <Tag className={className} {...props}>
-        {before  && <span className={beforeClass}>{before}</span>}
-        {text    && <span className={textClass}>{text}</span>}
-        {after   && <span className={afterClass}>{after}</span>}
+      <Tag className={finalClassName} {...props}>
+        {before && <span className={beforeClass}>{before}</span>}
+        {text && <span className={textClass}>{text}</span>}
+        {after && <span className={afterClass}>{after}</span>}
       </Tag>
     );
   }
 
-  // otherwise fall back to rendering whatever children were passed
   return (
-    <Tag className={className} {...props}>
+    <Tag className={finalClassName} {...props}>
       {children}
     </Tag>
   );

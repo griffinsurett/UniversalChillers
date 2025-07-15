@@ -44,19 +44,22 @@ export default function ClientItemsTemplate({
       {slider.enabled ? (
         <Carousel
           items={sorted}
-          // NEW prop mapping here:
           slidesToShow={slider.slidesToShow}
           slidesToScroll={slider.slidesToScroll}
           infinite={slider.infinite}
           autoplay={slider.autoplay}
           autoplaySpeed={slider.autoplaySpeed}
           arrows={slider.arrows}
-          containerClass={itemsClass}
+          dots={slider.dots}
+          dotContainerClass={slider.dotContainerClass}
+          dotClass={slider.dotClass}
+          dotActiveClass={slider.dotActiveClass}
+          itemsClass={itemsClass}
           itemClass={itemClass}
           renderItem={(item) => (
             <Comp
               key={getItemKey(item)}
-              className={itemClass} // apply itemClass here
+              className={itemClass}
               item={item}
               collectionName={collectionName}
               HasPage={HasPage}
