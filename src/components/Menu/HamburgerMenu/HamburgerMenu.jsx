@@ -5,6 +5,7 @@ import ClientItemsTemplate from "@/components/ItemsTemplates/ClientItemsTemplate
 import MobileMenuItem from "./MenuItem.jsx";
 import { getRootItems } from "@/utils/menuUtils.js";
 import { getItemKey } from "@/utils/getItemKey.js";
+import { MenuProvider } from "./MenuContext.jsx";
 
 export default function HamburgerMenu({
   checkboxId,
@@ -12,6 +13,8 @@ export default function HamburgerMenu({
   shared,
   cfg = {},
 }) {
+  // console.log(`[HamburgerMenu:${checkboxId}] initializing`);
+
   const { itemsClass = "", menuItem = {} } = cfg;
   const finalMenuItemComponent = menuItem.component || MobileMenuItem;
   const sortBy = shared.sortBy;
@@ -25,12 +28,20 @@ export default function HamburgerMenu({
   useEffect(() => {
     const box = document.getElementById(checkboxId);
     if (!box) return;
-    const sync = () => setOpen(box.checked);
+
+    function sync() {
+      // console.log(
+      //   `[HamburgerMenu:${checkboxId}] checkbox changed → open=${box.checked}`
+      // );
+      setOpen(box.checked);
+    }
     box.addEventListener("change", sync);
+    sync(); // sync initial
     return () => box.removeEventListener("change", sync);
   }, [checkboxId]);
 
   const closeMenu = () => {
+    // console.log(`[HamburgerMenu:${checkboxId}] closeMenu() called`);
     setOpen(false);
     const box = document.getElementById(checkboxId);
     if (box) {
@@ -39,43 +50,58 @@ export default function HamburgerMenu({
     }
   };
 
+  // bundle up our context value
+  const menuContextValue = {
+    open,
+    toggleOpen: () => {
+      console.log(
+        `[HamburgerMenu:${checkboxId}] toggleOpen() called (was open=${open})`
+      );
+      const box = document.getElementById(checkboxId);
+      if (box) box.checked = !box.checked;
+      setOpen((b) => !b);
+    },
+    close: closeMenu,
+  };
+
   return (
-    <Modal
-      isOpen={open}
-      className="w-full h-full flex flex-col items-center justify-center bg-primary text-bg"
-      overlayClass="bg-black bg-opacity-75"
-      closeButton={true}
-      closeButtonClass="absolute top-4 right-4 p-2"
-      onClose={closeMenu}
-    >
-      <nav
-        aria-label="Mobile Menu"
-        className="h-full flex flex-col text-center items-center justify-center"
+    <MenuProvider id={checkboxId} value={menuContextValue}>
+      <Modal
+        isOpen={open}
+        className="w-full h-full flex flex-col items-center justify-center bg-bg text-bg"
+        overlayClass="bg-bg bg-opacity-75"
+        closeButton={true}
+        closeButtonClass="absolute text-text top-4 right-4 p-2"
+        onClose={closeMenu}
       >
-        <Suspense fallback={<div className="p-4">Loading…</div>}>
-          <ClientItemsTemplate
-            // key={menuItem.id || menuItem.slug}
-            key={getItemKey(menuItem)}
-            items={roots}
-            collectionName={shared.collection}
-            HasPage={shared.HasPage}
-            ItemComponent={{
-              component: finalMenuItemComponent,
-              props: {
-                ...menuItem.props,
-                allItems,
-                checkboxId,
-                collectionName: shared.collection,
-                onItemClick: closeMenu,
-              },
-            }}
-            itemsClass={itemsClass}
-            itemClass={menuItem.props.itemClass}
-            sortBy={sortBy}
-            sortOrder={sortOrder}
-          />
-        </Suspense>
-      </nav>
-    </Modal>
+        <nav
+          aria-label="Mobile Menu"
+          className="h-full flex flex-col text-center items-center justify-center"
+        >
+          <Suspense fallback={<div className="p-4">Loading…</div>}>
+            <ClientItemsTemplate
+              key={getItemKey(menuItem)}
+              items={roots}
+              collectionName={shared.collection}
+              HasPage={shared.HasPage}
+              ItemComponent={{
+                component: finalMenuItemComponent,
+                props: {
+                  ...menuItem.props,
+                  allItems,
+                  checkboxId,
+                  collectionName: shared.collection,
+                  onItemClick: closeMenu,
+                },
+              }}
+              itemsClass={itemsClass}
+              itemClass={menuItem.props.itemClass}
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+            />
+          </Suspense>
+        </nav>
+      </Modal>
+    </MenuProvider>
   );
 }
