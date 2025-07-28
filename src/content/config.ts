@@ -55,6 +55,16 @@ export const collections = {
       }),
   }),
 
+    // ── other collections ──────────────────────────────────
+  whatWeDo: defineCollection({
+    schema: ({ image }) =>
+      baseSchema({ image }).extend({
+        parent: z
+          .union([reference("services"), z.array(reference("services"))])
+          .optional(),
+      }),
+  }),
+
   projects: defineCollection({
     schema: ({ image }) =>
       baseSchema({ image }).extend({
