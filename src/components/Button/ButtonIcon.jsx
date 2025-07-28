@@ -15,13 +15,13 @@ export default function ButtonIcon({
   if (hoverOnly) {
     hoverClasses = animateIcon
       ? position === "right"
-        ? "inline-flex w-0 overflow-hidden transform -translate-x-4 opacity-0 transition-all duration-300 ease-in-out group-hover:w-auto group-hover:ml-2 group-hover:translate-x-0 group-hover:opacity-100"
+        ? "inline-flex w-0 overflow-hidden transform -translate-x-4 opacity-0 transition-all duration-300 ease-in-out group-hover:w-auto group-hover:group-hover:translate-x-0 group-hover:opacity-100"
         : "inline-flex w-0 overflow-hidden transform translate-x-4 opacity-0 transition-all duration-300 ease-in-out group-hover:w-auto group-hover:mr-2 group-hover:translate-x-0 group-hover:opacity-100"
       : position === "right"
-      ? "inline-flex w-0 overflow-hidden opacity-0 transition-all duration-300 ease-in-out group-hover:w-auto group-hover:ml-2 group-hover:opacity-100"
+      ? "inline-flex w-0 overflow-hidden opacity-0 transition-all duration-300 ease-in-out group-hover:w-auto group-hover:group-hover:opacity-100"
       : "inline-flex w-0 overflow-hidden opacity-0 transition-all duration-300 ease-in-out group-hover:w-auto group-hover:mr-2 group-hover:opacity-100";
   } else {
-    hoverClasses = position === "right" ? "ml-2 inline-flex" : "inline-flex";
+    hoverClasses = position === "right" ? "inline-flex" : "inline-flex";
   }
 
   const containerClass = className
@@ -30,7 +30,7 @@ export default function ButtonIcon({
 
   return (
     <span className={containerClass}>
-      <Icon icon={icon} className="h-4 w-auto" />
+      <Icon icon={icon} className="h-auto w-5 logo-class" />
     </span>
   );
 }

@@ -14,7 +14,7 @@ if (process.env.NODE_ENV !== 'production') {
 export default defineConfig({
   site: `https://${process.env.PUBLIC_SITE_DOMAIN}`,
   server: {
-    port: Number(process.env.PUBLIC_DEV_PORT) || 9000,
+    port: Number(process.env.PUBLIC_DEV_PORT) || 8000,
   },
   vite: {
     plugins: [tailwindcss()],

@@ -1,5 +1,6 @@
 /* src/styles/global.css */
 @import "tailwindcss";
+@import "./fonts.css";
 
 /* Design tokens (colors, spacing, etc.) */
 @theme {
@@ -13,12 +14,13 @@
   
   /* Typography */
   --font-base: 'Inter', sans-serif;
-  --font-heading: 'Poppins', sans-serif;
-  
+  --font-heading: "Chakra Petch",'Poppins', sans-serif;
+
   /* Spacing tokens */
   --spacing-sm: 0.5rem;
   --spacing-md: 1rem;
-  --spacing-lg: 1.5rem;
+  --spacing-lg: 2rem;
+  --spacing-xl: 3rem;
   
   /* Border Radius */
   --radius-xs: 0.125rem;
@@ -71,6 +73,14 @@ body {
 }
 p {
     @apply mb-4 leading-relaxed text-base;
+  }
+  .h1,
+  .h2,
+  .h3,
+  .h4,
+  .h5,
+  .h6 {
+    @apply font-heading font-bold uppercase;
   }
 }
 

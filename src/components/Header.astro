@@ -15,16 +15,12 @@ const breakpoint = "lg";
     <Image
       src={SiteData.logo.src}
       alt={`${SiteData.title} logo`}
-      class="h-10 w-auto"
+      class="h-10 md:h-12 lg:h-15 w-auto"
       format="webp"
       loading="eager"
       fetchpriority="high"
       aria-hidden="true"
     />
-    <div class="ml-[var(--spacing-sm)]">
-      <div class="text-xl font-bold">{SiteData.title}</div>
-      <div class="text-sm text-text">{SiteData.tagline}</div>
-    </div>
   </a>
 
   <Menu
@@ -37,14 +33,14 @@ const breakpoint = "lg";
     hamburgerOnly={false}
 
     desktop={{
-      itemsClass: "flex gap-[var(--spacing-md)]",
+      itemsClass: "flex gap-[var(--spacing-md)] lg:gap-[var(--spacing-lg)]",
       itemClass: "",
       menuItem: {
         // component: MenuItem,
         props: {
-          itemClass: "px-2 py-1 text-primary hover:text-secondary",
+          itemClass: "h-full text-primary hover:text-secondary",
           linkClass:
-            "flex items-center space-x-[var(--spacing-xs)] font-bold transition-colors duration-200",
+            "flex items-start",
           hierarchical: true,
           submenu: {
             component: Submenu,
