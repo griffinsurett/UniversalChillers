@@ -86,6 +86,10 @@ export const collections = {
     schema: ({ image }) => baseSchema({ image }),
   }),
 
+  brands: defineCollection({
+    schema: ({ image }) => baseSchema({ image }),
+  }),
+
   faq: defineCollection({
     schema: ({ image }) => baseSchema({ image }),
   }),

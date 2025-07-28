@@ -5,6 +5,7 @@ import Section from "@/components/Section/Section.astro";
 import Card from "@/components/LoopComponents/Card";
 import { SiteData } from "@/content/SiteData";
 import ImageCard from "@/components/LoopComponents/ImageCard.astro";
+import LogoLoop from "@/components/LoopComponents/LogoLoop.astro";
 ---
 
 <ExtendedLayout
@@ -65,9 +66,17 @@ import ImageCard from "@/components/LoopComponents/ImageCard.astro";
     sectionClass="flex flex-col items-center justify-center section-sm py-[var(--spacing-xl)] lg:py-[var(--spacing-lg)]"
     contentClass="flex flex-col items-center justify-center mx-auto w-9/10"
     itemsClass="flex flex-col md:flex-row items-start justify-center gap-[var(--spacing-xl)]"
-    headingAreaClass="flex flex-col md:flex-row items-center justify-center gap-[var(--spacing-lg)] mb-[var(--spacing-xl)]"
-    component={ImageCard}
+    headingAreaClass="flex flex-col md:flex-row items-center justify-center gap-[var(--spacing-sm)] lg:gap-[var(--spacing-lg)] mb-[var(--spacing-xl)]"
   />
+
+    <!-- Brands We Service -->
+  <Section
+    collection="brands"
+    query="getAll"
+    component={LogoLoop}
+    contentClass="mx-auto w-9/10"
+    itemsClass="flex justify-between items-center py-[var(--spacing-md)] flex-wrap gap-[var(--spacing-sm)]"
+    />
 
   <!-- Projects -->
   <Section
