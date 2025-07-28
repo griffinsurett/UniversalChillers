@@ -1,5 +1,5 @@
 // src/components/Section/SectionVariants.js
-import HeroBg from "@/assets/background.svg";
+import HeroBg from "@/assets/hero-bg.jpg";
 
 /**
  * SectionVariants defines reusable layout and styling for different section types.
@@ -16,9 +16,8 @@ export const SectionVariants = {
     backgroundMedia: {
       image: {
         src: HeroBg,
-        imageClass: "filter brightness-50 bg-cover bg-center xl:bg-fixed",
+        imageClass: "bg-cover bg-center xl:bg-fixed",
       },
-      overlayClass: "bg-text opacity-50",
     },
     contentClass: "relative z-20 text-center space-y-[var(--spacing-md)]",
     buttonsSectionClass: "mt-[var(--spacing-xl)] flex flex-wrap gap-[var(--spacing-md)] justify-center",

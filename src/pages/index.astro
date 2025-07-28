@@ -6,6 +6,9 @@ import Card from "@/components/LoopComponents/Card";
 import { SiteData } from "@/content/SiteData";
 import ImageCard from "@/components/LoopComponents/ImageCard.astro";
 import LogoLoop from "@/components/LoopComponents/LogoLoop.astro";
+import HeroBg from "@/assets/hero-bg.jpg";
+import ChillerDude from "@/assets/chiller-dude.png";
+import { Image } from "astro:assets";
 ---
 
 <ExtendedLayout
@@ -14,18 +17,38 @@ import LogoLoop from "@/components/LoopComponents/LogoLoop.astro";
 >
   <!-- Hero Section -->
   <Section
-    variant="primaryHero"
+    sectionClass="relative min-h-[100vh] flex items-center justify-center bg-cover bg-fixed bg-center z-10 md:p-[var(--spacing-lg)] text-bg text-xl",
+    contentClass="text-center space-y-[var(--spacing-md)]",
+    buttonsSectionClass="mt-[var(--spacing-sm)] flex flex-wrap gap-[var(--spacing-md)] justify-center",
+    topContentClass="z-[999999] absolute top-10 -right-20 lg:top-0 lg:-right-30 bg-[rgba(209,49,30,0.75)] h-[350px] w-[350px] md:h-[450px] md:w-[450px] lg:h-[650px] lg:w-[650px] rounded-full flex items-center justify-center",
+    headingAreaClass="flex flex-col items-center justify-center gap-[var(--spacing-md)]",
+    buttonsPlacement="section-heading-area"
+    backgroundMedia={{
+      image: {
+        src: HeroBg,
+        imageClass: "bg-cover bg-center xl:bg-fixed",
+      },
+      overlayClass: "bg-text opacity-50",
+    }}
     heading={{
       before: "Heating.",
       text: "Cooling.",
       after: "Handled.",
       tagName: "h1",
-      class: "flex flex-col",
+      class: "flex flex-col text-bg",
     }}
     buttons={[
       { text: "Get A Quote", link: "/contact-us", variant: "tertiary" },
     ]}
+  >
+  <Image 
+    src={ChillerDude}
+    alt="Universal Chillers Logo"
+    class="w-90 lg:w-130 h-auto mx-auto absolute bottom-0 left-2/5 transform -translate-x-2/5"
+    loading="lazy"
+    fetchpriority="high"
   />
+</Section>
 
   <Section
     sectionClass="text-center"
