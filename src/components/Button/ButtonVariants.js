@@ -34,7 +34,7 @@ export const ButtonVariants = {
     variantClasses:
       "bg-transparent text-[var(--color-bg)] border border-[var(--color-bg)] hover:bg-[var(--color-bg)] hover:text-[var(--color-text)]",
     buttonClasses: baseButtonClasses,
-    iconDefaults:  { ...sharedIconDefaults },
+    iconDefaults:  { ...sharedIconDefaults, icon: null },
   },
   underline: {
     variantClasses:
