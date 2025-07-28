@@ -30,6 +30,12 @@ export const ButtonVariants = {
     buttonClasses: baseButtonClasses,
     iconDefaults:  { ...sharedIconDefaults },
   },
+  tertiary: {
+    variantClasses:
+      "bg-transparent text-[var(--color-bg)] border border-[var(--color-bg)] hover:bg-[var(--color-bg)] hover:text-[var(--color-text)]",
+    buttonClasses: baseButtonClasses,
+    iconDefaults:  { ...sharedIconDefaults },
+  },
   underline: {
     variantClasses:
       "underline text-[var(--color-primary)] hover:text-[var(--color-secondary)]",
