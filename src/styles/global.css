@@ -21,6 +21,9 @@
   --spacing-md: 1rem;
   --spacing-lg: 2rem;
   --spacing-xl: 3rem;
+  --spacing-2xl: 4.5rem;
+  --spacing-3xl: 6rem;
+  --spacing-4xl: 9rem;
   
   /* Border Radius */
   --radius-xs: 0.125rem;
@@ -54,22 +57,22 @@ body {
 
 /* Global header styles (these are our dynamic header classes) */
 .h1 {
-  @apply text-2xl font-bold text-[var(--color-text)];
+  @apply text-4xl md:text-5xl lg:text-6xl font-bold text-[var(--color-text)];
 }
 .h2 {
-  @apply text-2xl font-semibold text-[var(--color-text)];
+  @apply text-4xl md:text-5xl lg:text-6xl font-semibold text-[var(--color-text)];
 }
 .h3 {
-  @apply text-xl font-semibold text-[var(--color-text)] md:text-2xl;
+  @apply text-xl md:text-2xl lg:text-3xl font-semibold text-[var(--color-text)];
 }
 .h4 {
-  @apply text-lg font-medium text-[var(--color-text)] md:text-xl;
+  @apply text-lg md:text-xl font-medium text-[var(--color-text)];
 }
 .h5 {
-  @apply text-base font-medium text-[var(--color-text)] md:text-lg;
+  @apply text-base md:text-lg font-medium text-[var(--color-text)];
 }
 .h6 {
-  @apply text-base font-medium text-[var(--color-text)] md:text-lg;
+  @apply text-base md:text-lg font-medium text-[var(--color-text)];
 }
 p {
     @apply mb-4 leading-relaxed text-base;
@@ -81,6 +84,20 @@ p {
   .h5,
   .h6 {
     @apply font-heading font-bold uppercase;
+  }
+}
+
+@layer components {
+  .section-sm {
+    @apply w-3/4 mx-auto min-h-screen lg:min-h-[70vh] flex flex-col items-center justify-center;
+  }
+
+  .section {
+    @apply w-3/4 mx-auto min-h-screen flex flex-col items-center justify-center;
+  }
+
+  .section-lg {
+    @apply w-3/4 mx-auto min-h-screen min-h-[120vh] flex flex-col items-center justify-center;
   }
 }
 

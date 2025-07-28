@@ -242,7 +242,8 @@ const finalHeadingArray = resolveHeading(
   headingProp,
   meta.heading,
   collectionName
-);const finalDescription = resolveDescription(description, meta.description);
+);
+const finalDescription = resolveDescription(description, meta.description);
 
 // 9️⃣ Resolve item component + client
 const finalComponent = ItemComponent ?? defaultSection.component;
@@ -325,6 +326,13 @@ const itemsDefaultHasPage = meta.itemsHasPage ?? false;
 
         {finalDescription && <p class={descriptionClass}>{finalDescription}</p>}
 
+              {/* ─── render the default slot in the heading area ─── */}
+      {childPlacementArray.includes("section-heading-area") && (
+        <div class={childSlotClass}>
+          <slot />
+        </div>
+      )}
+
         {/* ︎︎🆕 Items in heading area (exclusive) */}
         {
           itemPlacementArray.includes("section-heading-area") && isDynamic && (
@@ -349,6 +357,34 @@ const itemsDefaultHasPage = meta.itemsHasPage ?? false;
             </>
           )
         }
+
+        {/* ─── render the buttons in the heading area ─── */}
+      {buttonsPlacementArray.includes("section-heading-area") && buttonsArray.length > 0 && (
+        <div class={buttonsSectionClass}>
+          {buttonsArray.map((btn, idx) => {
+            const defaults = {
+              text: capitalize(collectionName),
+              link: `/${collectionName}`,
+              class: "",
+              variant: "primary",
+            };
+            const props = { ...defaults, ...btn };
+            return (
+              <Button
+                key={idx}
+                href={props.link}
+                class={props.class}
+                ariaLabel={props.text}
+                variant={props.variant}
+                showIcon={props.showIcon}
+                iconProps={props.iconProps}
+              >
+                {props.text}
+              </Button>
+            );
+          })}
+        </div>
+      )}
       </div>
 
           { bottomPlacementArray.includes("top-content-section") && (

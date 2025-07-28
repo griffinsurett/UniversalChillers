@@ -1,9 +1,10 @@
 // src/components/Button/ButtonVariants.js
 import ArrowIcon from "@/assets/astro.svg";
 import LogoIcon from "@/assets/univeral-chillers-icon.svg"
+import "./buttons.css";
 
 export const baseButtonClasses =
-  "relative inline-flex items-center group rounded-none py-[var(--template-spacing-md)] px-[var(--template-spacing-2xl)] transition-colors duration-300 ease-in-out uppercase font-bold";
+  "relative h4 button group";
 
 const sharedIconDefaults = {
   icon:     ArrowIcon.src,     // ← unified prop
@@ -19,7 +20,7 @@ const LogoIconDefaults = {
 export const ButtonVariants = {
   primary: {
     variantClasses:
-      "bg-[var(--color-accent)] text-[var(--color-bg)] hover:bg-[var(--color-primary)]",
+      "bg-[var(--color-primary)] text-[var(--color-bg)] hover:bg-[var(--color-secondary)]",
     buttonClasses: baseButtonClasses,
     iconDefaults:  { ...sharedIconDefaults },
   },

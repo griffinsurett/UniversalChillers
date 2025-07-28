@@ -5,35 +5,60 @@ import Section from "@/components/Section/Section.astro";
 import Card from "@/components/LoopComponents/Card";
 import { SiteData } from "@/content/SiteData";
 ---
-<ExtendedLayout title="Welcome to Greactstro!" description="Your gateway to amazing projects.">
-  <!-- Hero Section -->
-<Section
-  variant="primaryHero"
-  heading={{ before:"Heating.", text: "Cooling.", after:"Handled.", tagName: "h1", class: "flex flex-col" }}
-  buttons={[
-    { text: "Get A Quote", link: "/contact-us", variant: "secondary" },
-  ]}
-/>
 
-<Section
-  sectionClass="text-center"
-  heading={{ text: `About ${SiteData.title}`, tagName: "h2" }}
-  buttons={[
-    { text: "Learn More", link: "/about-us", variant: "primary" },
-  ]}
+<ExtendedLayout
+  title="Welcome to Greactstro!"
+  description="Your gateway to amazing projects."
+>
+  <!-- Hero Section -->
+  <Section
+    variant="primaryHero"
+    heading={{
+      before: "Heating.",
+      text: "Cooling.",
+      after: "Handled.",
+      tagName: "h1",
+      class: "flex flex-col",
+    }}
+    buttons={[
+      { text: "Get A Quote", link: "/contact-us", variant: "secondary" },
+    ]}
+  />
+
+  <Section
+    sectionClass="text-center"
+    contentClass="section-sm"
+    heading={{ text: `About ${SiteData.title}`, tagName: "h2" }}
+    buttons={[{ text: "Learn More", link: "/about-us", variant: "primary" }]}
+    childPlacement="section-heading-area"
+    buttonsPlacement="section-heading-area"
+    headingAreaClass="flex flex-col gap-[var(--spacing-md)] items-center justify-center"
   >
-    <Section>
-      <h5 class="h5">Universal Chillers delivers <span class="text-secondary">heating</span> and <span class="text-primary">cooling</span> systems with the power, precision, and performance your facility needs.</h5>
-      <p>Universal Chillers designs, installs, and maintains large-scale HVAC systems for commercial and industrial facilities across all 50 states. We specialize in air-cooled and water-cooled chillers—serving hospitals, data centers, factories, and critical spaces nationwide.</p>
-      <p>From rooftop chillers to boiler rooms, cooling towers, and industrial-grade boilers, our systems are engineered for serious performance. Whether it's a new install, urgent repair, or long-term maintenance, we keep America’s critical spaces chillin’</p>
-    </Section>
-</Section>
+    <div
+      class="flex gap-[var(--spacing-md)] flex-col items-center justify-center"
+    >
+      <h3 class="h3">
+        Universal Chillers delivers <span class="text-secondary">heating</span> and
+        <span class="text-primary">cooling</span> systems with the power, precision,
+        and performance your facility needs.
+      </h3>
+      <p class="p-0 m-0">
+        Universal Chillers designs, installs, and maintains large-scale HVAC
+        systems for commercial and industrial facilities across all 50 states.
+        We specialize in air-cooled and water-cooled chillers—serving hospitals,
+        data centers, factories, and critical spaces nationwide.
+      </p>
+      <p class="p-0 m-0">
+        From rooftop chillers to boiler rooms, cooling towers, and
+        industrial-grade boilers, our systems are engineered for serious
+        performance. Whether it's a new install, urgent repair, or long-term
+        maintenance, we keep America’s critical spaces chillin’
+      </p>
+    </div>
+  </Section>
 
   <!-- Services -->
-  <Section
-    collection="services"
-    query="getAll"
-  />
+  <Section collection="services" query="getAll" />
 
   <!-- Clients -->
   <Section
@@ -50,13 +75,8 @@ import { SiteData } from "@/content/SiteData";
     heading={{ text: "Our Projects", tagName: "h2" }}
   />
 
-<!-- Testimonials -->
-<Section
-  collection="testimonials"
-  query="getAll"
-/>
-
+  <!-- Testimonials -->
+  <Section collection="testimonials" query="getAll" />
 
   <Section collection="faq" query="getAll" />
-
 </ExtendedLayout>
