@@ -1,6 +1,6 @@
 ---
 // src/pages/index.astro
-import ExtendedLayout from "@/layouts/ExtendedLayout.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
 import Section from "@/components/Section/Section.astro";
 import Card from "@/components/LoopComponents/Card";
 import { SiteData } from "@/content/SiteData";
@@ -8,21 +8,25 @@ import ImageCard from "@/components/LoopComponents/ImageCard.astro";
 import LogoLoop from "@/components/LoopComponents/LogoLoop.astro";
 import HeroBg from "@/assets/hero-bg.jpg";
 import ChillerDude from "@/assets/chiller-dude.png";
-import CTAbg from "@/assets/bg-1.png"
+import CTAbg from "@/assets/bg-1.png";
 import { Image } from "astro:assets";
 ---
 
-<ExtendedLayout
+<BaseLayout
   title="Welcome to Greactstro!"
   description="Your gateway to amazing projects."
 >
   <!-- Hero Section -->
   <Section
-    sectionClass="relative min-h-[100vh] flex items-center justify-center bg-cover bg-fixed bg-center z-10 md:p-[var(--spacing-lg)] text-bg text-xl",
-    contentClass="text-center space-y-[var(--spacing-md)]",
-    buttonsSectionClass="mt-[var(--spacing-sm)] flex flex-wrap gap-[var(--spacing-md)] justify-center",
+    sectionClass="relative min-h-[100vh] flex items-center justify-center bg-cover bg-fixed bg-center z-10 md:p-[var(--spacing-lg)] text-bg text-xl"
+    ,
+    contentClass="text-center space-y-[var(--spacing-md)]"
+    ,
+    buttonsSectionClass="mt-[var(--spacing-sm)] flex flex-wrap gap-[var(--spacing-md)] justify-center"
+    ,
     topContentClass="z-[999999] absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 lg:top-0 lg:left-auto lg:right-[-30px] lg:translate-x-0 lg:translate-y-0 bg-[rgba(209,49,30,0.55)] h-[400px] w-[400px] md:h-[450px] md:w-[450px] lg:h-[650px] lg:w-[650px] rounded-full flex items-center justify-center"
-    headingAreaClass="flex flex-col items-center justify-center gap-[var(--spacing-md)] lg:-mb-[var(--spacing-xl)]",
+    headingAreaClass="flex flex-col items-center justify-center gap-[var(--spacing-md)] lg:-mb-[var(--spacing-xl)]"
+    ,
     buttonsPlacement="section-heading-area"
     backgroundMedia={{
       image: {
@@ -42,14 +46,14 @@ import { Image } from "astro:assets";
       { text: "Get A Quote", link: "/contact-us", variant: "tertiary" },
     ]}
   >
-  <Image 
-    src={ChillerDude}
-    alt="Universal Chillers Logo"
-    class="hidden lg:block w-100 lg:w-130 h-auto mx-auto absolute bottom-0 left-2/5 transform -translate-x-2/5"
-    loading="lazy"
-    fetchpriority="high"
-  />
-</Section>
+    <Image
+      src={ChillerDude}
+      alt="Universal Chillers Logo"
+      class="hidden lg:block w-100 lg:w-130 h-auto mx-auto absolute bottom-0 left-2/5 transform -translate-x-2/5"
+      loading="lazy"
+      fetchpriority="high"
+    />
+  </Section>
 
   <Section
     sectionClass="text-center"
@@ -93,7 +97,7 @@ import { Image } from "astro:assets";
     headingAreaClass="flex flex-col md:flex-row items-center justify-center gap-[var(--spacing-sm)] lg:gap-[var(--spacing-lg)] mb-[var(--spacing-xl)]"
   />
 
-    <!-- Brands We Service -->
+  <!-- Brands We Service -->
   <Section
     collection="brands"
     query="getAll"
@@ -101,7 +105,7 @@ import { Image } from "astro:assets";
     sectionClass="min-h-[50vh] flex items-center justify-center"
     contentClass="mx-auto w-9/10"
     itemsClass="flex justify-between items-center py-[var(--spacing-md)] flex-wrap gap-[var(--spacing-sm)]"
-    />
+  />
 
   <!-- Projects -->
   <!-- <Section
@@ -114,10 +118,12 @@ import { Image } from "astro:assets";
   <!-- <Section collection="testimonials" query="getAll" /> -->
 
   <!-- <Section collection="faq" query="getAll" /> -->
-   <Section
+  <Section
     heading={{ text: `${SiteData.title}`, tagName: "h2", class: "text-bg" }}
     description={SiteData.tagline}
-    buttons={[{ text: "Get A Quote", link: "/contact-us", variant: "tertiary" }]}
+    buttons={[
+      { text: "Get A Quote", link: "/contact-us", variant: "tertiary" },
+    ]}
     contentClass="section-sm text-center"
     headingAreaClass="flex flex-col items-center justify-center gap-[var(--spacing-md)] mx-auto w-full lg:w-2/3"
     buttonsPlacement="section-heading-area"
@@ -129,5 +135,5 @@ import { Image } from "astro:assets";
       overlayClass: "bg-text opacity-50",
     }}
     sectionClass="relative min-h-[80vh] flex items-center justify-center z-10 md:p-[var(--spacing-lg)] text-bg text-xl"
-    ></Section>
-</ExtendedLayout>
+  />
+</BaseLayout>

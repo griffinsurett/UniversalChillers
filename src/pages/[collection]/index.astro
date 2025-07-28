@@ -11,22 +11,22 @@ export async function getStaticPaths() {
   const names = Object.keys(collections);
   const paths = [];
 
-for (const coll of names) {
-      let meta;
-      try {
-        meta = getCollectionMeta(coll);
-      } catch {
-        meta = {};
-      }
-
-      // only generate the /[collection]/ index if hasPage is not explicitly false
-      if (meta.hasPage !== false) {
-        paths.push({ params: { collection: coll } });
-      }
+  for (const coll of names) {
+    let meta;
+    try {
+      meta = getCollectionMeta(coll);
+    } catch {
+      meta = {};
     }
 
-    return paths;
+    // only generate the /[collection]/ index if hasPage is not explicitly false
+    if (meta.hasPage !== false) {
+      paths.push({ params: { collection: coll } });
+    }
   }
+
+  return paths;
+}
 
 // 2) Load this collection’s meta
 const { collection } = Astro.params;
@@ -47,9 +47,9 @@ try {
 }
 
 // 4) Load the layout
-const spec = meta.layout || "../../layouts/ExtendedLayout.astro";
+const spec = meta.layout || "../../layouts/BaseLayout.astro";
 const layoutMap = import.meta.glob("../../layouts/**/*.astro");
-const importer  = layoutMap[spec];
+const importer = layoutMap[spec];
 if (!importer) throw new Error(`Unknown layout: ${spec}`);
 const { default: Layout } = await importer();
 
@@ -74,29 +74,31 @@ const sections = meta.sections?.length
   robots={meta.robots}
   ogType={meta.ogType}
 >
-  {Body ? (
-    <Body />
-  ) : (
-    <>
-      {sections.map((section, i) => (
-        <Section
-          key={i}
-          variant={section.variant}
-          collection={section.collection}
-          query={section.query}
-          heading={section.heading}
-          buttons={section.buttons}
-          description={section.description}
-          descriptionClass={section.descriptionClass}
-          sectionClass={section.sectionClass}
-          contentClass={section.contentClass}
-          itemsClass={section.itemsClass}
-          itemClass={section.itemClass}
-          buttonsSectionClass={section.buttonsSectionClass}
-          headingAreaClass={section.headingAreaClass}
-          {...section}
-        />
-      ))}
-    </>
-  )}
+  {
+    Body ? (
+      <Body />
+    ) : (
+      <>
+        {sections.map((section, i) => (
+          <Section
+            key={i}
+            variant={section.variant}
+            collection={section.collection}
+            query={section.query}
+            heading={section.heading}
+            buttons={section.buttons}
+            description={section.description}
+            descriptionClass={section.descriptionClass}
+            sectionClass={section.sectionClass}
+            contentClass={section.contentClass}
+            itemsClass={section.itemsClass}
+            itemClass={section.itemClass}
+            buttonsSectionClass={section.buttonsSectionClass}
+            headingAreaClass={section.headingAreaClass}
+            {...section}
+          />
+        ))}
+      </>
+    )
+  }
 </Layout>

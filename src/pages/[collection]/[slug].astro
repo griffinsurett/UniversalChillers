@@ -11,9 +11,12 @@ import { getCanonicalSlug } from "@/utils/ContentUtils";
 // 1) Build static paths
 export async function getStaticPaths() {
   const names = Object.keys(collections);
-  const paths: Array<{ params: { collection: string; slug: string }; props: any }> = [];
+  const paths: Array<{
+    params: { collection: string; slug: string };
+    props: any;
+  }> = [];
 
-    // 1) Build static paths based solely on itemsHasPage  per-entry hasPage
+  // 1) Build static paths based solely on itemsHasPage  per-entry hasPage
   for (const coll of names) {
     // load collection-level meta; default to true if missing
     let meta;
@@ -54,7 +57,7 @@ try {
 
 // 2) Default layout specifier (must match the glob keys)
 const spec =
-  meta.itemsLayout || meta.layout || "../../layouts/ExtendedLayout.astro";
+  meta.itemsLayout || meta.layout || "../../layouts/BaseLayout.astro";
 
 // 3) Register all layouts two levels up
 const layoutImporters = import.meta.glob("../../layouts/**/*.astro");
@@ -67,7 +70,9 @@ if (!importer) {
 const { default: Layout } = await importer();
 
 // 5) Resolve sections
-const sections = data.sections?.length ? data.sections : meta.itemsSections || [];
+const sections = data.sections?.length
+  ? data.sections
+  : meta.itemsSections || [];
 
 let Content = null;
 if (typeof entry.render === "function") {
@@ -87,23 +92,25 @@ console.log("robots", data.robots);
   robots={data.robots}
 >
   {Content && <Content />}
-  {sections.map((section, i) => (
-    <Section
-      key={i}
-      variant={section.variant}
-      collection={section.collection}
-      query={section.query}
-      heading={section.heading}
-      description={section.description}
-      descriptionClass={section.descriptionClass}
-      buttons={section.buttons}
-      sectionClass={section.sectionClass}
-      contentClass={section.contentClass}
-      itemsClass={section.itemsClass}
-      itemClass={section.itemClass}
-      buttonsSectionClass={section.buttonsSectionClass}
-      headingAreaClass={section.headingAreaClass}
-      {...section}
-    />
-  ))}
+  {
+    sections.map((section, i) => (
+      <Section
+        key={i}
+        variant={section.variant}
+        collection={section.collection}
+        query={section.query}
+        heading={section.heading}
+        description={section.description}
+        descriptionClass={section.descriptionClass}
+        buttons={section.buttons}
+        sectionClass={section.sectionClass}
+        contentClass={section.contentClass}
+        itemsClass={section.itemsClass}
+        itemClass={section.itemClass}
+        buttonsSectionClass={section.buttonsSectionClass}
+        headingAreaClass={section.headingAreaClass}
+        {...section}
+      />
+    ))
+  }
 </Layout>

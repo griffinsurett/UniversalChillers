@@ -1,7 +1,8 @@
 ---
-// src/layouts/ExtendedLayout.astro
+// src/layouts/BaseLayout.astro
 import BaseLayout from "./BaseLayout.astro";
 ---
+
 <BaseLayout {...Astro.props}>
   <slot />
   <p class="p-[var(--spacing-md)] text-center text-[var(--color-secondary)]">
