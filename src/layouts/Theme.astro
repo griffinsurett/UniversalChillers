@@ -3,6 +3,18 @@
 import '../styles/global.css';
 ---
 <!-- You may include additional theme-related meta tags here -->
-<meta name="theme-color" content="#0000FE" />
-<meta name="apple-mobile-web-app-status-bar-style" content="#0000FE" />
-<link rel="icon" href="/univeral-chillers-icon.svg" type="image/x-icon" />
+<link rel="icon" href="/favicon.png" type="image/x-icon" />
+<meta name="theme-color" content="" />
+<meta name="apple-mobile-web-app-status-bar-style" content="#232f49" />
+<script>
+  // wait till DOM is ready
+  document.addEventListener("DOMContentLoaded", () => {
+    const rootStyles = getComputedStyle(document.documentElement);
+    const primary = rootStyles.getPropertyValue("--color-bg").trim();
+    if (primary) {
+      document
+        .querySelector('meta[name="theme-color"]')
+        ?.setAttribute("content", primary);
+    }
+  });
+</script>
