@@ -89,15 +89,15 @@ p {
 
 @layer components {
   .section-sm {
-    @apply w-3/4 mx-auto min-h-screen lg:min-h-[70vh] flex flex-col items-center justify-center;
+    @apply w-6/8 lg:w-3/4 mx-auto min-h-screen lg:min-h-[70vh] flex flex-col items-center justify-center;
   }
 
   .section {
-    @apply w-3/4 mx-auto min-h-screen flex flex-col items-center justify-center;
+    @apply w-6/8 lg:w-3/4 mx-auto min-h-screen flex flex-col items-center justify-center;
   }
 
   .section-lg {
-    @apply w-3/4 mx-auto min-h-screen min-h-[120vh] flex flex-col items-center justify-center;
+    @apply w-6/8 lg:w-3/4 mx-auto min-h-screen lg:min-h-[120vh] flex flex-col items-center justify-center;
   }
 }
 

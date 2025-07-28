@@ -66,19 +66,18 @@ export default function HamburgerMenu({
 
   return (
     <MenuProvider id={checkboxId} value={menuContextValue}>
-      <Modal
-        isOpen={open}
-        className="w-full h-full flex flex-col items-center justify-center bg-bg text-bg"
-        overlayClass="bg-bg bg-opacity-75"
-        closeButton={true}
-        closeButtonClass="absolute text-text top-4 right-4 p-2"
-        onClose={closeMenu}
-      >
-        <nav
-          aria-label="Mobile Menu"
-          className="h-full flex flex-col text-center items-center justify-center"
-        >
-          <Suspense fallback={<div className="p-4">Loading…</div>}>
+          {/* Inline dropdown panel */}
+    {open && (
+      <div className="
+        fixed inset-x-0 top-16
+          w-screen                  
+          bg-white
+          border-b border-gray-200  
+          shadow-md
+          z-50
+      ">
+        <nav aria-label="Mobile Menu" className="flex flex-col p-2">
+          <Suspense fallback={null}>
             <ClientItemsTemplate
               key={getItemKey(menuItem)}
               items={roots}
@@ -94,14 +93,15 @@ export default function HamburgerMenu({
                   onItemClick: closeMenu,
                 },
               }}
-              itemsClass={itemsClass}
+              itemsClass="flex flex-col space-y-2"
               itemClass={menuItem.props.itemClass}
               sortBy={sortBy}
               sortOrder={sortOrder}
             />
           </Suspense>
         </nav>
-      </Modal>
+      </div>
+    )}
     </MenuProvider>
   );
 }
