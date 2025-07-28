@@ -1,6 +1,7 @@
 /* src/styles/global.css */
 @import "tailwindcss";
 @import "./fonts.css";
+@import "../components/Button/buttons.css";
 
 /* Design tokens (colors, spacing, etc.) */
 @theme {

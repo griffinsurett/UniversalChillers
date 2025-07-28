@@ -2,7 +2,7 @@
 
 @layer components {
   .button {
-    @apply inline-flex items-center justify-center font-semibold text-white transition-colors duration-300 ease-in-out;
+    @apply inline-flex items-center justify-center font-semibold text-white transition-colors duration-700 ease-in-out;
     @apply rounded-lg py-[var(--spacing-sm)] px-[var(--spacing-md)];
   }
 }

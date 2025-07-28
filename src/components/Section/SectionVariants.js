@@ -11,7 +11,7 @@ export const SectionVariants = {
    */
   primaryHero: {
     sectionClass: 
-      "min-h-[90vh] md:min-h-[100vh] flex items-center justify-center " +
+      "min-h-[100vh] md:min-h-[90vh] flex items-center justify-center " +
       "bg-cover bg-fixed bg-center z-10 md:p-[var(--spacing-lg)] text-bg text-xl",
     backgroundMedia: {
       image: {

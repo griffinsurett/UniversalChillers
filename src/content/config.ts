@@ -80,15 +80,6 @@ export const collections = {
     schema: ({ image }) => baseSchema({ image }),
   }),
 
-  clients: defineCollection({
-    schema: ({ image }) =>
-      baseSchema({ image }).extend({
-        projects: z
-          .union([reference("projects"), z.array(reference("projects"))])
-          .optional(),
-      }),
-  }),
-
   serviceAreas: defineCollection({
     loader: file("src/content/serviceAreas/serviceAreas.json"),
     schema: ({ image }) =>

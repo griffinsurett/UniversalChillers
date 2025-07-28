@@ -1,7 +1,6 @@
 // src/components/Button/ButtonVariants.js
 import ArrowIcon from "@/assets/astro.svg";
 import LogoIcon from "@/assets/univeral-chillers-icon.svg"
-import "./buttons.css";
 
 export const baseButtonClasses =
   "relative h4 button group";
