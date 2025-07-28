@@ -58,7 +58,7 @@ body {
 
 /* Global header styles (these are our dynamic header classes) */
 .h1 {
-  @apply text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-[var(--color-text)];
+  @apply text-5xl lg:text-6xl xl:text-7xl font-bold text-[var(--color-text)];
 }
 .h2 {
   @apply text-4xl md:text-5xl font-semibold text-[var(--color-text)];

@@ -3,7 +3,7 @@ import ArrowIcon from "@/assets/astro.svg";
 import LogoIcon from "@/assets/univeral-chillers-icon.svg"
 
 export const baseButtonClasses =
-  "relative text-xl md:text-2xl lg:text-3xl button group";
+  "relative text-xl md:text-2xl button group";
 
 const sharedIconDefaults = {
   icon:     ArrowIcon.src,     // ← unified prop

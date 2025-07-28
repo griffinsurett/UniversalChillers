@@ -20,8 +20,8 @@ import { Image } from "astro:assets";
     sectionClass="relative min-h-[100vh] flex items-center justify-center bg-cover bg-fixed bg-center z-10 md:p-[var(--spacing-lg)] text-bg text-xl",
     contentClass="text-center space-y-[var(--spacing-md)]",
     buttonsSectionClass="mt-[var(--spacing-sm)] flex flex-wrap gap-[var(--spacing-md)] justify-center",
-    topContentClass="z-[999999] absolute top-10 -right-20 lg:top-0 lg:-right-30 bg-[rgba(209,49,30,0.75)] h-[350px] w-[350px] md:h-[450px] md:w-[450px] lg:h-[650px] lg:w-[650px] rounded-full flex items-center justify-center",
-    headingAreaClass="flex flex-col items-center justify-center gap-[var(--spacing-md)]",
+    topContentClass="z-[999999] absolute top-10 -right-20 lg:top-0 lg:-right-30 bg-[rgba(209,49,30,0.55)] h-[350px] w-[350px] md:h-[450px] md:w-[450px] lg:h-[650px] lg:w-[650px] rounded-full flex items-center justify-center",
+    headingAreaClass="flex flex-col items-center justify-center gap-[var(--spacing-md)] lg:-mb-[var(--spacing-xl)]",
     buttonsPlacement="section-heading-area"
     backgroundMedia={{
       image: {
@@ -44,7 +44,7 @@ import { Image } from "astro:assets";
   <Image 
     src={ChillerDude}
     alt="Universal Chillers Logo"
-    class="w-90 lg:w-130 h-auto mx-auto absolute bottom-0 left-2/5 transform -translate-x-2/5"
+    class="w-100 lg:w-130 h-auto mx-auto absolute bottom-0 left-2/5 transform -translate-x-2/5"
     loading="lazy"
     fetchpriority="high"
   />
