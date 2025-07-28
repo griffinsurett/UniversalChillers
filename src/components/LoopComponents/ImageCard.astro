@@ -8,12 +8,15 @@ import { Image } from "astro:assets";
 const { item, itemClass = "", collectionName, HasPage = false } = Astro.props;
 
 // Determine whether to show the button
-const effectiveHasPage = item.data.hasPage !== undefined ? item.data.hasPage : HasPage;
+const effectiveHasPage =
+  item.data.hasPage !== undefined ? item.data.hasPage : HasPage;
 ---
 
-<article class={`card ${itemClass} load scale-up w-full md:flex-2/5 xl:flex-1/4 flex flex-col items-center`}>
-  <div class="card-image w-full hover:opacity-50 duration-500">
-    {item.data.featuredImage && (
+<article
+  class={`card ${itemClass} load scale-up w-full md:flex-2/5 xl:flex-1/4 flex flex-col justify-left items-center`}
+>
+    {
+      item.data.featuredImage && (
         <Image
           src={item.data.featuredImage}
           alt={item.data.title}
@@ -22,22 +25,39 @@ const effectiveHasPage = item.data.hasPage !== undefined ? item.data.hasPage : H
           format="webp"
           quality="low"
         />
-    )}
-  </div>
+      )
+    }
 
-  <div class="card-container flex flex-col justify-center items-start w-full bg-bg h-32 md:h-42">
-    <Heading tagName="h3" className="mb-[var(--spacing-md)] text-[var(--color-text)]">
-      {item.data.title}
-    </Heading>
+  <div
+    class="card-container flex flex-col justify-center items-start p-[var(--spacing-md)] lg:p-[var(--spacing-sm)] w-full bg-bg h-full"
+  >
+      <!-- {
+        item.data.icon && (
+          <img
+            src={item.data.icon}
+            alt={`${item.data.title} icon`}
+            class="mb-[var(--spacing-sm)] w-8 h-8"
+          />
+        )
+      } -->
+        <div class="card-text gap-[var(--spacing-sm)] py-[var(--spacing-sm)] flex flex-col items-start">
+      <Heading
+        tagName="h3"
+        className="text-[var(--color-text)]"
+      >
+        {item.data.title}
+      </Heading>
 
-    <p class="mb-[var(--spacing-md)]">
-      {item.data.description ?? item.body}
-    </p>
-
-    {effectiveHasPage && (
-      <Button variant="primary" href={`/${collectionName}/${item.slug}`}>
-        View More
-      </Button>
-    )}
+      <p>
+        {item.data.description ?? item.body}
+      </p>
+</div>
+      {
+        effectiveHasPage && (
+          <Button variant="primary" href={`/${collectionName}/${item.slug}`}>
+            View More
+          </Button>
+        )
+      }
   </div>
 </article>
