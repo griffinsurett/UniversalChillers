@@ -20,7 +20,7 @@ const effectiveHasPage =
         <Image
           src={item.data.featuredImage}
           alt={item.data.title}
-          class="w-full h-full object-cover rounded-2xl"
+          class="w-full h-full rounded-2xl shadow-lg"
           loading="lazy"
           format="webp"
           quality="low"
@@ -29,7 +29,7 @@ const effectiveHasPage =
     }
 
   <div
-    class="card-container flex flex-col justify-center items-start p-[var(--spacing-md)] lg:p-[var(--spacing-sm)] w-full bg-bg h-full"
+    class="card-container flex flex-col justify-center items-start p-[var(--spacing-md)] lg:p-[var(--spacing-sm)] w-full h-full"
   >
       <!-- {
         item.data.icon && (

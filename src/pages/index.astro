@@ -8,6 +8,7 @@ import ImageCard from "@/components/LoopComponents/ImageCard.astro";
 import LogoLoop from "@/components/LoopComponents/LogoLoop.astro";
 import HeroBg from "@/assets/hero-bg.jpg";
 import ChillerDude from "@/assets/chiller-dude.png";
+import CTAbg from "@/assets/bg-1.png"
 import { Image } from "astro:assets";
 ---
 
@@ -77,7 +78,7 @@ import { Image } from "astro:assets";
         From rooftop chillers to boiler rooms, cooling towers, and
         industrial-grade boilers, our systems are engineered for serious
         performance. Whether it's a new install, urgent repair, or long-term
-        maintenance, we keep America’s critical spaces chillin’
+        maintenance, we keep America chillin’
       </p>
     </div>
   </Section>
@@ -97,19 +98,36 @@ import { Image } from "astro:assets";
     collection="brands"
     query="getAll"
     component={LogoLoop}
+    sectionClass="min-h-[50vh] flex items-center justify-center"
     contentClass="mx-auto w-9/10"
     itemsClass="flex justify-between items-center py-[var(--spacing-md)] flex-wrap gap-[var(--spacing-sm)]"
     />
 
   <!-- Projects -->
-  <Section
+  <!-- <Section
     collection="projects"
     query="getAll"
     heading={{ text: "Our Projects", tagName: "h2" }}
-  />
+  /> -->
 
   <!-- Testimonials -->
-  <Section collection="testimonials" query="getAll" />
+  <!-- <Section collection="testimonials" query="getAll" /> -->
 
-  <Section collection="faq" query="getAll" />
+  <!-- <Section collection="faq" query="getAll" /> -->
+   <Section
+    heading={{ text: `${SiteData.title}`, tagName: "h2", class: "text-bg" }}
+    description={SiteData.tagline}
+    buttons={[{ text: "Get A Quote", link: "/contact-us", variant: "tertiary" }]}
+    contentClass="section-sm text-center"
+    headingAreaClass="flex flex-col items-center justify-center gap-[var(--spacing-md)] mx-auto w-full lg:w-2/3"
+    buttonsPlacement="section-heading-area"
+    backgroundMedia={{
+      image: {
+        src: HeroBg,
+        imageClass: "bg-cover bg-center xl:bg-fixed",
+      },
+      overlayClass: "bg-text opacity-50",
+    }}
+    sectionClass="relative min-h-[80vh] flex items-center justify-center z-10 md:p-[var(--spacing-lg)] text-bg text-xl"
+    ></Section>
 </ExtendedLayout>
