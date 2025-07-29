@@ -42,11 +42,11 @@ export const ButtonVariants = {
     iconDefaults:  { icon: ArrowIcon.src, hoverOnly: false, animateIcon: false },
   },
   link: {
-    variantClasses: "text-text hover:text-secondary h4",
+    variantClasses: "text-text hover:text-secondary",
     iconDefaults:   { ...LogoIconDefaults },
   },
   linkNoIcon: {
-    variantClasses: "text-text hover:text-secondary h4",
+    variantClasses: "text-text hover:text-secondary",
     iconDefaults:   { ...sharedIconDefaults, icon: null },
   },
 };
