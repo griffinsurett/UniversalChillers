@@ -18,15 +18,11 @@ import { Image } from "astro:assets";
 >
   <!-- Hero Section -->
   <Section
-    sectionClass="relative min-h-[100vh] flex items-center justify-center bg-cover bg-fixed bg-center z-10 md:p-[var(--spacing-lg)] text-bg text-xl"
-    ,
-    contentClass="text-center space-y-[var(--spacing-md)]"
-    ,
-    buttonsSectionClass="mt-[var(--spacing-sm)] flex flex-wrap gap-[var(--spacing-md)] justify-center"
-    ,
-    topContentClass="z-[999999] absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 lg:top-0 lg:left-auto lg:right-[-30px] lg:translate-x-0 lg:translate-y-0 bg-[rgba(209,49,30,0.55)] h-[400px] w-[400px] md:h-[450px] md:w-[450px] lg:h-[650px] lg:w-[650px] rounded-full flex items-center justify-center"
-    headingAreaClass="flex flex-col items-center justify-center gap-[var(--spacing-md)] lg:-mb-[var(--spacing-xl)]"
-    ,
+    sectionClass="relative min-h-[100vh] flex items-center justify-center bg-cover bg-fixed bg-center z-10 md:p-[var(--spacing-lg)] text-bg text-xl overflow-x-hidden",
+    contentClass="text-center space-y-[var(--spacing-md)]",
+    buttonsSectionClass="mt-[var(--spacing-sm)] flex flex-wrap gap-[var(--spacing-md)] justify-center",
+    topContentClass="z-[999999] absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 lg:top-0 lg:left-auto lg:right-[-100px] lg:translate-x-0 lg:translate-y-0 bg-[rgba(209,49,30,0.55)] h-[400px] w-[400px] md:h-[450px] md:w-[450px] lg:h-[650px] lg:w-[650px] rounded-full flex items-center justify-center"
+    headingAreaClass="flex flex-col items-center justify-center gap-[var(--spacing-md)] lg:-mb-[var(--spacing-xl)]",
     buttonsPlacement="section-heading-area"
     backgroundMedia={{
       image: {
