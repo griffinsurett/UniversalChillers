@@ -1,16 +1,7 @@
 ---
 hasPage: true
 itemsHasPage: false
-heading:
-  - before: "Our "
-    beforeClass: "text-secondary"
-    text: Services
-    after: " that we offer"
-    afterClass: "text-primary"
-    tagName: "h2"
-    class: "h2"
-  - text: "Additional Information"
-    tagName: "h5"
+heading: "Services"
 description: "Explore our comprehensive list of professional services."
 ogType: "article"
 keywords:
@@ -21,29 +12,6 @@ defaultSection:
   # manualOrder: true
   sortOrder: "desc"
   component: "@/components/LoopComponents/Card.jsx"
-itemsSections:
-  - collection: "projects"
-    query: "related"
-  - collection: "testimonials"
-    query: "related"
-  - collection: "clients"
-    query: "related"
-  - collection: "services"
-    query: "parent"
-    heading: "Parent Services"
-  - collection: "services"
-    query: "children"
-    heading: "Child Services"
-  - collection: "services"
-    query: "sibling"
-    heading: "Sibling Services"
-addToMenu:
-  - menu: mainMenu
-    order: 2
-# itemsAddToMenu:
-#   - menu: mainMenu
-#     parent: "services"
-    # respectHierarchy: true
 ---
 import Section from '@/components/Section/Section.astro'
 
