@@ -10,6 +10,7 @@ import HeroBg from "@/assets/hero-bg.jpg";
 import ChillerDude from "@/assets/chiller-dude.png";
 import CTAbg from "@/assets/bg-1.png";
 import { Image } from "astro:assets";
+import ServiceSection from "@/components/LoopComponents/ServiceSection.astro";
 ---
 
 <BaseLayout
@@ -82,6 +83,14 @@ import { Image } from "astro:assets";
       </p>
     </div>
   </Section>
+
+     <!-- <Section
+    collection="services"
+    query="getAll"
+    component={ServiceSection}
+    headingAreaClass="hidden"
+    buttonsSectionClass="hidden"
+    /> -->
 
   <!-- What We DO -->
   <Section
