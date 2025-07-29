@@ -1,0 +1,45 @@
+---
+// src/pages/sample.astro
+import Button from '@/components/Button/Button';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import MySvgIcon from '@/assets/astro.svg';
+
+const Link = "/sample"
+---
+<BaseLayout>
+<!-- Primary variant using imported Astro.svg -->
+<!-- Icon working -->
+<Button
+  variant="secondary"
+  href={Link}
+  iconProps={{
+    icon:"🔥",
+    iconHoverOnly: false
+ }}
+>
+  Hot action
+</Button>
+
+<!-- Icon Breaking the project -->
+<!-- <Button
+  variant="primary"
+  href={Link}
+  icon={<MySvgIcon />}
+  iconPosition="left"
+>
+  Click me
+</Button> -->
+
+<!-- Icon Working -->
+<Button
+  variant="primary"
+  href={Link}
+  iconProps={{
+    icon: MySvgIcon.src,
+    iconAnimate: true,
+  }}
+>
+  Download
+</Button>
+
+</BaseLayout>

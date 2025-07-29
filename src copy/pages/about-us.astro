@@ -1,0 +1,21 @@
+---
+// src/pages/about-us.astro
+import Section from "@/components/Section/Section.astro";
+import SecondaryHero from "@/components/Section/StaticSections/SecondaryHero.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="About Us"
+  description="Learn more about our company, our mission, and our team."
+>
+  <Section
+    variant="secondaryHero"
+    heading={[{ text: "About Us", tagName: "h1", class: "h1 text-bg" }]}
+    description=""
+  />
+  <Section
+    heading="About Us"
+    description="We are a company dedicated to providing the best services to our clients. Our mission is to deliver quality and excellence in everything we do."
+  />
+</BaseLayout>

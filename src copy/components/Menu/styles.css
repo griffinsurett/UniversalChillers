@@ -1,0 +1,42 @@
+/* src/components/Menu/styles.css */
+@import "tailwindcss";
+
+@layer utilities {
+  .menu-item {
+    @apply relative cursor-pointer;
+  }
+
+  .submenu {
+    @apply absolute top-full left-0 z-10
+           opacity-0 pointer-events-none
+           transition-opacity duration-200 ease-in-out
+           w-max whitespace-nowrap;
+  }
+
+  /* Show a submenu whenever
+     • its parent <li.menu-item> is hovered/focused, or
+     • *any* part of that submenu (including deeper fly-outs) is hovered/focused */
+  .menu-item:hover > .submenu,
+  .menu-item:focus-within > .submenu,
+  .submenu:hover,
+  .submenu:focus-within {
+    @apply opacity-100 pointer-events-auto;
+  }
+
+  /* Position nested fly-outs to the right of their parent submenu */
+  .submenu .menu-item > .submenu {
+    @apply absolute top-0 left-full z-20;
+  }
+
+  .submenu-arrow {
+    @apply inline-block transform transition-transform duration-200 cursor-pointer;
+  }
+
+  .menu-item:hover > a > .submenu-arrow,
+  .menu-item:focus-within > a > .submenu-arrow,
+  .menu-item:hover > button > .submenu-arrow,
+  .menu-item:focus-within > button > .submenu-arrow,
+  button[aria-expanded="true"] > .submenu-arrow {
+    @apply rotate-180;
+  }
+}

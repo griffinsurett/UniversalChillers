@@ -1,0 +1,101 @@
+---
+import { SiteData } from "@/content/SiteData";
+import { Image } from "astro:assets";
+import Menu from "@/components/Menu/Menu.astro";
+import MenuItem from "@/components/Menu/MenuItem.astro";
+import Submenu from "@/components/Menu/Submenu.astro";
+import MobileMenuItem from "@/components/Menu/HamburgerMenu/MenuItem.jsx";
+
+const breakpoint = "lg";
+---
+
+<header class="flex justify-between mx-auto items-center py-[var(--spacing-md)] px-[var(--spacing-md)] md:px-[var(--spacing-lg)] lg:px-[var(--spacing-xl)] w-screen xl:px-[var(--spacing-3xl)] bg-bg fixed top-0 z-[999999] shadow-md">
+  <!-- Logo / site identity -->
+  <a href="/" class="flex items-center">
+    <Image
+      src={SiteData.logo.src}
+      alt={`${SiteData.title} logo`}
+      class="h-10 md:h-12 lg:h-15 w-auto"
+      format="webp"
+      loading="eager"
+      fetchpriority="high"
+      aria-hidden="true"
+    />
+  </a>
+
+  <Menu
+    collection="menuItems"
+    query="relatedItem:menus:mainMenu"
+    sortOrder="asc"
+    manualOrder={true}
+    responsive={true}
+    breakpoint={breakpoint}
+    hamburgerOnly={false}
+
+    desktop={{
+      itemsClass: "flex gap-[var(--spacing-md)] lg:gap-[var(--spacing-lg)]",
+      itemClass: "",
+      menuItem: {
+        // component: MenuItem,
+        props: {
+          itemClass: "h-full hover:text-primary",
+          linkClass:
+            "flex items-start h4",
+            activeClass: "text-primary",
+          hierarchical: true,
+          submenu: {
+            component: Submenu,
+            itemsClass:
+              "submenu absolute left-0 top-full w-fit bg-gray-50 border border-gray-200 shadow-lg opacity-0 pointer-events-none transition-opacity duration-200 ease-in-out z-[100]",
+            subMenuItem: {
+              component: MenuItem,
+              props: {
+                itemClass:
+                  "px-4 py-2 hover:bg-gray-100 text-primary hover:text-secondary",
+                linkClass:
+                  "flex items-center space-x-[var(--spacing-xs)] font-medium transition-colors duration-200",
+                hierarchical: true,
+                subMenuItem: null,
+              },
+            },
+          },
+        },
+      },
+    }}
+
+    mobile={{
+      itemsClass: "flex flex-col gap-[var(--spacing-md)]",
+      itemClass: "p-[var(--spacing-sm)]",
+      hamburgerTransform: true,
+      menuItem: {
+        component: MobileMenuItem,
+        props: {
+          itemClass:
+            "p-[var(--spacing-sm)] text-lg text-primary hover:text-secondary",
+          linkClass: "w-full text-left h4",
+          hierarchical: true,
+          submenu: {
+            component: MobileMenuItem,
+            itemsClass: "ml-4 border-l border-gray-200",
+            subMenuItem: {
+              component: MobileMenuItem,
+              props: {
+                itemClass: "p-[var(--spacing-sm)] text-base text-primary",
+                linkClass: "w-full text-left",
+                hierarchical: true,
+                subMenuItem: null,
+              },
+            },
+          },
+        },
+      },
+      shared: {
+        collection: "menuItems",
+        query: "relatedItem:menus:mainMenu",
+        sortOrder: "asc",
+        HasPage: true,
+      },
+      checkboxId: "hamburger-menu-toggle",
+    }}
+  />
+</header>

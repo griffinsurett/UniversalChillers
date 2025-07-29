@@ -1,0 +1,44 @@
+---
+// Submenu.astro
+import ItemsTemplate from "@/components/ItemsTemplates/ItemsTemplate.astro";
+import MenuItem      from "./MenuItem.astro";
+
+const {
+  allItems   = [],
+  parentId,
+  childItems = [],
+  collectionName,
+  submenu    = {
+    component: MenuItem,
+    itemsClass: "",
+    subMenuItem: {
+      component: MenuItem,
+      props: {
+        itemClass: "",
+        linkClass: "",
+        hierarchical: true,
+        subMenuItem: null,
+      },
+    },
+  },
+} = Astro.props;
+---
+
+{childItems.length ? (
+  <ItemsTemplate
+    collection={collectionName}
+    items={childItems}
+    itemsClass={`submenu ${submenu.itemsClass}`}
+    itemClass=""
+    role="menu"
+    ItemComponent={{
+      component: submenu.subMenuItem.component ?? MenuItem,
+      props: {
+        ...submenu.subMenuItem.props,
+        allItems,
+        submenu,
+      },
+    }}
+    HasPage={false}
+  />
+) : null}

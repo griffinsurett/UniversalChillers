@@ -1,0 +1,104 @@
+---
+// src/pages/[collection]/index.astro
+
+import Section from "@/components/Section/Section.astro";
+import { collections } from "@/content/config";
+import { getCollectionMeta } from "@/utils/FetchMeta";
+import { capitalize } from "@/utils/ContentUtils";
+
+// 1) Static paths
+export async function getStaticPaths() {
+  const names = Object.keys(collections);
+  const paths = [];
+
+  for (const coll of names) {
+    let meta;
+    try {
+      meta = getCollectionMeta(coll);
+    } catch {
+      meta = {};
+    }
+
+    // only generate the /[collection]/ index if hasPage is not explicitly false
+    if (meta.hasPage !== false) {
+      paths.push({ params: { collection: coll } });
+    }
+  }
+
+  return paths;
+}
+
+// 2) Load this collection’s meta
+const { collection } = Astro.params;
+let meta;
+try {
+  meta = getCollectionMeta(collection);
+} catch {
+  meta = {};
+}
+
+// 3) Try to import the MDX body
+let Body = null;
+try {
+  const mod = await import(`../../content/${collection}/_meta.mdx`);
+  Body = mod.default;
+} catch {
+  /* no _meta.mdx or failed import */
+}
+
+// 4) Load the layout
+const spec = meta.layout || "../../layouts/BaseLayout.astro";
+const layoutMap = import.meta.glob("../../layouts/**/*.astro");
+const importer = layoutMap[spec];
+if (!importer) throw new Error(`Unknown layout: ${spec}`);
+const { default: Layout } = await importer();
+
+// 5) Build fallback sections
+const sections = meta.sections?.length
+  ? meta.sections
+  : [
+      {
+        collection,
+        query: "getAll",
+        heading: { text: capitalize(collection), tagName: "h2" },
+        description: meta.description,
+      },
+    ];
+---
+
+<Layout
+  collection={collection}
+  title={capitalize(collection)}
+  description={meta.description}
+  keywords={meta.keywords}
+  robots={meta.robots}
+  ogType={meta.ogType}
+>
+  {
+    Body ? (
+      <Body />
+    ) : (
+      <>
+        {sections.map((section, i) => (
+          <Section
+            key={i}
+            variant={section.variant}
+            collection={section.collection}
+            query={section.query}
+            heading={section.heading}
+            buttons={section.buttons}
+            description={section.description}
+            descriptionClass={section.descriptionClass}
+            sectionClass={section.sectionClass}
+            contentClass={section.contentClass}
+            itemsClass={section.itemsClass}
+            itemClass={section.itemClass}
+            buttonsSectionClass={section.buttonsSectionClass}
+            headingAreaClass={section.headingAreaClass}
+            {...section}
+          />
+        ))}
+      </>
+    )
+  }
+</Layout>

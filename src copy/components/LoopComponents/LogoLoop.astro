@@ -1,0 +1,31 @@
+---
+// src/components/LoopComponents/Logo.astro
+import { Image } from "astro:assets";
+
+const {
+  /** 
+   * Single content entry (from partners collection)
+   * – has `.data.featuredImage` and `.data.title`
+   **/
+  item,
+
+  /** Tailwind classes for each <li> */
+  itemClass = "p-[var(--spacing-sm)] grow load scale-up",
+
+  /** Collection name, passed by Section/ItemsTemplate */
+  collectionName,
+
+  /** Whether this collection’s items have pages (unused here) */
+  HasPage,
+} = Astro.props;
+---
+<article class={itemClass}>
+  <Image
+    src={item.data.featuredImage}
+    alt={item.data.title || item.slug}
+    class="h-20 w-auto object-contain"
+    sizes="(min-width: 1024px) 5rem, 3rem"
+    loading="lazy"
+    fetchpriority="low"
+  />
+</article>

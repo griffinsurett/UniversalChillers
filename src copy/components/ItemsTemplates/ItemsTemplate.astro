@@ -1,0 +1,123 @@
+---
+// ItemsTemplate.astro
+import { queryItems } from "@/utils/CollectionQueryUtils.js";
+import { sortItems } from "@/utils/sortItems.js";
+import ClientItemsTemplate from "./ClientItemsTemplate.jsx";
+import { resolveSSRComponent } from "@/utils/resolveItemComponent.js";
+import { getItemKey } from "@/utils/getItemKey.js";
+
+const {
+  collection,
+  query,
+  items: initialItems,
+  ItemComponent, // string | { component, props } | function
+  itemsClass = "",
+  itemClass = "",
+  HasPage,
+  pathname = "",
+  client,
+  sortBy,
+  sortOrder,
+  manualOrder,
+  slider = { enabled: false },
+  ...rest
+} = Astro.props;
+
+// console.log("🛠️ slider prop in ItemsTemplate:", slider);
+
+/* 1. Fetch items */
+let items = initialItems || [];
+if (!initialItems && collection && query) {
+  items = await queryItems(query, collection, pathname);
+}
+
+/* 2. Sort via shared helper */
+items = sortItems(items, sortBy, sortOrder, manualOrder);
+
+/* 3. Resolve SSR component */
+const { RenderComponent, componentKey, componentProps } =
+  await resolveSSRComponent(ItemComponent);
+---
+
+{
+  items.length ? (
+    <>
+      {client === "load" && (
+        <ClientItemsTemplate
+          client:load
+          items={items}
+          alreadySorted={true}
+          ItemComponent={{ component: componentKey, props: componentProps }}
+          itemsClass={itemsClass}
+          itemClass={itemClass}
+          collectionName={collection}
+          HasPage={HasPage}
+          sortBy={sortBy}
+          sortOrder={sortOrder}
+          manualOrder={manualOrder}
+          slider={slider}
+          {...rest}
+        />
+      )}
+
+      {client === "visible" && (
+        <ClientItemsTemplate
+          client:visible
+          items={items}
+          alreadySorted={true}
+          ItemComponent={{ component: componentKey, props: componentProps }}
+          itemsClass={itemsClass}
+          itemClass={itemClass}
+          collectionName={collection}
+          HasPage={HasPage}
+          sortBy={sortBy}
+          sortOrder={sortOrder}
+          manualOrder={manualOrder}
+          slider={slider}
+          {...rest}
+        />
+      )}
+
+      {client === "idle" && (
+        <ClientItemsTemplate
+          client:idle
+          items={items}
+          alreadySorted={true}
+          ItemComponent={{ component: componentKey, props: componentProps }}
+          itemsClass={itemsClass}
+          itemClass={itemClass}
+          collectionName={collection}
+          HasPage={HasPage}
+          sortBy={sortBy}
+          sortOrder={sortOrder}
+          manualOrder={manualOrder}
+          slider={slider}
+          {...rest}
+        />
+      )}
+
+      {!client && (
+        <ul class={itemsClass} {...rest}>
+          {items.map((item) => (
+            <li class="contents" key={getItemKey(item)}>
+              <RenderComponent
+                item={item}
+                itemClass={itemClass}
+                collectionName={collection}
+                HasPage={HasPage}
+                {...componentProps}
+              />
+            </li>
+          ))}
+        </ul>
+      )}
+    </>
+  ) : (
+    (() => {
+      console.warn(
+        `ItemsTemplate: no items found for collection="${collection}" query="${query}" pathname="${pathname}"`
+      );
+      return "";
+    })()
+  )
+}

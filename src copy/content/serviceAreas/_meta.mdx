@@ -1,0 +1,27 @@
+---
+heading: 
+ - text: We Proudly Serve The Following Areas
+   tagName: "h2"
+   class: "h2 text-bg load slide-up"
+# layout: "../../layouts/PageLayouts/LocationLayout.astro"
+# itemsLayout: "../../layouts/PageLayouts/LocationLayout.astro"
+keywords:
+  - "service areas"
+  - "cleaning locations"
+hasPage: false
+itemsHasPage: true
+defaultSection:
+  variant: "serviceAreas"
+  component: "LocationItem"
+  buttons:
+    - text: "Request Estimate"
+      link: "/contact-us"
+      variant: "secondary"
+addToQuery: [
+    {
+      "id": "MainNavMenu",
+      "label": "Service Areas",
+      "slug": "/#serviceAreas-getAll-home",
+    }
+  ]
+---

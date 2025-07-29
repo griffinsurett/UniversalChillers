@@ -1,0 +1,130 @@
+---
+// src/components/Forms/Form.astro
+import Button from "@/components/Button/Button";
+import { SiteData } from "@/content/SiteData";
+
+const {
+  name = "generic-form",
+  method = "post",
+  action,
+  class: className = "",
+  formLabel = "",
+  labelClass = "",
+  formClass = "",
+  submitClass = "w-full mt-[var(--spacing-sm)] justify-center cursor-pointer",
+  submitLabel = "Submit",
+  enableSuccessBanner = false,
+  successBannerMessage = "Thank you for your submission!",
+  successBannerClass = "p-[var(--spacing-sm)] bg-primary text-bg border border-[var(--color-border)]",
+  // new props:
+  showConsent = true,
+  consentText = `I consent to have ${SiteData.title} store my submitted information so they can respond`,
+  consentLearnMoreLabel = "Learn more",
+  consentLearnMoreUrl = "/privacy-policy",
+  consentWrapperClass = "flex items-start text-left text-text mb-[var(--spacing-md)]",
+  consentInputClass = "mr-[var(--spacing-sm)] mt-[4px] w-4 h-4",
+  consentLabelClass = labelClass + " m-0",
+} = Astro.props;
+---
+
+<div class={className}>
+  {
+    formLabel && (
+      <label class={labelClass} for={name}>
+        {formLabel}
+      </label>
+    )
+  }
+  <form
+    id={name}
+    name={name}
+    method={method}
+    action={action}
+    class={formClass}
+    data-success-banner={enableSuccessBanner}
+    data-success-message={successBannerMessage}
+    data-success-class={successBannerClass}
+  >
+    <slot />
+
+    {/** — inject consent checkbox here — */}
+    {
+      showConsent && (
+        <div class={consentWrapperClass}>
+          <input
+            type="checkbox"
+            id="consent"
+            name="consent"
+            required
+            class={consentInputClass}
+          />
+          <label for="consent" class={consentLabelClass}>
+            {consentText}&nbsp;
+            <a href={consentLearnMoreUrl} class="underline">
+              {consentLearnMoreLabel}
+            </a>
+          </label>
+        </div>
+      )
+    }
+
+    {
+      Astro.slots.has("submit") ? (
+        <slot name="submit" />
+      ) : (
+        <Button type="submit" variant="primary" className={submitClass}>
+          {submitLabel}
+        </Button>
+      )
+    }
+  </form>
+</div>
+
+<script is:inline>
+  document.addEventListener("DOMContentLoaded", () => {
+    document
+      .querySelectorAll('form[data-success-banner="true"]')
+      .forEach((form) => {
+        form.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const data = new URLSearchParams(new FormData(form));
+
+          let res;
+          try {
+            res = await fetch(form.action || "/", {
+              method: form.method.toUpperCase(),
+              headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                Accept: "application/json",
+              },
+              body: data.toString(),
+            });
+          } catch (networkErr) {
+            console.error("Network error submitting form:", networkErr);
+            return;
+          }
+
+          // hide the form in all cases
+          form.style.display = "none";
+
+          const banner = document.createElement("div");
+          banner.className = form.dataset.successClass;
+
+          if (res.ok) {
+            // your custom success message
+            banner.textContent = form.dataset.successMessage;
+          } else {
+            // try to pull an error out of the JSON, or fall back
+            let errMsg = "There was a problem submitting the form.";
+            try {
+              const json = await res.json();
+              if (json.error) errMsg = json.error;
+            } catch {}
+            banner.textContent = errMsg;
+          }
+
+          form.parentNode.insertBefore(banner, form.nextSibling);
+        });
+      });
+  });
+</script>

@@ -1,0 +1,35 @@
+---
+hasPage: true
+itemsHasPage: false
+heading: "Services"
+description: "Explore our comprehensive list of professional services."
+ogType: "article"
+keywords:
+  - "cleaning services"
+  - "professional cleaning"
+  - "eco-friendly cleaning"
+defaultSection:
+  # manualOrder: true
+  sortOrder: "desc"
+  component: "@/components/LoopComponents/Card.jsx"
+---
+import Section from '@/components/Section/Section.astro'
+
+<Section collection="services" query="getAll" />
+
+<Section
+  collection="projects"
+  query="related"
+  heading="Related Projects"
+/>
+
+<Section
+  collection="testimonials"
+  query="related"
+  heading="Client Testimonials"
+/>
+
+<Section
+  collection="clients"
+  query="related"
+/>
