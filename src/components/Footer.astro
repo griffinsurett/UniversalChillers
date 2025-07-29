@@ -2,18 +2,37 @@
 import MenuItem from "@/components/Menu/MenuItem.astro";
 import Menu from "@/components/Menu/Menu.astro";
 import { SiteData } from "@/content/SiteData";
+import { Image } from "astro:assets";
+import LogoFooter from "@/assets/logo-w-tagline.png";
 ---
 
-<footer class="p-[var(--spacing-md)]">
-  <Menu
+<footer class="p-[var(--spacing-md)] flex flex-col items-center justify-center bg-[var(--color-bg)] text-[var(--color-text)]">
+  <div class="footer-top flex justify-between items-center w-full mx-auto">
+     <div class="footer-container flex flex-col items-center justify-center text-center">
+   <Image
+     src={LogoFooter}
+     alt={`${SiteData.title} logo`}
+     class="h-10 md:h-12 lg:h-15 w-auto mx-auto mb-[var(--spacing-md)]"
+     format="webp"
+     loading="lazy"
+     fetchpriority="low"
+   />
+   <p>{SiteData.description}</p>
+ </div>
+  <div class="footer-container flex flex-col items-center justify-center text-center">
+    <Menu
     collection="menuItems"
     query="relatedItem:menus:footerMenu"
     sortOrder="desc"
     ItemComponent={MenuItem}
-    itemsClass="flex gap-[var(--spacing-md)]"
+    itemsClass="flex flex-col gap-[var(--spacing-md)]"
     itemClass=""
   />
-  <p class="mt-[var(--spacing-md)] text-[var(--font-size-sm)]">
-    &copy; {new Date().getFullYear()} {SiteData.title} LLC All rights reserved.
-  </p>
+  </div>
+  </div>
+  <div class="footer-bottom">
+    <p class="mt-[var(--spacing-md)] text-[var(--font-size-sm)]">
+      &copy; {new Date().getFullYear()} {SiteData.title} LLC All rights reserved.
+    </p>
+  </div>
 </footer>
