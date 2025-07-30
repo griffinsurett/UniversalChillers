@@ -17,12 +17,12 @@ const menuItemsClass = "flex flex-col gap-[var(--spacing-sm)] h5";
    <Image
      src={LogoFooter}
      alt={`${SiteData.title} logo`}
-     class="h-10 w-full h-auto mb-[var(--spacing-md)]"
+     class="mx-auto h-full w-6/10 md:w-full md:h-auto mb-[var(--spacing-md)]"
      format="webp"
      loading="lazy"
      fetchpriority="low"
    />
-   <p>{SiteData.description}</p>
+   <p class="text-center lg:text-left">{SiteData.description}</p>
  </div>
   <div class={footerMenuContainer}>
     <Heading tagName="label" className={menuLabelClass}>

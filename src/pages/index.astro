@@ -9,6 +9,7 @@ import LogoLoop from "@/components/LoopComponents/LogoLoop.astro";
 import HeroBg from "@/assets/hero-bg.jpg";
 import ChillerDude from "@/assets/chiller-dude.png";
 import CTAbg from "@/assets/bg-1.png";
+import LogowTagline from "@/assets/logo-w-tagline.png";
 import { Image } from "astro:assets";
 import ChillersBoilersLayout from "@/layouts/ChillersBoilersLayout.astro";
 ---
@@ -126,7 +127,6 @@ import ChillersBoilersLayout from "@/layouts/ChillersBoilersLayout.astro";
 
   <!-- <Section collection="faq" query="getAll" /> -->
   <Section
-    heading={{ text: `${SiteData.title}`, tagName: "h2", class: "text-bg" }}
     description={SiteData.tagline}
     buttons={[
       { text: "Get A Quote", link: "/contact-us", variant: "tertiary" },
@@ -134,13 +134,17 @@ import ChillersBoilersLayout from "@/layouts/ChillersBoilersLayout.astro";
     contentClass="text-center"
     headingAreaClass="flex flex-col items-center justify-center gap-[var(--spacing-md)] mx-auto w-full lg:w-2/3"
     buttonsPlacement="section-heading-area"
+    childPlacement="section-heading-area"
+    childSlotClass="order-first"
     backgroundMedia={{
       image: {
         src: HeroBg,
         imageClass: "bg-cover bg-center xl:bg-fixed",
       },
-      overlayClass: "bg-text opacity-50",
+      overlayClass: "bg-primary/80",
     }}
     sectionClass="relative min-h-[60vh] flex items-center justify-center z-10 md:p-[var(--spacing-lg)] text-bg text-xl"
-  />
+  >
+<Image src={LogowTagline} alt="Universal Chillers Logo with Tagline" class="invert max-w-full h-auto" />
+</Section>
 </BaseLayout>
