@@ -20,7 +20,7 @@
   --color-accent-secondary: rgb(var(--color-boilDark));
   
   /* Typography */
-  --font-base: 'Inter', sans-serif;
+  --font-base: 'Poppins', sans-serif;
   --font-heading: "Chakra Petch",'Poppins', sans-serif;
 
   /* Spacing tokens */
@@ -82,7 +82,7 @@ body {
   @apply text-base md:text-lg font-medium text-[var(--color-text)];
 }
 p {
-    @apply mb-4 leading-relaxed text-base;
+    @apply mb-4 leading-relaxed text-base md:text-lg;
   }
   .h1,
   .h2,
