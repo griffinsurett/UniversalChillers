@@ -1,5 +1,6 @@
 ---
 import Section from "@/components/Section/Section.astro";
+import Button from "@/components/Button/Button";
 import { getCollection } from 'astro:content';
 import ChillersImg from "@/assets/Chiller.jpg";
 import BoilersImg   from "@/assets/Boiller.jpg";
@@ -11,8 +12,11 @@ const allServices = await getCollection('services');
 const chillers = allServices.find(s => s.slug === 'chillers');
 const boilers  = allServices.find(s => s.slug === 'boilers');
 
+const defaultSlug = "/contact"; // Default slug for services without a dedicated page
+
 // Default background panel classes
-const baseSecClasses = "load fade-in min-h-[60vh] lg:min-h-[90vh] w-full bg-cover bg-center flex justify-center";
+const baseSecClasses =
+  "load fade-in min-h-[50vh] lg:min-h-[65vh] xl:min-h-[90vh] w-full bg-cover bg-center flex justify-center";
 ---
 
 <Section sectionClass="p-0 m-0" contentClass="p-0 m-0">
@@ -21,13 +25,19 @@ const baseSecClasses = "load fade-in min-h-[60vh] lg:min-h-[90vh] w-full bg-cove
     class={`${baseSecClasses} items-center lg:items-end lg:pb-[var(--spacing-xl)]`}
     style={`background-image: url(${ChillersImg.src});`}
   >
-    <div class="flex flex-col justify-center items-center text-center p-8 lg:p-16 text-bg">
-      <h2 class="text-3xl lg:text-5xl font-bold mb-4">
+    <div class="flex flex-col justify-center items-center text-center p-8 lg:p-16 text-bg space-y-[var(--spacing-md)]">
+      <h2 class="text-3xl lg:text-5xl font-bold">
         {chillers.data.title}
       </h2>
       <p class="max-w-prose text-base lg:text-lg">
         {chillers.data.description}
       </p>
+      <Button
+        href={chillers.data.hasPage ? `/services/${chillers.slug}` : defaultSlug}
+        variant="tertiary"
+      >
+    {chillers.data.hasPage ? "Learn More" : "Contact Us"}
+    </Button>
     </div>
   </div>
 
@@ -36,13 +46,19 @@ const baseSecClasses = "load fade-in min-h-[60vh] lg:min-h-[90vh] w-full bg-cove
     class={`${baseSecClasses} items-center lg:items-start lg:pt-[var(--spacing-xl)]`}
     style={`background-image: url(${BoilersImg.src});`}
   >
-    <div class="flex flex-col justify-center items-center text-center p-8 lg:p-16 text-bg">
-      <h2 class="text-3xl lg:text-5xl font-bold mb-4">
+    <div class="flex flex-col justify-center items-center text-center p-8 lg:p-16 text-bg space-y-[var(--spacing-md)]">
+      <h2 class="text-3xl lg:text-5xl font-bold">
         {boilers.data.title}
       </h2>
       <p class="max-w-prose text-base lg:text-lg">
         {boilers.data.description}
       </p>
+      <Button
+        href={boilers.data.hasPage ? `/services/${boilers.slug}` : defaultSlug}
+        variant="tertiary"
+      >
+        {boilers.data.hasPage ? "Learn More" : "Contact Us"}
+      </Button>
     </div>
   </div>
 </Section>
