@@ -10,7 +10,7 @@ import HeroBg from "@/assets/hero-bg.jpg";
 import ChillerDude from "@/assets/chiller-dude.png";
 import CTAbg from "@/assets/bg-1.png";
 import { Image } from "astro:assets";
-import ServiceSection from "@/components/LoopComponents/ServiceSection.astro";
+import ChillersBoilersLayout from "@/layouts/ChillersBoilersLayout.astro";
 ---
 <BaseLayout
   title="Welcome to Greactstro!"
@@ -92,14 +92,17 @@ import ServiceSection from "@/components/LoopComponents/ServiceSection.astro";
     /> -->
 
   <!-- What We DO -->
-  <Section
+  <!-- <Section
     collection="whatWeDo"
     query="getAll"
     sectionClass="flex flex-col items-center justify-center section-sm py-[var(--spacing-xl)] lg:py-[var(--spacing-lg)]"
     contentClass="flex flex-col items-center justify-center mx-auto w-9/10"
     itemsClass="flex flex-col md:flex-row items-start justify-center gap-[var(--spacing-xl)]"
     headingAreaClass="flex flex-col md:flex-row items-center justify-center gap-[var(--spacing-sm)] lg:gap-[var(--spacing-lg)] mb-[var(--spacing-xl)]"
-  />
+  /> -->
+
+<!-- Services -->
+ <ChillersBoilersLayout />
 
   <!-- Brands We Service -->
   <Section

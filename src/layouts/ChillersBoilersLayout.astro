@@ -1,0 +1,22 @@
+---
+import Section from "@/components/Section/Section.astro";
+import ChillersImg from "@/assets/Chiller.jpg";
+import BoilersImg   from "@/assets/Boiller.jpg";
+
+const CBsectionClasses = "load fade-in min-h-screen w-full bg-cover bg-center"
+---
+<Section sectionClass="p-0 m-0" contentClass="p-0 m-0">
+  {/* Chillers */}
+  <div
+    class={`${CBsectionClasses}`}
+    style={`background-image: url(${ChillersImg.src});`}
+  >
+
+</div>
+
+  {/* Boilers */}
+  <div
+    class={`${CBsectionClasses}`}
+    style={`background-image: url(${BoilersImg.src});`}
+  ></div>
+</Section>
