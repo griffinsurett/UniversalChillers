@@ -10,6 +10,7 @@ import HeroBg from "@/assets/hero-bg.jpg";
 import ChillerDude from "@/assets/chiller-dude.png";
 import CTAbg from "@/assets/bg-1.png";
 import LogowTagline from "@/assets/logo-w-tagline.png";
+import UCLogo from "@/assets/UC-circle.png";
 import { Image } from "astro:assets";
 import ChillersBoilersLayout from "@/layouts/ChillersBoilersLayout.astro";
 ---
@@ -22,7 +23,7 @@ import ChillersBoilersLayout from "@/layouts/ChillersBoilersLayout.astro";
     sectionClass="relative min-h-[100vh] overflow-hidden flex items-center justify-center bg-cover bg-fixed bg-center z-10 md:p-[var(--spacing-lg)] text-bg text-xl",
     contentClass="text-center space-y-[var(--spacing-md)]",
     buttonsSectionClass="mt-[var(--spacing-sm)] flex flex-wrap gap-[var(--spacing-md)] justify-center",
-    topContentClass="z-[999999] top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 lg:top-0 lg:left-auto lg:right-[-100px] lg:translate-x-0 lg:translate-y-0 bg-[rgba(var(--color-boilLight),0.55)] circle"
+    topContentClass="z-[999999] scale-up top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 lg:top-0 lg:left-auto lg:right-[-100px] lg:translate-x-0 lg:translate-y-0 bg-[rgba(var(--color-boilLight),0.55)] circle"
     headingAreaClass="flex flex-col items-center justify-center gap-[var(--spacing-md)] lg:-mb-[var(--spacing-xl)]",
     buttonsPlacement="section-heading-area"
     backgroundMedia={{
@@ -46,18 +47,18 @@ import ChillersBoilersLayout from "@/layouts/ChillersBoilersLayout.astro";
     <Image
       src={ChillerDude}
       alt="Universal Chillers Logo"
-      class="hidden lg:block w-130 lg:w-130 h-auto mx-auto absolute bottom-0 left-2/5 transform -translate-x-2/5"
+      class="hidden lg:block slide-up w-130 lg:w-130 h-auto mx-auto absolute bottom-0 left-2/5 transform -translate-x-2/5"
       loading="lazy"
       fetchpriority="high"
     />
-    <div class="circle bg-secondary/50 absolute -bottom-50 left-30 right-0 z-[-1]"></div>
+    <div class="circle scale-up hidden lg:block bg-secondary/50 absolute -bottom-50 left-30 right-0 z-[-1]"></div>
   </Section>
 
   <Section
     sectionClass="text-center"
     contentClass="section-sm z-[9999]"
-    heading={{ text: `About ${SiteData.title}`, tagName: "h2" }}
-    buttons={[{ text: "Learn More", link: "/about-us", variant: "primary" }]}
+    heading={{ text: `About ${SiteData.title}`, tagName: "h2", class: "load slide-down" }}
+    buttons={[{ text: "Learn More", link: "/about-us", variant: "primary", className: "load scale-up" }]}
     childPlacement="section-heading-area"
     buttonsPlacement="section-heading-area"
     headingAreaClass="flex flex-col gap-[var(--spacing-md)] items-center justify-center"
@@ -65,18 +66,18 @@ import ChillersBoilersLayout from "@/layouts/ChillersBoilersLayout.astro";
     <div
       class="flex gap-[var(--spacing-md)] flex-col items-center justify-center"
     >
-      <h3 class="h3">
+      <h3 class="h3 *:load slide-up">
         Universal Chillers delivers <span class="text-secondary">heating</span> and
         <span class="text-primary">cooling</span> systems with the power, precision,
         and performance your facility needs.
       </h3>
-      <p class="p-0 m-0">
+      <p class="p-0 m-0 load fade-in">
         Universal Chillers designs, installs, and maintains large-scale HVAC
         systems for commercial and industrial facilities across all 50 states.
         We specialize in air-cooled and water-cooled chillers—serving hospitals,
         data centers, factories, and critical spaces nationwide.
       </p>
-      <p class="p-0 m-0">
+      <p class="p-0 m-0 load fade-in">
         From rooftop chillers to boiler rooms, cooling towers, and
         industrial-grade boilers, our systems are engineered for serious
         performance. Whether it's a new install, urgent repair, or long-term
@@ -129,7 +130,9 @@ import ChillersBoilersLayout from "@/layouts/ChillersBoilersLayout.astro";
 
   <!-- <Section collection="faq" query="getAll" /> -->
   <Section
+    heading={{ text: `Don’t Let Your Facility Overheat or Freeze Up`, tagName: "h2", class: "text-bg load slide-down" }}
     description={SiteData.tagline}
+    descriptionClass="load slide-up"
     buttons={[
       { text: "Get A Quote", link: "/contact-us", variant: "tertiary" },
     ]}
@@ -145,8 +148,8 @@ import ChillersBoilersLayout from "@/layouts/ChillersBoilersLayout.astro";
       },
       overlayClass: "bg-primary/80",
     }}
-    sectionClass="relative min-h-[60vh] flex items-center justify-center z-10 p-[var(--spacing-lg)] text-bg text-xl"
+    sectionClass="relative min-h-[60vh] lg:min-h-[80vh] flex items-center justify-center z-10 p-[var(--spacing-lg)] text-bg text-xl load slide-up"
   >
-<Image src={LogowTagline} alt="Universal Chillers Logo with Tagline" class="invert max-w-full h-auto" />
+<Image src={UCLogo} alt="Universal Chillers Logo" class="w-auto h-35 load scale-up" />
 </Section>
 </BaseLayout>

@@ -13,14 +13,14 @@ const effectiveHasPage =
 ---
 
 <article
-  class={`card ${itemClass} load scale-up w-full md:flex-2/5 xl:flex-1/4 flex flex-col justify-left items-center`}
+  class={`card ${itemClass} w-full md:flex-2/5 xl:flex-1/4 flex flex-col justify-left items-center`}
 >
     {
       item.data.featuredImage && (
         <Image
           src={item.data.featuredImage}
           alt={item.data.title}
-          class="w-full h-full rounded-2xl shadow-lg"
+          class="w-full h-full rounded-2xl shadow-lg load scale-up"
           loading="lazy"
           height={300}
           width={300}
@@ -31,7 +31,7 @@ const effectiveHasPage =
     }
 
   <div
-    class="card-container flex flex-col justify-center items-start p-[var(--spacing-md)] lg:p-[var(--spacing-sm)] w-full h-full"
+    class="card-container load slide-up flex flex-col justify-center items-start p-[var(--spacing-md)] lg:p-[var(--spacing-sm)] w-full h-full"
   >
       <!-- {
         item.data.icon && (
