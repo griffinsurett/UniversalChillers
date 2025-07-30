@@ -15,6 +15,7 @@ const {
   allItems,
   itemClass = "",
   linkClass = "",
+  activeClass = "",
   hierarchical = false,
   collectionName,
   submenu = {
@@ -36,7 +37,6 @@ const thisId      = getMenuId(item);
 const childItems  = getChildItems(thisId, allItems);
 const hasChildren = hasMenuChildren(item, allItems, hierarchical);
 const SubmenuComp = submenu.component ?? Submenu;
-
 const currentPath = Astro.url.pathname;
 const link        = getMenuLink(item, collectionName);
 const active      = isActive(currentPath, link);
@@ -46,7 +46,7 @@ const active      = isActive(currentPath, link);
     as="a"
     href={link}
     variant={active ? "link" : "linkNoIcon"}
-    className={linkClass}
+    className={`${linkClass} ${active ? activeClass : ""}`}
     aria-current={active ? "page" : undefined}
     rel="noopener noreferrer"
     role="menuitem"

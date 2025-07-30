@@ -11,6 +11,7 @@ export const desktopDefaults = {
     props: {
       itemClass: "",
       linkClass: "",
+      activeClass: "",
       hierarchical: false,
       submenu: {
         component: Submenu,
@@ -37,6 +38,7 @@ export const mobileDefaults = {
     props: {
       itemClass: "",
       linkClass: "",
+      activeClass: "",
       hierarchical: true,
       submenu: {
         component: MobileMenuItem,

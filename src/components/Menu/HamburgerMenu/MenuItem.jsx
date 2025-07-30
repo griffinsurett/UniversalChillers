@@ -15,6 +15,7 @@ export default function MobileMenuItem({
   allItems = [],
   itemClass = "",
   linkClass = "",
+  activeClass = "",
   hierarchical = true,
   submenu = null,
   collectionName,
@@ -41,7 +42,7 @@ export default function MobileMenuItem({
       : "linkNoIcon";
 
   return (
-    <div className={`menu-item ${itemClass}`}>
+    <div className={`menu-item ${itemClass} ${active ? activeClass : ""}`}>
       <div className="flex w-full items-center justify-between">
         <Button
           as="a"

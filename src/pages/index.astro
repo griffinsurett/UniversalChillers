@@ -19,10 +19,10 @@ import ChillersBoilersLayout from "@/layouts/ChillersBoilersLayout.astro";
 >
   <!-- Hero Section -->
   <Section
-    sectionClass="relative min-h-[100vh] flex items-center justify-center bg-cover bg-fixed bg-center z-10 md:p-[var(--spacing-lg)] text-bg text-xl overflow-x-hidden",
+    sectionClass="relative min-h-[100vh] overflow-hidden flex items-center justify-center bg-cover bg-fixed bg-center z-10 md:p-[var(--spacing-lg)] text-bg text-xl",
     contentClass="text-center space-y-[var(--spacing-md)]",
     buttonsSectionClass="mt-[var(--spacing-sm)] flex flex-wrap gap-[var(--spacing-md)] justify-center",
-    topContentClass="z-[999999] absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 lg:top-0 lg:left-auto lg:right-[-100px] lg:translate-x-0 lg:translate-y-0 bg-[rgba(209,49,30,0.55)] h-[400px] w-[400px] md:h-[450px] md:w-[450px] lg:h-[650px] lg:w-[650px] rounded-full flex items-center justify-center"
+    topContentClass="z-[999999] top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 lg:top-0 lg:left-auto lg:right-[-100px] lg:translate-x-0 lg:translate-y-0 bg-[rgba(var(--color-boilLight),0.55)] circle"
     headingAreaClass="flex flex-col items-center justify-center gap-[var(--spacing-md)] lg:-mb-[var(--spacing-xl)]",
     buttonsPlacement="section-heading-area"
     backgroundMedia={{
@@ -50,11 +50,12 @@ import ChillersBoilersLayout from "@/layouts/ChillersBoilersLayout.astro";
       loading="lazy"
       fetchpriority="high"
     />
+    <div class="circle bg-secondary/50 absolute -bottom-50 left-30 right-0 z-[-1]"></div>
   </Section>
 
   <Section
     sectionClass="text-center"
-    contentClass="section-sm"
+    contentClass="section-sm z-[9999]"
     heading={{ text: `About ${SiteData.title}`, tagName: "h2" }}
     buttons={[{ text: "Learn More", link: "/about-us", variant: "primary" }]}
     childPlacement="section-heading-area"
@@ -95,8 +96,9 @@ import ChillersBoilersLayout from "@/layouts/ChillersBoilersLayout.astro";
   <!-- What We DO -->
   <Section
     collection="whatWeDo"
+    descriptionClass="load slide-right"
     query="getAll"
-    sectionClass="flex flex-col items-center justify-center section-sm py-[var(--spacing-xl)] lg:py-[var(--spacing-lg)]"
+    sectionClass="flex overflow-hidden flex-col items-center justify-center section-sm py-[var(--spacing-xl)] lg:py-[var(--spacing-lg)]"
     contentClass="flex flex-col items-center justify-center mx-auto w-9/10"
     itemsClass="flex flex-col md:flex-row items-start justify-center gap-[var(--spacing-xl)]"
     headingAreaClass="flex flex-col md:flex-row items-center justify-center gap-[var(--spacing-sm)] lg:gap-[var(--spacing-lg)] mb-[var(--spacing-xl)]"
@@ -143,7 +145,7 @@ import ChillersBoilersLayout from "@/layouts/ChillersBoilersLayout.astro";
       },
       overlayClass: "bg-primary/80",
     }}
-    sectionClass="relative min-h-[60vh] flex items-center justify-center z-10 md:p-[var(--spacing-lg)] text-bg text-xl"
+    sectionClass="relative min-h-[60vh] flex items-center justify-center z-10 p-[var(--spacing-lg)] text-bg text-xl"
   >
 <Image src={LogowTagline} alt="Universal Chillers Logo with Tagline" class="invert max-w-full h-auto" />
 </Section>

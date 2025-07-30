@@ -5,13 +5,19 @@
 
 /* Design tokens (colors, spacing, etc.) */
 @theme {
-  /* Colors */
+/* Colors */
+  --color-coolLight: 62, 101, 197;    /* #3E65C5 */
+  --color-coolMedium: 34, 43, 108;    /* #222B6C */
+  --color-coolDark: 9, 13, 39;        /* #090D27 */
+  --color-boilLight: 209,49,30;     /* #B53728 */
+  --color-boilDark: 91, 25, 32;       /* #5B1920 */
+
   --color-bg: #ffffff;
   --color-text: #111111;
-  --color-primary: #1d4ed8;
-  --color-secondary: #f43f5e;
-  --color-accent: #10b981;
-  --color-neutral: #f3f4f6;
+  --color-primary: rgb(var(--color-coolLight));
+  --color-secondary: rgb(var(--color-coolMedium));
+  --color-accent: rgb(var(--color-boilLight));
+  --color-accent-secondary: rgb(var(--color-boilDark));
   
   /* Typography */
   --font-base: 'Inter', sans-serif;
@@ -144,6 +150,10 @@ p {
   }
   .delay-default {
     transition-delay: var(--transition-delay-default);
+  }
+
+  .circle {
+    @apply rounded-full absolute h-[400px] w-[400px] md:h-[450px] md:w-[450px] lg:h-[650px] lg:w-[650px] flex items-center justify-center;
   }
 }
   

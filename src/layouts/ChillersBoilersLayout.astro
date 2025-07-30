@@ -26,15 +26,16 @@ const baseSecClasses =
     style={`background-image: url(${ChillersImg.src});`}
   >
     <div class="flex flex-col justify-center items-center text-center p-8 lg:p-16 text-bg space-y-[var(--spacing-md)]">
-      <h2 class="text-3xl lg:text-5xl font-bold">
+      <h2 class="text-3xl lg:text-5xl font-bold load slide-down">
         {chillers.data.title}
       </h2>
-      <p class="max-w-prose text-base lg:text-lg">
+      <p class="max-w-prose text-base lg:text-lg load slide-up">
         {chillers.data.description}
       </p>
       <Button
         href={chillers.data.hasPage ? `/services/${chillers.slug}` : defaultSlug}
         variant="tertiary"
+        className="load scale-up"
       >
     {chillers.data.hasPage ? "Learn More" : "Contact Us"}
     </Button>
@@ -47,15 +48,16 @@ const baseSecClasses =
     style={`background-image: url(${BoilersImg.src});`}
   >
     <div class="flex flex-col justify-center items-center text-center p-8 lg:p-16 text-bg space-y-[var(--spacing-md)]">
-      <h2 class="text-3xl lg:text-5xl font-bold">
+      <h2 class="text-3xl lg:text-5xl font-bold load slide-down">
         {boilers.data.title}
       </h2>
-      <p class="max-w-prose text-base lg:text-lg">
+      <p class="max-w-prose text-base lg:text-lg load slide-up">
         {boilers.data.description}
       </p>
       <Button
         href={boilers.data.hasPage ? `/services/${boilers.slug}` : defaultSlug}
         variant="tertiary"
+        className="load scale-up"
       >
         {boilers.data.hasPage ? "Learn More" : "Contact Us"}
       </Button>
