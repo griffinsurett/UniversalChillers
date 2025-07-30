@@ -20,7 +20,7 @@
   --color-accent-secondary: rgb(var(--color-boilDark));
   
   /* Typography */
-  --font-base: 'Poppins', sans-serif;
+  --font-base: "Chakra Petch",'Poppins', sans-serif;
   --font-heading: "Chakra Petch",'Poppins', sans-serif;
 
   /* Spacing tokens */
@@ -50,6 +50,7 @@
 /* Base element styling */
 body {
   font-family: var(--font-base);
+  font-weight: light;
   background-color: var(--color-bg);
   color: var(--color-text);
 }
