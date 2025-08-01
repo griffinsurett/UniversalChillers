@@ -5,9 +5,10 @@ import { getImage } from "astro:assets";
 // Accept a backgroundMedia prop that may include video, image, and overlay information.
 const { backgroundMedia } = Astro.props;
 
+const imgProps = backgroundMedia?.image || {};
 let optimizedBackgroundImage = null;
-if (backgroundMedia?.image && backgroundMedia.image.src) {
-  optimizedBackgroundImage = await getImage({ src: backgroundMedia.image.src }, {
+if (imgProps.src) {
+  optimizedBackgroundImage = await getImage({ src: imgProps.src }, {
     format: "webp",
     quality: 50,
     width: 1200,
@@ -31,12 +32,17 @@ if (backgroundMedia?.image && backgroundMedia.image.src) {
     Your browser does not support the video tag.
   </video>
 ) : (
-  optimizedBackgroundImage && (
-    <div
-      class={`absolute inset-0 z-0 ${backgroundMedia?.image?.imageClass || ""}`}
-      style={`background-image: url('${optimizedBackgroundImage.src}');`}
+    optimizedBackgroundImage && (
+    <img
+      class={`absolute inset-0 z-0 w-full h-full object-cover ${imgProps.imageClass || ""}`}
+      src={optimizedBackgroundImage.src}
+      srcset={optimizedBackgroundImage.srcset}
+      sizes={optimizedBackgroundImage.sizes}
+      alt=""
+      loading={imgProps.loading ?? "lazy"}
+      fetchpriority={imgProps.fetchpriority ?? "low"}
       aria-hidden="true"
-    ></div>
+    />
   )
 )}
 {backgroundMedia?.overlayClass && (

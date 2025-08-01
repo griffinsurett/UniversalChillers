@@ -16,22 +16,29 @@ import { Image } from "astro:assets";
 import ChillersBoilersLayout from "@/layouts/ChillersBoilersLayout.astro";
 import ListItem from "@/components/LoopComponents/ListItem";
 ---
+
 <BaseLayout
   title="Welcome to Greactstro!"
   description="Your gateway to amazing projects."
 >
   <!-- Hero Section -->
   <Section
-    sectionClass="relative min-h-[100vh] overflow-hidden flex items-center justify-center bg-cover bg-fixed bg-center z-10 md:p-[var(--spacing-lg)] text-bg text-xl",
-    contentClass="text-center space-y-[var(--spacing-md)]",
-    buttonsSectionClass="mt-[var(--spacing-sm)] flex flex-wrap gap-[var(--spacing-md)] justify-center",
+    sectionClass="relative min-h-[100vh] overflow-hidden flex items-center justify-center bg-cover bg-fixed bg-center z-10 md:p-[var(--spacing-lg)] text-bg text-xl"
+    ,
+    contentClass="text-center space-y-[var(--spacing-md)]"
+    ,
+    buttonsSectionClass="mt-[var(--spacing-sm)] flex flex-wrap gap-[var(--spacing-md)] justify-center"
+    ,
     topContentClass="z-[999999] scale-up top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 lg:top-0 lg:left-auto lg:right-[-100px] lg:translate-x-0 lg:translate-y-0 bg-primary/70 circle"
-    headingAreaClass="flex flex-col items-center justify-center gap-[var(--spacing-md)] lg:-mb-[var(--spacing-xl)]",
+    headingAreaClass="flex flex-col items-center justify-center gap-[var(--spacing-md)] lg:-mb-[var(--spacing-xl)]"
+    ,
     buttonsPlacement="section-heading-area"
     backgroundMedia={{
       image: {
         src: HeroBg,
         imageClass: "bg-cover bg-center xl:bg-fixed w-screen",
+        loading: "eager",
+        fetchpriority: "high",
       },
       overlayClass: "bg-text opacity-50",
     }}
@@ -53,14 +60,28 @@ import ListItem from "@/components/LoopComponents/ListItem";
       loading="lazy"
       fetchpriority="high"
     />
-    <div class="circle scale-up hidden lg:block bg-[rgba(var(--color-boilLight),0.55)] absolute -bottom-50 left-30 right-0 z-[-1]"></div>
+    <div
+      class="circle scale-up hidden lg:block bg-[rgba(var(--color-boilLight),0.55)] absolute -bottom-50 left-30 right-0 z-[-1]"
+    >
+    </div>
   </Section>
 
   <Section
     sectionClass="text-center min-h-[100vh] py-[var(--spacing-xl)] lg:min-h-[80vh] flex items-center justify-center"
     contentClass="z-[9999] w-9/10 lg:w-2/3"
-    heading={{ text: `About ${SiteData.title}`, tagName: "h2", class: "load slide-down" }}
-    buttons={[{ text: "Learn More", link: "/about-us", variant: "primary", className: "load scale-up" }]}
+    heading={{
+      text: `About ${SiteData.title}`,
+      tagName: "h2",
+      class: "load slide-down",
+    }}
+    buttons={[
+      {
+        text: "Learn More",
+        link: "/about-us",
+        variant: "primary",
+        className: "load scale-up",
+      },
+    ]}
     childPlacement="section-heading-area"
     buttonsPlacement="section-heading-area"
     buttonsSectionClass="mt-[var(--spacing-sm)]"
@@ -89,7 +110,7 @@ import ListItem from "@/components/LoopComponents/ListItem";
     </div>
   </Section>
 
-     <!-- <Section
+  <!-- <Section
     collection="services"
     query="getAll"
     component={ServiceSection}
@@ -108,8 +129,8 @@ import ListItem from "@/components/LoopComponents/ListItem";
     headingAreaClass="flex flex-col md:flex-row items-center justify-center gap-[var(--spacing-sm)] lg:gap-[var(--spacing-lg)] mb-[var(--spacing-xl)]"
   />
 
-<!-- Services -->
- <ChillersBoilersLayout />
+  <!-- Services -->
+  <ChillersBoilersLayout />
 
   <!-- Why Choose Us -->
   <Section
@@ -128,12 +149,19 @@ import ListItem from "@/components/LoopComponents/ListItem";
     imageColClass="w-full h-auto"
     childPlacement="bottom-content-section"
   >
-<div slot="imageColumn" class="h-auto w-full lg:sticky lg:top-0">
-  <Image src={Contractor} alt={"Image"} class="object-cover rounded-4xl h-full w-full load scale-up"/>
-</div>
-<Image src={UCLogo} alt="Universal Chillers Logo" class="w-auto h-35 load scale-up invert" />
-
-</Section>
+    <div slot="imageColumn" class="h-auto w-full lg:sticky lg:top-0">
+      <Image
+        src={Contractor}
+        alt={"Image"}
+        class="object-cover rounded-4xl h-full w-full load scale-up"
+      />
+    </div>
+    <Image
+      src={UCLogo}
+      alt="Universal Chillers Logo"
+      class="w-auto h-35 load scale-up invert"
+    />
+  </Section>
 
   <!-- Brands We Service -->
   <Section
@@ -157,7 +185,11 @@ import ListItem from "@/components/LoopComponents/ListItem";
 
   <!-- <Section collection="faq" query="getAll" /> -->
   <Section
-    heading={{ text: `Don’t Let Your Facility Overheat or Freeze Up`, tagName: "h2", class: "text-bg load slide-down" }}
+    heading={{
+      text: `Don’t Let Your Facility Overheat or Freeze Up`,
+      tagName: "h2",
+      class: "text-bg load slide-down",
+    }}
     description={SiteData.tagline}
     descriptionClass="load slide-up"
     buttons={[
@@ -177,6 +209,10 @@ import ListItem from "@/components/LoopComponents/ListItem";
     }}
     sectionClass="relative min-h-[60vh] lg:min-h-[80vh] flex items-center justify-center z-10 p-[var(--spacing-lg)] text-bg text-xl load slide-up"
   >
-<Image src={UCLogo} alt="Universal Chillers Logo" class="w-auto h-35 load scale-up" />
-</Section>
+    <Image
+      src={UCLogo}
+      alt="Universal Chillers Logo"
+      class="w-auto h-35 load scale-up"
+    />
+  </Section>
 </BaseLayout>
