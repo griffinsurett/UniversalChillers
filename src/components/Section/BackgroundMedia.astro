@@ -8,43 +8,70 @@ const { backgroundMedia } = Astro.props;
 const imgProps = backgroundMedia?.image || {};
 let optimizedBackgroundImage = null;
 if (imgProps.src) {
-  optimizedBackgroundImage = await getImage({ src: imgProps.src }, {
-    format: "webp",
-    quality: 50,
-    width: 1200,
-    placeholder: "blur",
-  });
+  optimizedBackgroundImage = await getImage(
+    { src: imgProps.src },
+    {
+      format: "webp",
+      quality: 50,
+      width: 1200,
+      placeholder: "blur",
+    }
+  );
 }
 ---
-{backgroundMedia?.video && backgroundMedia.video.src ? (
-  <video
-    class={`absolute inset-0 z-0 w-full h-full object-cover ${backgroundMedia.video.videoClass || ""}`}
-    autoPlay={backgroundMedia.video.autoPlay !== undefined ? backgroundMedia.video.autoPlay : true}
-    muted={backgroundMedia.video.muted !== undefined ? backgroundMedia.video.muted : true}
-    loop={backgroundMedia.video.loop !== undefined ? backgroundMedia.video.loop : true}
-    playsInline={backgroundMedia.video.playsInline !== undefined ? backgroundMedia.video.playsInline : true}
-    controls={backgroundMedia.video.controls || false}
-    preload={backgroundMedia.video.preload || "metadata"}
-    poster={optimizedBackgroundImage ? optimizedBackgroundImage.src : ""}
-    aria-hidden="true"
-  >
-    <source src={backgroundMedia.video.src} type="video/mp4" />
-    Your browser does not support the video tag.
-  </video>
-) : (
+
+{
+  backgroundMedia?.video && backgroundMedia.video.src ? (
+    <video
+      class={`absolute inset-0 z-0 w-full h-full object-cover ${backgroundMedia.video.videoClass || ""}`}
+      autoPlay={
+        backgroundMedia.video.autoPlay !== undefined
+          ? backgroundMedia.video.autoPlay
+          : true
+      }
+      muted={
+        backgroundMedia.video.muted !== undefined
+          ? backgroundMedia.video.muted
+          : true
+      }
+      loop={
+        backgroundMedia.video.loop !== undefined
+          ? backgroundMedia.video.loop
+          : true
+      }
+      playsInline={
+        backgroundMedia.video.playsInline !== undefined
+          ? backgroundMedia.video.playsInline
+          : true
+      }
+      controls={backgroundMedia.video.controls || false}
+      preload={backgroundMedia.video.preload || "metadata"}
+      poster={optimizedBackgroundImage ? optimizedBackgroundImage.src : ""}
+      aria-hidden="true"
+    >
+      <source src={backgroundMedia.video.src} type="video/mp4" />
+      Your browser does not support the video tag.
+    </video>
+  ) : (
     optimizedBackgroundImage && (
-    <img
-      class={`absolute inset-0 z-0 w-full h-full object-cover ${imgProps.imageClass || ""}`}
-      src={optimizedBackgroundImage.src}
-      srcset={optimizedBackgroundImage.srcset}
-      sizes={optimizedBackgroundImage.sizes}
-      alt=""
-      loading={imgProps.loading ?? "lazy"}
-      fetchpriority={imgProps.fetchpriority}
+      <img
+        class={`absolute inset-0 z-0 w-full h-full object-cover ${imgProps.imageClass || ""}`}
+        src={optimizedBackgroundImage.src}
+        srcset={optimizedBackgroundImage.srcset}
+        sizes={optimizedBackgroundImage.sizes}
+        alt=""
+        loading="eager"
+        fetchpriority={imgProps.fetchpriority}
+        aria-hidden="true"
+      />
+    )
+  )
+}
+{
+  backgroundMedia?.overlayClass && (
+    <div
+      class={`absolute inset-0 ${backgroundMedia.overlayClass} z-0`}
       aria-hidden="true"
     />
   )
-)}
-{backgroundMedia?.overlayClass && (
-  <div class={`absolute inset-0 ${backgroundMedia.overlayClass} z-0`} aria-hidden="true"></div>
-)}
+}
