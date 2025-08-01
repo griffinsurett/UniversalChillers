@@ -18,8 +18,8 @@ import ListItem from "@/components/LoopComponents/ListItem";
 ---
 
 <BaseLayout
-  title="Welcome to Greactstro!"
-  description="Your gateway to amazing projects."
+  title={`${SiteData.title} | ${SiteData.tagline}`}
+  description={SiteData.description}
 >
   <!-- Hero Section -->
   <Section
