@@ -1,6 +1,6 @@
 // src/components/Icon/Icon.jsx
 export default function Icon({ icon, className = "" }) {
-  if (icon == null) return null;
+  if (!icon) return null;
 
   // 1) React element / inline SVG
   if (typeof icon === "object" && (icon.$$typeof || typeof icon === "function")) {
@@ -13,14 +13,26 @@ export default function Icon({ icon, className = "" }) {
     return <img src={icon.src} alt="" className={className} loading="lazy" />;
   }
 
-  // 3) URL or raw SVG string or emoji/text
+  // 3) string: URL, alias, relative path, raw SVG, or text
   if (typeof icon === "string") {
-    const isUrl     = icon.startsWith("http") || icon.startsWith("/");
-    const isSvgText = icon.trim().startsWith("<svg");
+    // now match:
+    //   /foo.svg     — public root
+    //   @/assets/foo.svg — alias
+    //   ./foo.svg    — relative
+    //   ../foo.svg   — relative up
+    //   http(s)://…
+    const isUrl = /^(?:\/|@|\.{1,2}\/|https?:\/\/)/.test(icon);
+
     if (isUrl) {
-      return <img src={icon} alt="" className={className} loading="lazy" />;
+      // for true relative (./ or ../) we need import.meta.url, otherwise leave it as-is
+      const src = icon.startsWith(".")
+        ? new URL(icon, import.meta.url).href
+        : icon;
+      return <img src={src} alt="" className={className} loading="lazy" />;
     }
-    if (isSvgText) {
+
+    // inline SVG string?
+    if (icon.trim().startsWith("<svg")) {
       return (
         <span
           className={className}
@@ -28,6 +40,7 @@ export default function Icon({ icon, className = "" }) {
         />
       );
     }
+
     // fallback: emoji or text
     return <span className={className}>{icon}</span>;
   }

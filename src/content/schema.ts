@@ -184,7 +184,7 @@ export const baseSchema = ({ image }: { image: Function }) =>
     sections: z.array(sectionSchema).optional(),
     addToMenu: z.array(AddToMenuFields).optional(),
     tags: z.array(z.string()).optional(),
-    icon: image().optional(),
+    icon: z.union([image(), z.string()]).optional(),
     heroMedia: z
       .object({
         image: image().optional(),

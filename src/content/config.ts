@@ -101,4 +101,8 @@ export const collections = {
         tags: z.array(z.string()).optional(),
       }),
   }),
+  whyChooseUs: defineCollection({
+    loader: file("src/content/whyChooseUs/whyChooseUs.json"),
+    schema: ({ image }) => baseSchema({ image }),
+  }),
 };

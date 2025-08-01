@@ -1,8 +1,0 @@
-@import "tailwindcss";
-
-@layer components {
-  .button {
-    @apply inline-flex items-center gap-[var(--spacing-md)] justify-center font-semibold text-white transition-colors duration-700 ease-in-out;
-    @apply rounded-lg py-[var(--spacing-sm)] px-[var(--spacing-md)] lg:px-[var(--spacing-lg)] font-heading uppercase;
-  }
-}

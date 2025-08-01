@@ -7,12 +7,14 @@ import { SiteData } from "@/content/SiteData";
 import ImageCard from "@/components/LoopComponents/ImageCard.astro";
 import LogoLoop from "@/components/LoopComponents/LogoLoop.astro";
 import HeroBg from "@/assets/photo-of-chiller-workers.png";
+import Contractor from "@/assets/contractor.jpg";
 import ChillerDude from "@/assets/chiller-dude.png";
 import CTAbg from "@/assets/bg-1.png";
 import LogowTagline from "@/assets/logo-w-tagline.png";
 import UCLogo from "@/assets/UC-circle.png";
 import { Image } from "astro:assets";
 import ChillersBoilersLayout from "@/layouts/ChillersBoilersLayout.astro";
+import ListItem from "@/components/LoopComponents/ListItem";
 ---
 <BaseLayout
   title="Welcome to Greactstro!"
@@ -108,6 +110,30 @@ import ChillersBoilersLayout from "@/layouts/ChillersBoilersLayout.astro";
 
 <!-- Services -->
  <ChillersBoilersLayout />
+
+  <!-- Why Choose Us -->
+  <Section
+    collection="whyChooseUs"
+    query="getAll"
+    component={ListItem}
+    sectionClass="overflow-x-hidden"
+    contentClass="flex flex-col lg:flex-row justify-center w-9/10 mx-auto lg:gap-[var(--spacing-xl)]"
+    itemsClass="lg:sticky lg:top-10"
+    topContentClass="w-full lg:w-3/5"
+    bottomContentClass="flex flex-col-reverse w-full lg:w-2/5 gap-[var(--spacing-md)]"
+    itemPlacement="top-content-section"
+    descriptionPlacement="bottom-content-section"
+    descriptionClass="load slide-right"
+    imageColPlacement="bottom-content-section"
+    imageColClass="w-full h-auto"
+    childPlacement="bottom-content-section"
+  >
+<div slot="imageColumn" class="h-auto w-full lg:sticky lg:top-0">
+  <Image src={Contractor} alt={"Image"} class="object-cover rounded-4xl h-full w-full load scale-up"/>
+</div>
+<Image src={UCLogo} alt="Universal Chillers Logo" class="w-auto h-35 load scale-up invert" />
+
+</Section>
 
   <!-- Brands We Service -->
   <Section

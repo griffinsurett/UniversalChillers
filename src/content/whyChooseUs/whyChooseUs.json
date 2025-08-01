@@ -1,0 +1,20 @@
+[
+    {
+        "id": "0",
+        "title": "Certified & Expert Technicians",
+        "description": "Our skilled professionals are trained and certified in handling complex chiller and boiler systems with accuracy and guaranteed results.",
+        "icon": "@/assets/ribbon.svg"
+    },
+    {
+        "id": "1",
+        "title": "Transparent & Competitive Pricing",
+        "description": "We provide fair, upfront pricing with no hidden costs—ensuring maximum value for your industrial HVAC needs.",
+        "icon": "@/assets/money.svg"
+    },
+    {
+        "id": "2",
+        "title": "24/7 Emergency Support",
+        "description": "Downtime isn’t an option. We offer 24/7 emergency repair services to keep your systems running reliably around the clock",
+        "icon": "@/assets/time.svg"
+    }
+]
