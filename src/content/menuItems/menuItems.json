@@ -10,7 +10,7 @@
   {
     "id": "about-us",
     "title": "About Us",
-    "link": "/about-us",
+    "link": "/#about-us-home",
     "order": 3,
     "openInNewTab": false,
     "menu": "mainMenu"

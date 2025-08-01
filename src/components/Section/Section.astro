@@ -32,6 +32,7 @@ import { capitalize } from "@/utils/ContentUtils";
 
 const {
   tagName: rawTagName,
+  id: rawId,                           // ← Add id override prop
   variant: rawVariant,
   collection: collectionName,
   query: queryType,
@@ -238,11 +239,12 @@ const descriptionPlacementArray = Array.isArray(descriptionPlacement)
   : [descriptionPlacement];
 
 // 7️⃣ Generate section ID
-const sectionId = generateSectionId(
-  collectionName,
-  queryType,
-  Astro.url.pathname
-);
+const sectionId =
+  rawId ?? generateSectionId(
+    collectionName,
+    queryType,
+    Astro.url.pathname
+  );
 
 // 8️⃣ Heading & description
 const headingProp = heading ?? defaultSection.heading;
