@@ -1,0 +1,45 @@
+---
+import Section from "@/components/Section/Section.astro";
+import BaseLayout from "./BaseLayout.astro";
+---
+<BaseLayout>
+<Section
+  variant="serviceHero"
+  heading={{
+    text: "Serious Cooling for Serious Spaces!",
+    tagName: "h1",
+    class: "load slide-down",
+  }}
+  description="High-performance chiller systems designed for demanding commercial environments."
+  buttons={[
+    {
+      text: "Contact Us",
+      link: "/contact-us",
+      variant: "primary",
+      className: "load scale-up",
+    },
+  ]}
+/>
+<Section
+  variant="cta"
+  heading={{
+    text: "Ready to Get Started?",
+    tagName: "h2",
+    class: "load slide-down",
+  }}
+  buttons={[
+    {
+      text: "Contact Us",
+      link: "/contact-us",
+      variant: "primary",
+      className: "load scale-up",
+    },
+  ]}
+>
+  <div class="flex flex-col items-center">
+    <p class="p-0 m-0 load fade-in">
+      Let Universal Chillers be your trusted partner in cooling and heating solutions.
+    </p>
+  </div>
+</Section>
+</BaseLayout>

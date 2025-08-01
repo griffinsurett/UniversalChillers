@@ -6,10 +6,10 @@ import Card from "@/components/LoopComponents/Card";
 import { SiteData } from "@/content/SiteData";
 import ImageCard from "@/components/LoopComponents/ImageCard.astro";
 import LogoLoop from "@/components/LoopComponents/LogoLoop.astro";
-import HeroBg from "@/assets/photo-of-chiller-workers.png";
 import Contractor from "@/assets/contractor.jpg";
 import ChillerDude from "@/assets/chiller-dude.png";
 import CTAbg from "@/assets/bg-1.png";
+import HeroBg from "@/assets/photo-of-chiller-workers.png";
 import LogowTagline from "@/assets/logo-w-tagline.png";
 import UCLogo from "@/assets/UC-circle.png";
 import { Image } from "astro:assets";
@@ -23,25 +23,7 @@ import ListItem from "@/components/LoopComponents/ListItem";
 >
   <!-- Hero Section -->
   <Section
-    sectionClass="relative min-h-[100vh] overflow-hidden flex items-center justify-center bg-cover bg-fixed bg-center z-10 md:p-[var(--spacing-lg)] text-bg text-xl"
-    ,
-    contentClass="text-center space-y-[var(--spacing-md)]"
-    ,
-    buttonsSectionClass="mt-[var(--spacing-sm)] flex flex-wrap gap-[var(--spacing-md)] justify-center"
-    ,
-    topContentClass="z-[999999] lg:top-0 lg:left-auto lg:right-[-100px] lg:translate-x-0 lg:translate-y-0 bg-primary/70 circle"
-    headingAreaClass="flex flex-col items-center justify-center gap-[var(--spacing-md)] lg:-mb-[var(--spacing-xl)]"
-    ,
-    buttonsPlacement="section-heading-area"
-    backgroundMedia={{
-      image: {
-        src: HeroBg,
-        imageClass: "bg-cover bg-center xl:bg-fixed w-screen",
-        loading: "eager",
-        fetchpriority: "high",
-      },
-      overlayClass: "bg-text opacity-50",
-    }}
+    variant="primaryHero"
     heading={{
       before: "Heating.",
       text: "Cooling.",
@@ -67,8 +49,7 @@ import ListItem from "@/components/LoopComponents/ListItem";
   </Section>
 
   <Section
-    sectionClass="text-center min-h-[100vh] py-[var(--spacing-xl)] lg:min-h-[80vh] flex items-center justify-center"
-    contentClass="z-[9999] w-9/10 lg:w-2/3"
+    variant="primary"
     heading={{
       text: `About ${SiteData.title}`,
       tagName: "h2",
@@ -82,10 +63,6 @@ import ListItem from "@/components/LoopComponents/ListItem";
         className: "load scale-up",
       },
     ]}
-    childPlacement="section-heading-area"
-    buttonsPlacement="section-heading-area"
-    buttonsSectionClass="mt-[var(--spacing-sm)]"
-    headingAreaClass="flex flex-col gap-[var(--spacing-md)] items-center justify-center"
   >
     <div
       class="flex gap-[var(--spacing-md)] flex-col items-center justify-center"
@@ -121,12 +98,8 @@ import ListItem from "@/components/LoopComponents/ListItem";
   <!-- What We DO -->
   <Section
     collection="whatWeDo"
-    descriptionClass="load slide-right"
     query="getAll"
-    sectionClass="flex overflow-hidden flex-col items-center justify-center section-sm py-[var(--spacing-xl)] lg:py-[var(--spacing-lg)]"
-    contentClass="flex flex-col items-center justify-center mx-auto w-9/10"
-    itemsClass="flex flex-col md:flex-row items-start justify-center gap-[var(--spacing-xl)]"
-    headingAreaClass="flex flex-col md:flex-row items-center justify-center gap-[var(--spacing-sm)] lg:gap-[var(--spacing-lg)] mb-[var(--spacing-xl)]"
+    variant="secondary"
   />
 
   <!-- Services -->
@@ -137,17 +110,7 @@ import ListItem from "@/components/LoopComponents/ListItem";
     collection="whyChooseUs"
     query="getAll"
     component={ListItem}
-    sectionClass="overflow-x-hidden py-[var(--spacing-xl)] lg:py-[var(--spacing-3xl)]"
-    contentClass="flex flex-col lg:flex-row justify-center w-9/10 mx-auto lg:gap-[var(--spacing-xl)]"
-    itemsClass="lg:sticky lg:top-10"
-    topContentClass="w-full lg:w-3/5"
-    bottomContentClass="flex flex-col-reverse w-full lg:w-2/5 gap-[var(--spacing-md)]"
-    itemPlacement="top-content-section"
-    descriptionPlacement="bottom-content-section"
-    descriptionClass="load fade-in"
-    imageColPlacement="bottom-content-section"
-    imageColClass="w-full h-auto"
-    childPlacement="bottom-content-section"
+    variant="tertiary"
   >
     <div slot="imageColumn" class="h-auto w-full lg:sticky lg:top-0">
       <Image
@@ -191,23 +154,10 @@ import ListItem from "@/components/LoopComponents/ListItem";
       class: "text-bg load slide-down",
     }}
     description={SiteData.tagline}
-    descriptionClass="load slide-up"
     buttons={[
       { text: "Get A Quote", link: "/contact-us", variant: "tertiary" },
     ]}
-    contentClass="text-center"
-    headingAreaClass="flex flex-col items-center justify-center gap-[var(--spacing-md)] mx-auto w-full lg:w-2/3"
-    buttonsPlacement="section-heading-area"
-    childPlacement="section-heading-area"
-    childSlotClass="order-first"
-    backgroundMedia={{
-      image: {
-        src: HeroBg,
-        imageClass: "bg-cover bg-center xl:bg-fixed",
-      },
-      overlayClass: "bg-primary/80",
-    }}
-    sectionClass="relative min-h-[60vh] lg:min-h-[80vh] flex items-center justify-center z-10 p-[var(--spacing-lg)] text-bg text-xl load slide-up"
+    variant="cta"
   >
     <Image
       src={UCLogo}
