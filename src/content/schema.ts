@@ -175,6 +175,7 @@ export const baseSchema = ({ image }: { image: Function }) =>
   z.object({
     ...CommonFields,
     featuredImage: image().optional(),
+    coverImage: image().optional(),
     heading: headingSchema.optional(),
     layout: z.string().optional(),
     keywords: z.array(z.string()).optional(),
