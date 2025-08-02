@@ -10,6 +10,8 @@ import { Image } from "astro:assets";
 import { SiteData } from "@/content/SiteData";
 import UCLogo from "@/assets/UC-circle.png";
 import HeroBg from "@/assets/photo-of-chiller-workers.png";
+import ListItem from "@/components/LoopComponents/ListItem";
+import Contractor from "@/assets/contractor.jpg";
 
 // determine which service we’re on
 const isChillers = entry.slug === "chillers";
@@ -89,6 +91,27 @@ const heroHeadingClass = [
     itemsClass="grid grid-cols-1 sm:grid-cols-2 gap-6 py-6"
     component={Rectangle}
   />
+
+   <!-- Why Choose Us -->
+  <Section
+    collection="whyChooseUs"
+    query="getAll"
+    component={ListItem}
+    variant="tertiary"
+  >
+    <div slot="imageColumn" class="h-auto w-full lg:sticky lg:top-0">
+      <Image
+        src={Contractor}
+        alt={"Image"}
+        class="object-cover rounded-4xl h-full w-full load scale-up"
+      />
+    </div>
+    <Image
+      src={UCLogo}
+      alt="Universal Chillers Logo"
+      class="w-auto h-35 load scale-up invert"
+    />
+  </Section>
 
   <!-- Brands We Service -->
   <Section

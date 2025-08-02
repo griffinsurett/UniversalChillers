@@ -62,6 +62,7 @@ export const collections = {
         services: z
           .union([reference("services"), z.array(reference("services"))])
           .optional(),
+        tags: z.array(z.string()).optional(),
       }),
   }),
 
