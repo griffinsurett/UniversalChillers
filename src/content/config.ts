@@ -59,7 +59,7 @@ export const collections = {
   whatWeDo: defineCollection({
     schema: ({ image }) =>
       baseSchema({ image }).extend({
-        parent: z
+        services: z
           .union([reference("services"), z.array(reference("services"))])
           .optional(),
       }),

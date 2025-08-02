@@ -5,6 +5,18 @@ import HeroBg from "@/assets/photo-of-chiller-workers.png";
  * SectionVariants defines reusable layout and styling for different section types.
  * Use via <Section variant="<key>" ... /> to apply these defaults.
  */
+const baseCTA = {
+  descriptionClass: "load slide-up",
+  sectionClass:
+    "relative min-h-[60vh] lg:min-h-[80vh] flex items-center justify-center z-10 p-[var(--spacing-lg)] text-bg text-xl load slide-up",
+  contentClass: "text-center",
+  headingAreaClass:
+    "flex flex-col items-center justify-center gap-[var(--spacing-md)] mx-auto w-full lg:w-2/3",
+  buttonsPlacement: "section-heading-area",
+  childPlacement: "section-heading-area",
+  childSlotClass: "order-first",
+};
+
 export const SectionVariants = {
   /**
    * Primary Hero variant – full-screen hero with background image, overlay, heading, description, and buttons.
@@ -31,7 +43,7 @@ export const SectionVariants = {
    * Secondary Hero variant – simple centered section with background and title.
    */
   secondaryHero: {
-    sectionClass: "flex items-center justify-center h-[75vh]",
+    sectionClass: "flex items-center justify-center min-h-[75vh]",
     contentClass: "container mx-auto text-center space-y-[var(--spacing-md)]",
     buttonsSectionClass: "hidden",
     backgroundMedia: {
@@ -43,9 +55,10 @@ export const SectionVariants = {
   },
 
   serviceHero: {
-    sectionClass: "flex items-center justify-center h-[75vh]",
+    sectionClass: "flex items-center justify-center min-h-[50vh] lg:min-h-[75vh]",
     contentClass: "container mx-auto text-center space-y-[var(--spacing-md)]",
     buttonsSectionClass: "hidden",
+    headingAreaClass: "w-8/10 lg:w-6/10 mx-auto text-center text-bg",
   },
 
   primary: {
@@ -85,21 +98,16 @@ export const SectionVariants = {
     childPlacement: "bottom-content-section",
   },
   cta: {
-    descriptionClass: "load slide-up",
-    sectionClass:
-      "relative min-h-[60vh] lg:min-h-[80vh] flex items-center justify-center z-10 p-[var(--spacing-lg)] text-bg text-xl load slide-up",
-    contentClass: "text-center",
-    headingAreaClass:
-      "flex flex-col items-center justify-center gap-[var(--spacing-md)] mx-auto w-full lg:w-2/3",
-    buttonsPlacement: "section-heading-area",
-    childPlacement: "section-heading-area",
-    childSlotClass: "order-first",
-    backgroundMedia: {
-      image: {
-        src: HeroBg,
-        imageClass: "bg-cover bg-center xl:bg-fixed",
-      },
-      overlayClass: "bg-primary/80",
+  ...baseCTA,
+  backgroundMedia: {
+    image: {
+      src: HeroBg,
+      imageClass: "bg-cover bg-center xl:bg-fixed",
     },
+    overlayClass: "bg-primary/80",
   },
+},
+ctaForService: {
+  ...baseCTA,
+}
 };

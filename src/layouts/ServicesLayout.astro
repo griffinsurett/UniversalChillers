@@ -1,15 +1,46 @@
 ---
 import Section from "@/components/Section/Section.astro";
 import BaseLayout from "./BaseLayout.astro";
+import LogoLoop from "@/components/LoopComponents/LogoLoop.astro";
+import ChillersImg from "@/assets/Chiller.jpg";
+import BoilersImg   from "@/assets/Boiller.jpg";
+import Rectangle from "@/components/LoopComponents/Rectangle";
+const { entry, description } = Astro.props;
+import { Image } from "astro:assets";
+import { SiteData } from "@/content/SiteData";
+import UCLogo from "@/assets/UC-circle.png";
+import HeroBg from "@/assets/photo-of-chiller-workers.png";
+
+// determine which service we’re on
+const isChillers = entry.slug === "chillers";
+
+// build a heading class string that changes based on slug
+const heroBgClass = [
+  "load slide-down",
+  "mt-20",
+  isChillers ? "bg-primary" : "bg-accent",
+].join(" ");
+
+const heroHeadingClass = [
+  "load slide-down",
+  "mt-20",
+  isChillers ? "text-primary" : "text-accent",
+].join(" ");
 ---
-<BaseLayout>
+<BaseLayout {...Astro.props}>
 <Section
   variant="serviceHero"
   heading={{
-    text: "Serious Cooling for Serious Spaces!",
+    text: isChillers ? "Serious Cooling for Serious Spaces!" : "Reliable Heating for Demanding Environments!",
     tagName: "h1",
-    class: "load slide-down",
+    class: "load slide-down mt-20 text-bg",
   }}
+  backgroundMedia={{
+      image: {
+        src: entry.data.coverImage,
+        imageClass: "bg-cover bg-center xl:bg-fixed",
+      },
+    }},
   description="High-performance chiller systems designed for demanding commercial environments."
   buttons={[
     {
@@ -20,26 +51,80 @@ import BaseLayout from "./BaseLayout.astro";
     },
   ]}
 />
-<Section
-  variant="cta"
-  heading={{
-    text: "Ready to Get Started?",
-    tagName: "h2",
-    class: "load slide-down",
-  }}
-  buttons={[
-    {
-      text: "Contact Us",
-      link: "/contact-us",
-      variant: "primary",
-      className: "load scale-up",
-    },
-  ]}
->
-  <div class="flex flex-col items-center">
-    <p class="p-0 m-0 load fade-in">
-      Let Universal Chillers be your trusted partner in cooling and heating solutions.
-    </p>
+
+<div class="w-9/10 lg:w-8/10 mx-auto">
+    <Section sectionClass='min-h-[60vh] lg:py-0 py-10 flex justify-center items-center' childSlotClass='flex flex-col items-start justify-left lg:flex-row gap-12 p-0 m-0'>
+      <div class='lg:w-3/5 w-full load slide-up text-xl lg:sticky lg:top-0'>
+      {isChillers ? (
+        <p>
+          Universal Chillers is built around what we do best: chillers. We design, install, and maintain high-performance air-cooled and water-cooled systems for critical infrastructure—hospitals, data centers, and manufacturing facilities—across the U.S.
+          <br /><br />
+          Whether it's a rooftop installation or an integrated basement setup with cooling towers and flush systems, our chillers are engineered for precision, efficiency, and uptime.
+        </p>
+      ) : (
+        <p>
+          Universal Chillers doesn’t just keep things cool—we also bring the heat. We specialize in installing and maintaining high-efficiency commercial boiler systems tailored for large facilities like schools, hospitals, warehouses, and factories.
+          <br /><br />
+          Whether you're working on a new construction project, upgrading an old system, or need urgent repairs, our certified team delivers heating solutions that are energy-efficient, code-compliant, and built for the long haul.
+        </p>
+      )}
+      </div>
+      <Image
+        src={entry.data.featuredImage}
+        alt={`${entry.data.title} featured image`}
+        class='w-full lg:max-w-2/5 mx-auto rounded-lg shadow-lg sticky top-0'
+      />
+    </Section>
+
+  <Section
+    heading={{
+      text: "What We Offer",
+      tagName: "h2",
+      class: heroHeadingClass,
+    }}
+    descriptionClass="hidden"
+    collection="whatWeDo"
+    query="related"
+    sectionClass="min-h-[100vh] lg:min-h-[60vh] flex items-center justify-center"
+    itemsClass="grid grid-cols-1 sm:grid-cols-2 gap-6 py-6"
+    component={Rectangle}
+  />
+
+  <!-- Brands We Service -->
+  <Section
+    collection="brands"
+    query="getAll"
+    component={LogoLoop}
+    sectionClass="min-h-[70vh] lg:min-h-[50vh] flex items-center justify-center"
+    contentClass="mx-auto w-9/10"
+    itemsClass="flex justify-between items-center py-[var(--spacing-md)] flex-wrap gap-[var(--spacing-sm)]"
+  />
+
   </div>
-</Section>
+    <Section
+    heading={{
+      text: isChillers ? `Don’t Let Your Facility Overheat` : `Don’t Let Your Facility Freeze Up`,
+      tagName: "h2",
+      class: "text-bg load slide-down",
+    }}
+    description={isChillers ? "Our chillers are engineered for precision, efficiency, and uptime." : "Our boilers are engineered for reliability, efficiency, and long-term performance."}
+    buttons={[
+      { text: "Get A Quote", link: "/contact-us", variant: "tertiary" },
+    ]}
+    variant="ctaForService"
+    backgroundMedia={{
+    image: {
+      src: HeroBg,
+      imageClass: "bg-cover bg-center xl:bg-fixed",
+    },
+    overlayClass: isChillers ? "bg-primary/80" : "bg-accent/80",
+  }},
+  >
+    <Image
+      src={UCLogo}
+      alt="Universal Chillers Logo"
+      class="w-auto h-35 load scale-up"
+    />
+  </Section>
+<slot />
 </BaseLayout>

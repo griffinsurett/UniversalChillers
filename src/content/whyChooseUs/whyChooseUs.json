@@ -13,8 +13,8 @@
     },
     {
         "id": "2",
-        "title": "24/7 Emergency Support",
-        "description": "Downtime isn’t an option. We offer 24/7 emergency repair services to keep your systems running reliably around the clock",
+        "title": "Fast Support",
+        "description": "Downtime isn’t an option. We offer fast support to keep your systems running reliably around the clock",
         "icon": "@/assets/time.svg"
     }
 ]
