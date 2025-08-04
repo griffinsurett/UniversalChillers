@@ -21,7 +21,7 @@ import { SiteData } from "@/content/SiteData";
 import ContactForm from "@/components/Form/Forms/ContactForm.astro";
 import Section from "@/components/Section/Section.astro";
 import ItemsTemplate from "@/components/ItemsTemplates/ItemsTemplate.astro";
-
+import BgImage from "@/assets/bg-1.png";
 
 <Section
   variant="secondaryHero"
@@ -29,7 +29,8 @@ import ItemsTemplate from "@/components/ItemsTemplates/ItemsTemplate.astro";
   description={frontmatter.description}
 />
 
-  <div class="relative w-8/10 mx-auto py-6 z-[99] -mt-20 bg-bg rounded-lg shadow-xl">
+  <Section childSlotClass="relative w-8/10 mx-auto py-6 z-[99] -mt-20 bg-bg rounded-lg shadow-xl"
+  >
     <ContactForm
       name="contact-form"
       formClass="px-10 py-6 w-full"  
@@ -37,5 +38,5 @@ import ItemsTemplate from "@/components/ItemsTemplates/ItemsTemplate.astro";
       successBannerMessage="Thank you for your message. We will get in touch with you shortly."
       successBannerClass="p-[var(--spacing-sm)] bg-primary text-bg border border-[var(--color-border)] bg-light-opacity"
     />
-    </div>
+    </Section>
 
