@@ -1,0 +1,28 @@
+---
+import MainPageLayout from "@/layouts/MainPageLayout.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { SiteData } from "@/content/SiteData";
+const {
+  collection,
+  entry,
+  title,
+  description,
+  keywords,
+  ogType,
+  ...rest
+} = Astro.props;
+---
+<BaseLayout
+  title={`${SiteData.title} | ${SiteData.tagline}`}
+  description={SiteData.description}
+>
+  <MainPageLayout
+    collection={collection}
+    entry={entry}
+    title={title}
+    description={description}
+    keywords={keywords}
+    ogType={ogType}
+    {...rest}
+  />
+</BaseLayout>

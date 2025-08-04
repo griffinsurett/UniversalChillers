@@ -95,8 +95,8 @@ export const collections = {
     schema: ({ image }) => baseSchema({ image }),
   }),
 
-  serviceAreas: defineCollection({
-    loader: file("src/content/serviceAreas/serviceAreas.json"),
+  serving: defineCollection({
+    loader: file("src/content/serving/serving.json"),
     schema: ({ image }) =>
       baseSchema({ image }).extend({
         tags: z.array(z.string()).optional(),
