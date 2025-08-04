@@ -9,7 +9,7 @@ import Icon from "@/components/Icon/Icon";
  * whether to render the "View More" button.
  */
 export default function Card({ item, itemClass, collectionName, HasPage }) {
-  console.log(item.data.icon, "item.data.icon in Card.jsx");
+  // console.log(item.data.icon, "item.data.icon in Card.jsx");
   const effectiveHasPage =
     item.data.hasPage !== undefined ? item.data.hasPage : HasPage;
   return (

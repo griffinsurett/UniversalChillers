@@ -5,6 +5,7 @@ import { SiteData } from "@/content/SiteData";
 import { Image } from "astro:assets";
 import LogoFooter from "@/assets/logo-w-tagline.png";
 import Heading from "@/components/Heading";
+import ContactMenuItem from "@/components/Menu/ContactMenuItem.astro";
 
 const footerMenuContainer = "footer-container text-left flex flex-col"
 const menuLabelClass = "h3 pb-[var(--spacing-md)]";
@@ -69,23 +70,22 @@ const menuItemsClass = "flex flex-col gap-[var(--spacing-sm)] h5";
   </div>
 
   <div class={`${footerMenuContainer} w-full`}>
- <Heading tagName="label" className={menuLabelClass}>
-      Contact Us
-    </Heading>
-     <Menu
-    collection="contact"
-    query="getAll"
-    sortOrder="desc"
-    itemsClass={menuItemsClass}
-    menuItem={{
+<Menu
+  collection="contact"
+  query="getAll"
+  sortOrder="desc"
+  itemsClass={menuItemsClass}
+  menuItem={{
+    component: ContactMenuItem,
     props: {
-      linkClass: "flex items-center justify-left gap-2",  // ← now Menu.astro will forward this
-      itemClass: "",      // ← (optional) any other overrides
-      activeClass: "",    // ← etc.
-      hierarchical: false // ← if you want to disable sub-menus
+      linkClass: "flex items-center justify-left gap-2",
+      itemClass: "",
+      activeClass: "",
+      hierarchical: false
     }
   }}
-  />
+/>
+
   </div>
   
   </div>

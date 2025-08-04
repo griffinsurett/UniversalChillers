@@ -1,0 +1,40 @@
+---
+// src/components/Menu/ContactMenuItem.astro
+import { formatPhoneNumber } from "@/utils/ContentUtils.ts";
+
+const {
+  item,
+  itemClass = "",
+  linkClass = "",
+} = Astro.props;
+
+console.log(item, "item in ContactMenuItem.astro");
+
+// the raw contact value (e.g. "1234567890" or "foo@bar.com")
+
+// build the href
+const href = item.data.linkPrefix + item.data.title;
+
+// decide what to show
+let displayText = item.data.title;
+
+// if it's a phone link, format the number
+if (item.data.linkPrefix === "tel:") {
+  console.log(item.data.linkPrefix)
+  displayText = formatPhoneNumber(item.data.title);
+}
+---
+
+<li class={itemClass}>
+  <a href={href} class={linkClass}>
+    {item.data.icon && (
+      <img
+        src={item.data.icon.src || item.data.icon}
+        alt=""
+        class="w-6 h-6 mr-2"
+        aria-hidden="true"
+      />
+    )}
+    {displayText}
+  </a>
+</li>

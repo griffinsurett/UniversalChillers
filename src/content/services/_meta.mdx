@@ -2,9 +2,9 @@
 hasPage: false
 itemsHasPage: true
 itemsLayout: "../../layouts/ServicesLayout.astro"
-heading: 
-- text: "Services"
-  class: "load slide-right"
+heading:
+  - text: "Services"
+    class: "load slide-right"
 description: "Explore our comprehensive list of professional services."
 descriptionClass: "load slide-left"
 ogType: "article"
@@ -16,15 +16,12 @@ defaultSection:
   sortOrder: "desc"
   component: "@/components/LoopComponents/Card.jsx"
 ---
-import Section from '@/components/Section/Section.astro'
+
+import Section from "@/components/Section/Section.astro";
 
 <Section collection="services" query="getAll" />
 
-<Section
-  collection="projects"
-  query="related"
-  heading="Related Projects"
-/>
+<Section collection="projects" query="related" heading="Related Projects" />
 
 <Section
   collection="testimonials"
@@ -32,7 +29,4 @@ import Section from '@/components/Section/Section.astro'
   heading="Client Testimonials"
 />
 
-<Section
-  collection="clients"
-  query="related"
-/>
+<Section collection="clients" query="related" />
