@@ -8,5 +8,9 @@
     "id": "footerMenu",
     "title": "Footer Menu",
     "description": "Secondary footer links"
+  },
+  {
+    "id": "pagesFooterMenu",
+    "title": "Pages Footer Menu"
   }
 ]

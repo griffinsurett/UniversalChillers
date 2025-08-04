@@ -6,7 +6,7 @@ import { Image } from "astro:assets";
 import LogoFooter from "@/assets/logo-w-tagline.png";
 import Heading from "@/components/Heading";
 
-const footerMenuContainer = "footer-container text-left flex flex-col items-start justify-center"
+const footerMenuContainer = "footer-container text-left flex flex-col"
 const menuLabelClass = "h3 pb-[var(--spacing-md)]";
 const menuItemsClass = "flex flex-col gap-[var(--spacing-sm)] h5";
 ---
@@ -24,9 +24,12 @@ const menuItemsClass = "flex flex-col gap-[var(--spacing-sm)] h5";
    />
    <p class="text-center lg:text-left">{SiteData.description}</p>
  </div>
-  <div class={footerMenuContainer}>
+ 
+ <div class="flex w-fit flex-wrap flex-col gap-6 lg:flex-row justify-between">
+  
+ <div class={footerMenuContainer}>
     <Heading tagName="label" className={menuLabelClass}>
-      Quick Links
+      Info
     </Heading>
     <Menu
     collection="menuItems"
@@ -37,31 +40,54 @@ const menuItemsClass = "flex flex-col gap-[var(--spacing-sm)] h5";
     itemClass=""
   />
   </div>
-    <div class={footerMenuContainer}>
-    <Heading tagName="label" className={menuLabelClass}>
+    <div class={`$${footerMenuContainer}`}>
+   <Heading tagName="label" className={menuLabelClass}>
       Quick Links
     </Heading>
     <Menu
     collection="menuItems"
-    query="relatedItem:menus:footerMenu"
+    query="relatedItem:menus:pagesFooterMenu"
     sortOrder="desc"
     ItemComponent={MenuItem}
     itemsClass={menuItemsClass}
     itemClass=""
   />
   </div>
+  
   <div class={footerMenuContainer}>
     <Heading tagName="label" className={menuLabelClass}>
-      Quick Links
+      Services
     </Heading>
     <Menu
-    collection="menuItems"
-    query="relatedItem:menus:footerMenu"
+    collection="services"
+    query="getAll"
     sortOrder="desc"
     ItemComponent={MenuItem}
     itemsClass={menuItemsClass}
     itemClass=""
   />
+  </div>
+
+  <div class={`${footerMenuContainer} w-full`}>
+ <Heading tagName="label" className={menuLabelClass}>
+      Contact Us
+    </Heading>
+     <Menu
+    collection="contact"
+    query="getAll"
+    sortOrder="desc"
+    itemsClass={menuItemsClass}
+    menuItem={{
+    props: {
+      linkClass: "flex items-center justify-left gap-2",  // ← now Menu.astro will forward this
+      itemClass: "",      // ← (optional) any other overrides
+      activeClass: "",    // ← etc.
+      hierarchical: false // ← if you want to disable sub-menus
+    }
+  }}
+  />
+  </div>
+  
   </div>
   </div>
   <div class="footer-bottom w-full text-center">

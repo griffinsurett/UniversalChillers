@@ -8,6 +8,7 @@ import { getCurrentEntryId } from "@/utils/CurrentEntry";
 const {
   inputClasses   = "border border-[var(--color-border)] transition-default p-[var(--spacing-sm)] w-full bg-bg placeholder:text-[var(--color-text)] text-text outline-none",
   wrapperClasses = "mb-[var(--spacing-sm)]",
+  formClass      = "",
 } = Astro.props;
 
 const formAction = import.meta.env.PUBLIC_INTEGRATION_FORMSPREE + import.meta.env.PUBLIC_CONTACT_FORM;
@@ -18,7 +19,7 @@ const currentPage = getCurrentEntryId(Astro);
 
 <Form
   name="contact-form"
-  formClass="w-full"
+  formClass={`${formClass}`}
   enableSuccessBanner={true}
   action={formAction}
   successBannerMessage="Thank you for your message. We will get in touch with you shortly."

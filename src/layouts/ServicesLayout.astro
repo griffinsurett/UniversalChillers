@@ -3,7 +3,7 @@ import Section from "@/components/Section/Section.astro";
 import BaseLayout from "./BaseLayout.astro";
 import LogoLoop from "@/components/LoopComponents/LogoLoop.astro";
 import ChillersImg from "@/assets/Chiller.jpg";
-import BoilersImg   from "@/assets/Boiller.jpg";
+import BoilersImg from "@/assets/Boiller.jpg";
 import Rectangle from "@/components/LoopComponents/Rectangle";
 const { entry, description } = Astro.props;
 import { Image } from "astro:assets";
@@ -29,122 +29,162 @@ const heroHeadingClass = [
   isChillers ? "text-primary" : "text-accent",
 ].join(" ");
 ---
+
 <BaseLayout {...Astro.props}>
-<Section
-  variant="serviceHero"
-  heading={{
-    text: isChillers ? "Serious Cooling for Serious Spaces!" : "Reliable Heating for Demanding Environments!",
-    tagName: "h1",
-    class: "load slide-down mt-20 text-bg",
-  }}
-  backgroundMedia={{
+  <Section
+    variant="serviceHero"
+    heading={{
+      text: isChillers
+        ? "Serious Cooling for Serious Spaces!"
+        : "Reliable Heating for Demanding Environments!",
+      tagName: "h1",
+      class: "load slide-down mt-20 text-bg",
+    }}
+    backgroundMedia={{
       image: {
         src: entry.data.coverImage,
         imageClass: "bg-cover bg-center xl:bg-fixed",
       },
-    }},
-  description="High-performance chiller systems designed for demanding commercial environments."
-  buttons={[
-    {
-      text: "Contact Us",
-      link: "/contact-us",
-      variant: "primary",
-      className: "load scale-up",
-    },
-  ]}
-/>
+    }}
+    ,
+    description="High-performance chiller systems designed for demanding commercial environments."
+    buttons={[
+      {
+        text: "Contact Us",
+        link: "/contact",
+        variant: "primary",
+        className: "load scale-up",
+      },
+    ]}
+  />
 
-<div class="w-9/10 lg:w-8/10 mx-auto">
-    <Section sectionClass='min-h-[60vh] lg:py-0 py-10 flex justify-center items-center' childSlotClass='flex flex-col items-start justify-left lg:flex-row gap-12 p-0 m-0'>
-      <div class='lg:w-3/5 w-full load slide-up text-xl lg:sticky lg:top-0'>
-      {isChillers ? (
-        <p>
-          Universal Chillers is built around what we do best: chillers. We design, install, and maintain high-performance air-cooled and water-cooled systems for critical infrastructure—hospitals, data centers, and manufacturing facilities—across the U.S.
-          <br /><br />
-          Whether it's a rooftop installation or an integrated basement setup with cooling towers and flush systems, our chillers are engineered for precision, efficiency, and uptime.
-        </p>
-      ) : (
-        <p>
-          Universal Chillers doesn’t just keep things cool—we also bring the heat. We specialize in installing and maintaining high-efficiency commercial boiler systems tailored for large facilities like schools, hospitals, warehouses, and factories.
-          <br /><br />
-          Whether you're working on a new construction project, upgrading an old system, or need urgent repairs, our certified team delivers heating solutions that are energy-efficient, code-compliant, and built for the long haul.
-        </p>
-      )}
+  <div class="w-9/10 lg:w-8/10 mx-auto">
+    <Section
+      sectionClass="min-h-[60vh] lg:py-0 py-10 flex justify-center items-center"
+      childSlotClass="flex flex-col items-start justify-left lg:flex-row gap-12 p-0 m-0"
+    >
+      <div class="lg:w-3/5 w-full load slide-up text-xl lg:sticky lg:top-0">
+        {
+          isChillers ? (
+            <p>
+              Universal Chillers is built around what we do best: chillers. We
+              design, install, and maintain high-performance air-cooled and
+              water-cooled systems for critical infrastructure—hospitals, data
+              centers, and manufacturing facilities—across the U.S.
+              <>
+                <br />
+                <br />
+              </>
+              Whether it's a rooftop installation or an integrated basement
+              setup with cooling towers and flush systems, our chillers are
+              engineered for precision, efficiency, and uptime.
+            </p>
+          ) : (
+            <p>
+              Universal Chillers doesn’t just keep things cool—we also bring the
+              heat. We specialize in installing and maintaining high-efficiency
+              commercial boiler systems tailored for large facilities like
+              schools, hospitals, warehouses, and factories.
+              <>
+                <br />
+                <br />
+              </>
+              Whether you're working on a new construction project, upgrading an
+              old system, or need urgent repairs, our certified team delivers
+              heating solutions that are energy-efficient, code-compliant, and
+              built for the long haul.
+            </p>
+          )
+        }
       </div>
       <Image
         src={entry.data.featuredImage}
         alt={`${entry.data.title} featured image`}
-        class='w-full lg:max-w-2/5 mx-auto rounded-lg shadow-lg sticky top-0'
+        class="w-full lg:max-w-2/5 mx-auto rounded-lg shadow-lg sticky top-0"
       />
     </Section>
 
-  <Section
-    heading={{
-      text: "What We Offer",
-      tagName: "h2",
-      class: heroHeadingClass,
-    }}
-    descriptionClass="hidden"
-    collection="whatWeDo"
-    query="related"
-    sectionClass="min-h-[100vh] lg:min-h-[60vh] flex items-center justify-center"
-    itemsClass="grid grid-cols-1 sm:grid-cols-2 gap-6 py-6"
-    component={Rectangle}
-  />
-
-  <!-- Why Choose Us -->
-  <Section
-    collection="whyChooseUs"
-    query="getAll"
-    component={ListItem}
-    variant="tertiary"
-  >
-    <div slot="imageColumn" class="h-auto w-full lg:sticky lg:top-0">
-      <Image
-        src={Contractor}
-        alt={"Image"}
-        class="object-cover rounded-4xl h-full w-full load scale-up"
-      />
-      <div class="flex justify-between items-center gap-4 py-5 w-full flex-col lg:flex-row text-center lg:text-left">
-        <Image
-          src={UCLogo}
-          alt="Universal Chillers Logo"
-          class="w-35 lg:w-25 h-full load scale-up invert"
-        />
-        <p class="p-0 w-full large-text">Our expert team delivers dependable climate control systems tailored for mission-critical environments and industrial facilities.</p>
-      </div>
-    </div>
-  </Section>
-
-  <!-- Brands We Service -->
-  <Section
-    collection="brands"
-    query="getAll"
-    component={LogoLoop}
-    sectionClass="min-h-[70vh] lg:min-h-[50vh] flex items-center justify-center"
-    contentClass="mx-auto w-9/10"
-    itemsClass="flex justify-between items-center py-[var(--spacing-md)] flex-wrap gap-[var(--spacing-sm)]"
-  />
-
-  </div>
     <Section
+      heading={{
+        text: "What We Offer",
+        tagName: "h2",
+        class: heroHeadingClass,
+      }}
+      descriptionClass="hidden"
+      collection="whatWeDo"
+      query="related"
+      sectionClass="min-h-[100vh] lg:min-h-[60vh] flex items-center justify-center"
+      itemsClass="grid grid-cols-1 sm:grid-cols-2 gap-6 py-6"
+      component={Rectangle}
+    />
+
+    <!-- Why Choose Us -->
+    <Section
+      collection="whyChooseUs"
+      query="getAll"
+      component={ListItem}
+      variant="tertiary"
+      heading={{
+        text: isChillers
+          ? "Why Choose Universal Chillers for Your Cooling Needs?"
+          : "Why Choose Universal Chillers for Your Heating Needs?",
+        tagName: "h2",
+        class: `load slide-down ${isChillers ? "text-primary" : "text-accent"}`,
+      }}
+    >
+      <div slot="imageColumn" class="h-auto w-full lg:sticky lg:top-0">
+        <Image
+          src={Contractor}
+          alt={"Image"}
+          class="object-cover rounded-4xl h-full w-full load scale-up"
+        />
+        <div
+          class="flex justify-between items-center gap-4 py-5 w-full flex-col lg:flex-row text-center lg:text-left"
+        >
+          <Image
+            src={UCLogo}
+            alt="Universal Chillers Logo"
+            class="w-35 lg:w-25 h-full load scale-up invert"
+          />
+          <p class="p-0 w-full large-text">
+            Our expert team delivers dependable climate control systems tailored
+            for mission-critical environments and industrial facilities.
+          </p>
+        </div>
+      </div>
+    </Section>
+
+    <!-- Brands We Service -->
+    <Section
+      collection="brands"
+      query="getAll"
+      component={LogoLoop}
+      sectionClass="min-h-[70vh] lg:min-h-[50vh] flex items-center justify-center"
+      contentClass="mx-auto w-9/10"
+      itemsClass="flex justify-between items-center py-[var(--spacing-md)] flex-wrap gap-[var(--spacing-sm)]"
+    />
+  </div>
+  <Section
     heading={{
-      text: isChillers ? `Don’t Let Your Facility Overheat` : `Don’t Let Your Facility Freeze Up`,
+      text: isChillers
+        ? `Don’t Let Your Facility Overheat`
+        : `Don’t Let Your Facility Freeze Up`,
       tagName: "h2",
       class: "text-bg load slide-down",
     }}
-    description={isChillers ? "Our chillers are engineered for precision, efficiency, and uptime." : "Our boilers are engineered for reliability, efficiency, and long-term performance."}
-    buttons={[
-      { text: "Get A Quote", link: "/contact-us", variant: "tertiary" },
-    ]}
+    description={isChillers
+      ? "Our chillers are engineered for precision, efficiency, and uptime."
+      : "Our boilers are engineered for reliability, efficiency, and long-term performance."}
+    buttons={[{ text: "Get A Quote", link: "/contact", variant: "tertiary" }]}
     variant="ctaForService"
     backgroundMedia={{
-    image: {
-      src: HeroBg,
-      imageClass: "bg-cover bg-center xl:bg-fixed",
-    },
-    overlayClass: isChillers ? "bg-primary/80" : "bg-accent/80",
-  }},
+      image: {
+        src: HeroBg,
+        imageClass: "bg-cover bg-center xl:bg-fixed",
+      },
+      overlayClass: isChillers ? "bg-primary/80" : "bg-accent/80",
+    }}
+    ,
   >
     <Image
       src={UCLogo}
@@ -152,5 +192,5 @@ const heroHeadingClass = [
       class="w-auto h-35 load scale-up"
     />
   </Section>
-<slot />
+  <slot />
 </BaseLayout>

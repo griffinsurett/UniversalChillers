@@ -5,7 +5,7 @@
     "link": "/",
     "order": 0,
     "openInNewTab": false,
-    "menu": "mainMenu"
+    "menu": ["mainMenu", "pagesFooterMenu"]
   },
   {
     "id": "about-us",
@@ -13,7 +13,7 @@
     "link": "/#about-us-home",
     "order": 3,
     "openInNewTab": false,
-    "menu": "mainMenu"
+    "menu": ["mainMenu", "pagesFooterMenu"]
   },
   {
     "id": "privacy-policy",

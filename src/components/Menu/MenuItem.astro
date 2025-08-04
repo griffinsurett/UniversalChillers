@@ -55,13 +55,13 @@ const active      = isActive(currentPath, link);
   >
     {item.data.icon && (
       <img
-        src={item.data.icon}
+        src={item.data.icon.src}
         alt=""
-        class="w-5 h-5 bg-[var(--color-accent)] rounded-full"
+        class="w-auto h-6 rounded-full"
         aria-hidden="true"
       />
     )}
-    <span>{item.data.title}</span>
+    {item.data.title}
     {hasChildren && (
       <span class="submenu-arrow inline-block ml-1" aria-hidden="true">
         ▼

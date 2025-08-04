@@ -43,19 +43,22 @@ export const SectionVariants = {
    * Secondary Hero variant – simple centered section with background and title.
    */
   secondaryHero: {
-    sectionClass: "flex items-center justify-center min-h-[75vh]",
-    contentClass: "container mx-auto text-center space-y-[var(--spacing-md)]",
+    sectionClass: "flex items-center justify-center min-h-[45vh] lg:min-h-[60vh]",
+    contentClass: "container mx-auto text-center p-0 m-0",
     buttonsSectionClass: "hidden",
+    headingAreaClass: "w-8/10 lg:w-6/10 mx-auto text-center text-bg -mb-[var(--spacing-xl)]",
     backgroundMedia: {
       image: {
+        src: HeroBg,
         imageClass: "filter brightness-50 bg-cover bg-center xl:bg-fixed",
       },
-      overlayClass: "bg-text opacity-50",
+      overlayClass: "bg-primary opacity-50",
     },
   },
 
   serviceHero: {
-    sectionClass: "flex items-center justify-center min-h-[50vh] lg:min-h-[75vh]",
+    sectionClass:
+      "flex items-center justify-center min-h-[50vh] lg:min-h-[75vh]",
     contentClass: "container mx-auto text-center space-y-[var(--spacing-md)]",
     buttonsSectionClass: "hidden",
     headingAreaClass: "w-8/10 lg:w-6/10 mx-auto text-center text-bg",
@@ -98,16 +101,16 @@ export const SectionVariants = {
     childPlacement: "bottom-content-section",
   },
   cta: {
-  ...baseCTA,
-  backgroundMedia: {
-    image: {
-      src: HeroBg,
-      imageClass: "bg-cover bg-center xl:bg-fixed",
+    ...baseCTA,
+    backgroundMedia: {
+      image: {
+        src: HeroBg,
+        imageClass: "bg-cover bg-center xl:bg-fixed",
+      },
+      overlayClass: "bg-primary/80",
     },
-    overlayClass: "bg-primary/80",
   },
-},
-ctaForService: {
-  ...baseCTA,
-}
+  ctaForService: {
+    ...baseCTA,
+  },
 };

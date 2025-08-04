@@ -1,12 +1,14 @@
 [
   {
     "id": "phone",
+    "icon": "../../assets/phone.svg",
     "title": "7329391309",
     "tags": ["phone"],
     "linkPrefix": "tel:"
   },
   {
     "id": "email",
+    "icon": "../../assets/email.svg",
     "title": "griffinswebservices@gmail.com",
     "tags": ["email"],
     "linkPrefix": "mailto:"
