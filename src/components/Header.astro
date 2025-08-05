@@ -5,11 +5,26 @@ import Menu from "@/components/Menu/Menu.astro";
 import MenuItem from "@/components/Menu/MenuItem.astro";
 import Submenu from "@/components/Menu/Submenu.astro";
 import MobileMenuItem from "@/components/Menu/HamburgerMenu/MenuItem.jsx";
+import Button from "./Button/Button";
+import { getCollection } from "astro:content";
+const PhoneIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M6.62 10.79a15.053 15.053 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.09-.21 11.72 11.72 0 0 0 3.66 1.17 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A16 16 0 0 1 3 5a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1 11.72 11.72 0 0 0 1.17 3.66 1 1 0 0 1-.21 1.09l-2.2 2.2z" /></svg>`;
+// Get the contact collection
+const contactCollection = await getCollection("contact");
+
+// Find the phone contact entry
+const phone = contactCollection.find((contact) => contact.id === "phone");
+
+// Console log the phone contact
+// console.log("Phone Contact:", phoneContact);
+// console.log("Phone Number:", phoneContact?.data.title);
+// console.log("Phone Link Prefix:", phoneContact?.data.linkPrefix);
 
 const breakpoint = "lg";
 ---
 
-<header class="flex slide-down justify-between mx-auto items-center py-[var(--spacing-md)] px-[var(--spacing-md)] md:px-[var(--spacing-lg)] lg:px-[var(--spacing-xl)] w-screen xl:px-[var(--spacing-3xl)] bg-bg fixed top-0 z-[999999] shadow-md">
+<header
+  class="flex slide-down justify-between mx-auto items-center py-[var(--spacing-md)] px-[var(--spacing-md)] md:px-[var(--spacing-lg)] lg:px-[var(--spacing-xl)] w-screen xl:px-[var(--spacing-3xl)] bg-bg fixed top-0 z-[999999] shadow-md"
+>
   <!-- Logo / site identity -->
   <a href="/" class="flex items-center">
     <Image
@@ -22,7 +37,23 @@ const breakpoint = "lg";
       aria-hidden="true"
     />
   </a>
+  <div class="flex items-center justify-between w-fit">
 
+ <div class="lg:hidden block">
+    {phone && (
+      <Button 
+        variant="none" 
+        className="flex items-center justify-center"
+        href={`${phone.data.linkPrefix}${phone.data.title}`}
+        iconProps={{
+          icon: PhoneIcon,
+          position: "left",
+          className: "text-primary mr-2",
+        }}
+      >
+      </Button>
+    )}
+  </div>
   <Menu
     collection="menuItems"
     query="relatedItem:menus:mainMenu"
@@ -31,7 +62,6 @@ const breakpoint = "lg";
     responsive={true}
     breakpoint={breakpoint}
     hamburgerOnly={false}
-
     desktop={{
       itemsClass: "flex gap-[var(--spacing-md)] lg:gap-[var(--spacing-lg)]",
       itemClass: "",
@@ -39,8 +69,7 @@ const breakpoint = "lg";
         // component: MenuItem,
         props: {
           itemClass: "h-full text-primary hover:text-secondary",
-          linkClass:
-            "flex items-start h4",
+          linkClass: "flex items-start h4",
           hierarchical: true,
           submenu: {
             component: Submenu,
@@ -61,7 +90,6 @@ const breakpoint = "lg";
         },
       },
     }}
-
     mobile={{
       itemsClass: "flex flex-col gap-[var(--spacing-md)]",
       itemClass: "p-[var(--spacing-sm)]",
@@ -97,4 +125,5 @@ const breakpoint = "lg";
       checkboxId: "hamburger-menu-toggle",
     }}
   />
+  </div>
 </header>

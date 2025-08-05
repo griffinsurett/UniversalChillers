@@ -49,4 +49,8 @@ export const ButtonVariants = {
     variantClasses: "text-text hover:text-secondary",
     iconDefaults:   { ...sharedIconDefaults, icon: null },
   },
+  none: {
+    variantClasses: "text-text hover:text-secondary",
+    iconDefaults:   { ...sharedIconDefaults, icon: null },
+  },
 };

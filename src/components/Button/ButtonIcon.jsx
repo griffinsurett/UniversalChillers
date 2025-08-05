@@ -6,7 +6,8 @@ export default function ButtonIcon({
   hoverOnly = false,
   animateIcon = false,
   position = "right",
-  className = "",
+  className = "", // This will be applied to the Icon component
+  containerClass = "", // This will be applied to the container span
 }) {
   if (icon == null) return null;
 
@@ -24,13 +25,19 @@ export default function ButtonIcon({
     hoverClasses = position === "right" ? "inline-flex" : "inline-flex";
   }
 
-  const containerClass = className
-    ? `${className} ${hoverClasses}`.trim()
+  // Combine containerClass prop with hover classes
+  const finalContainerClass = containerClass
+    ? `${containerClass} ${hoverClasses}`.trim()
     : hoverClasses;
 
+  // Default icon classes combined with custom className
+  const finalIconClass = className
+    ? `${className} h-auto w-10 logo-class`.trim()
+    : "h-auto w-5 logo-class";
+
   return (
-    <span className={containerClass}>
-      <Icon icon={icon} className="h-auto w-5 logo-class" />
+    <span className={finalContainerClass}>
+      <Icon icon={icon} className={finalIconClass} />
     </span>
   );
 }
