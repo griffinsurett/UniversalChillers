@@ -7,17 +7,12 @@ import Submenu from "@/components/Menu/Submenu.astro";
 import MobileMenuItem from "@/components/Menu/HamburgerMenu/MenuItem.jsx";
 import Button from "./Button/Button";
 import { getCollection } from "astro:content";
+
 const PhoneIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M6.62 10.79a15.053 15.053 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.09-.21 11.72 11.72 0 0 0 3.66 1.17 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A16 16 0 0 1 3 5a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1 11.72 11.72 0 0 0 1.17 3.66 1 1 0 0 1-.21 1.09l-2.2 2.2z" /></svg>`;
+
 // Get the contact collection
 const contactCollection = await getCollection("contact");
-
-// Find the phone contact entry
 const phone = contactCollection.find((contact) => contact.id === "phone");
-
-// Console log the phone contact
-// console.log("Phone Contact:", phoneContact);
-// console.log("Phone Number:", phoneContact?.data.title);
-// console.log("Phone Link Prefix:", phoneContact?.data.linkPrefix);
 
 const breakpoint = "lg";
 ---
@@ -37,93 +32,95 @@ const breakpoint = "lg";
       aria-hidden="true"
     />
   </a>
+  
   <div class="flex items-center justify-between w-fit">
+    <!-- Mobile Phone Icon (larger) -->
+    <div class="lg:hidden block">
+      {phone && (
+        <Button 
+          variant="none" 
+          className="flex items-center justify-center px-2"
+          href={`${phone.data.linkPrefix}${phone.data.title}`}
+          iconProps={{
+            icon: PhoneIcon,
+            position: "left",
+            className: "w-6 h-6 text-primary", // Larger icon for mobile
+            containerClass: "",
+          }}
+        >
+        </Button>
+      )}
+    </div>
 
- <div class="lg:hidden block">
-    {phone && (
-      <Button 
-        variant="none" 
-        className="flex items-center justify-center"
-        href={`${phone.data.linkPrefix}${phone.data.title}`}
-        iconProps={{
-          icon: PhoneIcon,
-          position: "left",
-          className: "text-primary mr-2",
-        }}
-      >
-      </Button>
-    )}
-  </div>
-  <Menu
-    collection="menuItems"
-    query="relatedItem:menus:mainMenu"
-    sortOrder="asc"
-    manualOrder={true}
-    responsive={true}
-    breakpoint={breakpoint}
-    hamburgerOnly={false}
-    desktop={{
-      itemsClass: "flex gap-[var(--spacing-md)] lg:gap-[var(--spacing-lg)]",
-      itemClass: "",
-      menuItem: {
-        // component: MenuItem,
-        props: {
-          itemClass: "h-full text-primary hover:text-secondary",
-          linkClass: "flex items-start h4",
-          hierarchical: true,
-          submenu: {
-            component: Submenu,
-            itemsClass:
-              "submenu absolute left-0 top-full w-fit bg-gray-50 border border-gray-200 shadow-lg opacity-0 pointer-events-none transition-opacity duration-200 ease-in-out z-[100]",
-            subMenuItem: {
-              component: MenuItem,
-              props: {
-                itemClass:
-                  "px-4 py-2 hover:bg-gray-100 text-primary hover:text-secondary",
-                linkClass:
-                  "flex items-center space-x-[var(--spacing-xs)] font-medium transition-colors duration-200",
-                hierarchical: true,
-                subMenuItem: null,
+    <Menu
+      collection="menuItems"
+      query="relatedItem:menus:mainMenu"
+      sortOrder="asc"
+      manualOrder={true}
+      responsive={true}
+      breakpoint={breakpoint}
+      hamburgerOnly={false}
+      desktop={{
+        itemsClass: "flex gap-[var(--spacing-md)] lg:gap-[var(--spacing-lg)]",
+        itemClass: "",
+        menuItem: {
+          props: {
+            itemClass: "h-full text-primary hover:text-secondary",
+            linkClass: "flex items-start h4",
+            hierarchical: true,
+            submenu: {
+              component: Submenu,
+              itemsClass:
+                "submenu absolute left-0 top-full w-fit bg-gray-50 border border-gray-200 shadow-lg opacity-0 pointer-events-none transition-opacity duration-200 ease-in-out z-[100]",
+              subMenuItem: {
+                component: MenuItem,
+                props: {
+                  itemClass:
+                    "px-4 py-2 hover:bg-gray-100 text-primary hover:text-secondary",
+                  linkClass:
+                    "flex items-center space-x-[var(--spacing-xs)] font-medium transition-colors duration-200",
+                  hierarchical: true,
+                  subMenuItem: null,
+                },
               },
             },
           },
         },
-      },
-    }}
-    mobile={{
-      itemsClass: "flex flex-col gap-[var(--spacing-md)]",
-      itemClass: "p-[var(--spacing-sm)]",
-      hamburgerTransform: true,
-      menuItem: {
-        component: MobileMenuItem,
-        props: {
-          itemClass:
-            "p-[var(--spacing-sm)] text-lg text-primary hover:text-secondary",
-          linkClass: "w-full text-left h4",
-          hierarchical: true,
-          submenu: {
-            component: MobileMenuItem,
-            itemsClass: "ml-4 border-l border-gray-200",
-            subMenuItem: {
+      }}
+      mobile={{
+        itemsClass: "flex flex-col gap-[var(--spacing-md)]",
+        itemClass: "p-[var(--spacing-sm)]",
+        hamburgerTransform: true,
+        menuItem: {
+          component: MobileMenuItem,
+          props: {
+            itemClass:
+              "p-[var(--spacing-sm)] text-lg text-primary hover:text-secondary",
+            linkClass: "w-full text-left h4",
+            hierarchical: true,
+            submenu: {
               component: MobileMenuItem,
-              props: {
-                itemClass: "p-[var(--spacing-sm)] text-base text-primary",
-                linkClass: "w-full text-left",
-                hierarchical: true,
-                subMenuItem: null,
+              itemsClass: "ml-4 border-l border-gray-200",
+              subMenuItem: {
+                component: MobileMenuItem,
+                props: {
+                  itemClass: "p-[var(--spacing-sm)] text-base text-primary",
+                  linkClass: "w-full text-left",
+                  hierarchical: true,
+                  subMenuItem: null,
+                },
               },
             },
           },
         },
-      },
-      shared: {
-        collection: "menuItems",
-        query: "relatedItem:menus:mainMenu",
-        sortOrder: "asc",
-        HasPage: true,
-      },
-      checkboxId: "hamburger-menu-toggle",
-    }}
-  />
+        shared: {
+          collection: "menuItems",
+          query: "relatedItem:menus:mainMenu",
+          sortOrder: "asc",
+          HasPage: true,
+        },
+        checkboxId: "hamburger-menu-toggle",
+      }}
+    />
   </div>
 </header>

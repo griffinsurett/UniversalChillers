@@ -30,10 +30,18 @@ export default function ButtonIcon({
     ? `${containerClass} ${hoverClasses}`.trim()
     : hoverClasses;
 
-  // Default icon classes combined with custom className
-  const finalIconClass = className
-    ? `${className} h-auto w-10 logo-class`.trim()
-    : "h-auto w-5 logo-class";
+  // Check if className already includes size classes (w-* h-*)
+  const hasSizeClasses = /\b(w-\w+|h-\w+)\b/.test(className);
+  
+  // Only add default size if no size classes are provided
+  const defaultSizeClasses = hasSizeClasses ? "" : "h-auto w-5";
+  
+  // Combine all icon classes
+  const finalIconClass = [
+    className,
+    defaultSizeClasses,
+    "logo-class"
+  ].filter(Boolean).join(" ").trim();
 
   return (
     <span className={finalContainerClass}>
