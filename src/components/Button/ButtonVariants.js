@@ -13,7 +13,7 @@ const sharedIconDefaults = {
 const LogoIconDefaults = {
   icon:    LogoIcon.src,
   hoverOnly: false,
-  className: "-mt-1 px-1",
+  className: "-mt-2 px-1 h-7 w-7",
 }
 
 export const ButtonVariants = {
