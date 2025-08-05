@@ -6,7 +6,7 @@ import { SiteData } from "@/content/SiteData";
 import { getCurrentEntryId } from "@/utils/CurrentEntry";
 
 const {
-  inputClasses   = "border border-[var(--color-border)] transition-default p-[var(--spacing-sm)] w-full bg-bg placeholder:text-[var(--color-text)] text-text outline-none",
+  inputClasses   = "w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white text-gray-900 placeholder:text-gray-500 outline-none",
   wrapperClasses = "mb-[var(--spacing-sm)]",
   formClass      = "",
 } = Astro.props;
@@ -26,68 +26,82 @@ const currentPage = getCurrentEntryId(Astro);
   successBannerClass="p-[var(--spacing-sm)] bg-primary text-bg border border-[var(--color-border)] bg-light-opacity"
 >
   <!-- Hidden input for current page -->
-  <input type="hidden" name="Page-of-Submission" value={currentPage} />
+    <input type="hidden" name="Page-of-Submission" value={currentPage} />
 
-  <!-- Row 1 -->
-  <div class="flex flex-col lg:flex-row lg:space-x-[var(--spacing-sm)]">
-    <div class="w-full lg:w-1/2">
-      <TextInput
-      label="First Name"
-        name="firstName"
-        placeholder="First Name"
-        required
-        inputClass={inputClasses}
-        wrapperClass={wrapperClasses}
-      />
+    <!-- Row 1: First & Last Name -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          First Name *
+        </label>
+        <TextInput
+          name="firstName"
+          placeholder="Your first name"
+          required
+          inputClass={inputClasses}
+          wrapperClass=""
+        />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          Last Name *
+        </label>
+        <TextInput
+          name="lastName"
+          placeholder="Your last name"
+          required
+          inputClass={inputClasses}
+          wrapperClass=""
+        />
+      </div>
     </div>
-    <div class="w-full lg:w-1/2">
-      <TextInput
-        label="Last Name"
-        name="lastName"
-        placeholder="Last Name"
-        required
-        inputClass={inputClasses}
-        wrapperClass={wrapperClasses}
-      />
-    </div>
-  </div>
 
-  <!-- Row 2 -->
-  <div class="flex flex-col lg:flex-row lg:space-x-[var(--spacing-sm)]">
-    <div class="w-full lg:w-1/2">
-      <TextInput
-        label="Email Address"
-        name="email"
-        type="email"
-        placeholder="you@example.com"
-        required
-        inputClass={inputClasses}
-        wrapperClass={wrapperClasses}
-      />
+    <!-- Row 2: Email & Phone -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          Email Address *
+        </label>
+        <TextInput
+          name="email"
+          type="email"
+          placeholder="your.email@example.com"
+          required
+          inputClass={inputClasses}
+          wrapperClass=""
+        />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          Phone Number
+        </label>
+        <TextInput
+          name="phone"
+          type="tel"
+          placeholder="(732) 555-0123"
+          inputClass={inputClasses}
+          wrapperClass=""
+        />
+      </div>
     </div>
-    <div class="w-full lg:w-1/2">
-      <TextInput
-        label="Phone Number"
-        name="phone"
-        type="tel"
-        placeholder="123-456-7890"
-        inputClass={inputClasses}
-        wrapperClass={wrapperClasses}
-      />
-    </div>
-  </div>
 
-  <!-- Row 3 -->
-  <div class="w-full">
-    <Textarea
-      label="Message"
-      name="message"
-      placeholder="Tell us more about your needs…"
-      required
-      rows={5}
-      inputClass={inputClasses}
-      wrapperClass={wrapperClasses}
-    />
-  </div>
+    <!-- Row 3: Message -->
+    <div class="mb-6">
+      <label class="block text-sm font-medium text-gray-700 mb-2">
+        Message *
+      </label>
+      <Textarea
+        name="message"
+        placeholder="Tell us more about your needs…"
+        required
+        rows={4}
+        inputClass="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white text-gray-900 placeholder:text-gray-500 outline-none resize-vertical"
+        wrapperClass=""
+      />
+    </div>
+
+    <!-- Hidden honeypot field for spam protection -->
+    <input type="hidden" name="_gotcha" style="display: none;" />
+
 
 </Form>

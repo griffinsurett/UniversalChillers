@@ -86,10 +86,10 @@ export const SectionVariants = {
   },
   tertiary: {
     sectionClass:
-      "overflow-x-hidden py-[var(--spacing-xl)] lg:py-[var(--spacing-3xl)]",
+      "overflow-x-hidden py-[var(--spacing-xl)] py-6",
     contentClass:
       "flex flex-col lg:flex-row justify-center w-9/10 mx-auto lg:gap-[var(--spacing-xl)]",
-    itemsClass: "lg:sticky lg:top-10",
+    itemsClass: "lg:sticky lg:top-10 my-8",
     topContentClass: "w-full lg:w-3/5",
     bottomContentClass:
       "flex flex-col-reverse w-full lg:w-2/5 gap-[var(--spacing-md)]",

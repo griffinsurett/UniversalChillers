@@ -11,7 +11,7 @@ export default function ListItem({ item, itemClass, collectionName, HasPage }) {
     item.data.hasPage !== undefined ? item.data.hasPage : HasPage;
   return (
     <article
-      className={`flex items-start space-x-[var(--spacing-md)] load scale-up border-b border-text py-6 ${itemClass}`}
+      className={`flex items-start space-x-[var(--spacing-md)] py-6 load scale-up border-b border-gray-300 ${itemClass}`}
     >
         {item.data.icon && (
           <Icon
