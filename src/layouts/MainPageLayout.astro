@@ -13,6 +13,12 @@ import UCLogo from "@/assets/UC-circle.png";
 import { Image } from "astro:assets";
 import ChillersBoilersLayout from "@/layouts/ChillersBoilersLayout.astro";
 import ListItem from "@/components/LoopComponents/ListItem";
+import { getCollection } from "astro:content";
+import { format } from "path";
+import { formatPhoneNumber } from "@/utils/ContentUtils";
+// Get the contact collection
+const contactCollection = await getCollection("contact");
+const phone = contactCollection.find((contact) => contact.id === "phone");
 const {
   collection,
   entry,
@@ -34,7 +40,10 @@ const {
       class: "flex flex-col text-bg",
     }}
     description={title ? `Proudly Serving ${title}` : undefined}
-    buttons={[{ text: "Get A Quote", link: "/contact", variant: "tertiary" }]}
+    buttons={[
+      { text: "Get A Quote", link: "/contact", variant: "tertiary" },
+      { text: `${phone && phone.data.title ? formatPhoneNumber(phone.data.title) : "Call Us"}`, link: "/contact", variant: "phone" }
+      ]}
   >
     <Image
       src={ChillerDude}
@@ -160,7 +169,9 @@ const {
       class: "text-bg load slide-down",
     }}
     description={SiteData.tagline}
-    buttons={[{ text: "Get A Quote", link: "/contact", variant: "tertiary" }]}
+    buttons={[{ text: "Get A Quote", link: "/contact", variant: "tertiary" },
+            { text: `${phone && phone.data.title ? formatPhoneNumber(phone.data.title) : "Call Us"}`, link: "/contact", variant: "phone" }
+    ]}
     variant="cta"
   >
     <Image
