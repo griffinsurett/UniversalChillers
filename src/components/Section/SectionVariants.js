@@ -59,7 +59,7 @@ export const SectionVariants = {
   serviceHero: {
     sectionClass:
       "flex items-center justify-center min-h-[50vh] lg:min-h-[75vh]",
-    contentClass: "container mx-auto text-center space-y-[var(--spacing-md)]",
+    contentClass: "container mx-auto text-center space-y-[var(--spacing-md)] py-9",
     buttonsSectionClass: "hidden",
     headingAreaClass: "w-8/10 lg:w-6/10 mx-auto text-center text-bg",
   },

@@ -12,6 +12,7 @@ import UCLogo from "@/assets/UC-circle.png";
 import HeroBg from "@/assets/photo-of-chiller-workers.png";
 import ListItem from "@/components/LoopComponents/ListItem";
 import Contractor from "@/assets/contractor.jpg";
+import ContactForm from "@/components/Form/Forms/ContactForm.astro";
 
 // determine which service we’re on
 const isChillers = entry.slug === "chillers";
@@ -55,7 +56,20 @@ const heroHeadingClass = [
         className: "load scale-up",
       },
     ]}
-  />
+    childSlotClass="relative w-8/10 mx-auto py-5 z-[99] bg-bg rounded-lg shadow-xl"
+  >
+
+<ContactForm
+      name={`${entry.slug} Form`}
+      formClass="px-10 py-6 w-full"  
+      formLabel={`Have A Question About ${entry.slug}?`}
+      labelClass={`${isChillers ? "text-primary" : "text-accent"} text-left text-2xl capitalize mb-4`}
+      enableSuccessBanner={true}
+      submitButtonVariant={isChillers ? "primary" : "accent"}
+      successBannerMessage="Thank you for your message. We will get in touch with you shortly."
+      successBannerClass="p-[var(--spacing-sm)] bg-primary text-bg border border-[var(--color-border)] bg-light-opacity"
+    />
+</Section>
 
   <div class="">
     <Section

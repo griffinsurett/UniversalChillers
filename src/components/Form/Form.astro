@@ -13,17 +13,17 @@ const {
   formClass = "",
   submitClass = "w-full mt-[var(--spacing-sm)] justify-center cursor-pointer",
   submitLabel = "Submit",
+  submitButtonVariant = "primary",
   enableSuccessBanner = false,
   successBannerMessage = "Thank you for your submission!",
   successBannerClass = "p-[var(--spacing-sm)] bg-primary text-bg border border-[var(--color-border)]",
-  // new props:
   showConsent = true,
   consentText = `I consent to have ${SiteData.title} store my submitted information so they can respond`,
   consentLearnMoreLabel = "Learn more",
   consentLearnMoreUrl = "/privacy-policy",
   consentWrapperClass = "flex items-start text-left text-text mb-[var(--spacing-md)]",
   consentInputClass = "mr-[var(--spacing-sm)] mt-[4px] w-4 h-4",
-  consentLabelClass = labelClass + " m-0",
+  consentLabelClass = " m-0",
 } = Astro.props;
 ---
 
@@ -72,7 +72,7 @@ const {
       Astro.slots.has("submit") ? (
         <slot name="submit" />
       ) : (
-        <Button type="submit" variant="primary" className={submitClass}>
+        <Button type="submit" variant={submitButtonVariant} className={submitClass}>
           {submitLabel}
         </Button>
       )

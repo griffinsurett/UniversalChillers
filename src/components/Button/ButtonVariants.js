@@ -35,6 +35,12 @@ export const ButtonVariants = {
     buttonClasses: baseButtonClasses,
     iconDefaults:  { ...sharedIconDefaults, icon: null },
   },
+  accent: {
+    variantClasses:
+      "bg-accent text-[var(--color-bg)] hover:bg-[var(--color-accent-secondary)] transition-all hover:scale-105",
+    buttonClasses: baseButtonClasses,
+    iconDefaults:  { ...sharedIconDefaults },
+  },
   underline: {
     variantClasses:
       "underline text-[var(--color-primary)] hover:text-[var(--color-secondary)]",
