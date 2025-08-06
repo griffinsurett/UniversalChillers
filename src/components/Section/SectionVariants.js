@@ -66,7 +66,7 @@ export const SectionVariants = {
 
   primary: {
     sectionClass:
-      "text-center min-h-[100vh] py-[var(--spacing-xl)] lg:min-h-[80vh] flex items-center justify-center",
+      "text-center min-h-[100vh] py-[var(--spacing-xl)] bg-gradient-to-br from-blue-50 to-white lg:min-h-[80vh] flex items-center justify-center",
     contentClass: "z-[9999] w-9/10 lg:w-2/3",
     childPlacement: "section-heading-area",
     buttonsPlacement: "section-heading-area",
@@ -77,7 +77,7 @@ export const SectionVariants = {
   secondary: {
     descriptionClass: "load slide-right",
     sectionClass:
-      "flex overflow-hidden flex-col items-center justify-center section-sm py-[var(--spacing-xl)] lg:py-[var(--spacing-lg)]",
+      "flex overflow-hidden flex-col items-center justify-center section-sm py-[var(--spacing-xl)] lg:py-[var(--spacing-lg)] bg-gradient-to-br from-blue-50 to-white",
     contentClass: "flex flex-col items-center justify-center mx-auto w-9/10",
     itemsClass:
       "flex flex-col md:flex-row items-start justify-center gap-[var(--spacing-xl)]",
@@ -86,9 +86,9 @@ export const SectionVariants = {
   },
   tertiary: {
     sectionClass:
-      "overflow-x-hidden py-[var(--spacing-xl)] py-6",
+      "overflow-x-hidden py-[var(--spacing-xl)] py-6 bg-gradient-to-br from-blue-50 to-white",
     contentClass:
-      "flex flex-col lg:flex-row justify-center w-9/10 mx-auto lg:gap-[var(--spacing-xl)]",
+      "flex flex-col lg:flex-row justify-center w-9/10 lg:w-8/10 mx-auto lg:gap-[var(--spacing-xl)]",
     itemsClass: "lg:sticky lg:top-10 my-8",
     topContentClass: "w-full lg:w-3/5",
     bottomContentClass:

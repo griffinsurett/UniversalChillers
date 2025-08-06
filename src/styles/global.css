@@ -12,7 +12,7 @@
   --color-boilLight: 209,49,30;     /* #B53728 */
   --color-boilDark: 91, 25, 32;       /* #5B1920 */
 
-  --color-bg: #ffffff;
+  --color-bg: #FAF9F6;
   --color-text: #111111;
   --color-primary: rgb(var(--color-coolLight));
   --color-secondary: rgb(var(--color-coolMedium));
