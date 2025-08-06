@@ -13,6 +13,7 @@ import HeroBg from "@/assets/photo-of-chiller-workers.png";
 import ListItem from "@/components/LoopComponents/ListItem";
 import Contractor from "@/assets/contractor.jpg";
 import ContactForm from "@/components/Form/Forms/ContactForm.astro";
+import QuoteForm from "@/components/Form/Forms/QuoteForm.astro";
 
 // determine which service we’re on
 const isChillers = entry.slug === "chillers";
@@ -59,7 +60,7 @@ const heroHeadingClass = [
     childSlotClass="relative w-9/10 lg:w-8/10 mx-auto py-5 z-[99] bg-bg rounded-lg shadow-xl"
   >
 
-<ContactForm
+<QuoteForm
       name={`${entry.slug} Form`}
       formClass="px-10 py-6 w-full"  
       formLabel={`Have A Question About ${entry.slug}?`}
