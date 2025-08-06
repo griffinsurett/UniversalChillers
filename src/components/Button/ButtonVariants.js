@@ -63,7 +63,7 @@ export const ButtonVariants = {
     iconDefaults:   { ...sharedIconDefaults, icon: null },
   },
   phone: {
-    variantClasses: "text-bg hover:scale-105 flex items-center justify-center transition-all duration-300 ease-in-out",
+    variantClasses: "text-bg hover:scale-105 lg:hover:scale-100 flex items-center justify-center transition-all duration-300 ease-in-out",
     iconDefaults: {
       icon: PhoneIcon,
       position: "left",

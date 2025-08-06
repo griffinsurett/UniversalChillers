@@ -19,86 +19,85 @@ import { formatPhoneNumber } from "@/utils/ContentUtils";
 // Get the contact collection
 const contactCollection = await getCollection("contact");
 const phone = contactCollection.find((contact) => contact.id === "phone");
-const {
-  collection,
-  entry,
-  title,
-  description,
-  keywords,
-  ogType,
-  ...rest
-} = Astro.props;
+const { collection, entry, title, description, keywords, ogType, ...rest } =
+  Astro.props;
 ---
+
 <!-- Hero Section -->
-  <Section
-    variant="primaryHero"
-    heading={{
-      before: "Heating.",
-      text: "Cooling.",
-      after: "Handled.",
-      tagName: "h1",
-      class: "flex flex-col text-bg",
-    }}
-    description={title ? `Proudly Serving ${title}` : undefined}
-    buttons={[
-      { text: "Get A Quote", link: "/contact", variant: "tertiary" },
-      { text: `${phone && phone.data.title ? formatPhoneNumber(phone.data.title) : "Call Us"}`, link: "/contact", variant: "phone" }
-      ]}
+<Section
+  variant="primaryHero"
+  heading={{
+    before: "Heating.",
+    text: "Cooling.",
+    after: "Handled.",
+    tagName: "h1",
+    class: "flex flex-col text-bg",
+  }}
+  description={title ? `Proudly Serving ${title}` : undefined}
+  buttons={[
+    { text: "Get A Quote", link: "/contact", variant: "tertiary" },
+    {
+      text: `${phone && phone.data.title ? formatPhoneNumber(phone.data.title) : "Call Us"}`,
+      link: "/contact",
+      variant: "phone",
+    },
+  ]}
+>
+  <Image
+    src={ChillerDude}
+    alt="Universal Chillers Logo"
+    class="block z-40 w-80 lg:w-90 xl:w-130 h-auto mx-auto absolute bottom-0 left-2/5 transform -translate-x-2/5"
+    loading="lazy"
+    fetchpriority="high"
+  />
+  <div
+    class="circle hidden lg:block bg-[rgba(var(--color-boilLight),0.55)] -bottom-50 left-30 right-0"
   >
-    <Image
-      src={ChillerDude}
-      alt="Universal Chillers Logo"
-      class="hidden lg:block slide-up w-130 lg:w-130 h-auto mx-auto absolute bottom-0 left-2/5 transform -translate-x-2/5"
-      loading="lazy"
-      fetchpriority="high"
-    />
-    <div
-      class="circle scale-up hidden lg:block bg-[rgba(var(--color-boilLight),0.55)] absolute -bottom-50 left-30 right-0 z-[-1]"
-    >
-    </div>
-  </Section>
+  </div>
+</Section>
 
-  <Section
-    variant="primary"
-    id="about-us-home"
-    heading={{
-      text: `About ${SiteData.title}`,
-      tagName: "h2",
-      class: "load slide-down",
-    }}
-    buttons={[
-      {
-        text: "Learn More",
-        link: "/about-us",
-        variant: "primary",
-        className: "load scale-up",
-      },
-    ]}
+<Section
+  variant="primary"
+  id="about-us-home"
+  heading={{
+    text: `About ${SiteData.title}`,
+    tagName: "h2",
+    class: "load slide-down",
+  }}
+  buttons={[
+    {
+      text: "Learn More",
+      link: "/about-us",
+      variant: "primary",
+      className: "load scale-up",
+    },
+  ]}
+>
+  <div
+    class="flex gap-[var(--spacing-md)] flex-col items-center justify-center"
   >
-    <div
-      class="flex gap-[var(--spacing-md)] flex-col items-center justify-center"
-    >
-      <h3 class="h3 *:load slide-up">
-        Universal Chillers delivers <span class="text-primary">cooling</span> and
-        <span class="text-accent">heating</span> systems with the power, precision,
-        and performance your facility needs.
-      </h3>
-      <p class="p-0 m-0 load fade-in">
-        Universal Chillers designs, installs, and maintains large-scale HVAC
-        systems for commercial and industrial facilities across {title ? `${title}` : "New Jersey, Pennsylvania, and New York State"}. We specialize in air-cooled and
-        water-cooled chillers—serving hospitals, data centers, factories, and
-        critical spaces nationwide.
-      </p>
-      <p class="p-0 m-0 load fade-in">
-        From rooftop chillers to boiler rooms, cooling towers, and
-        industrial-grade boilers, our systems are engineered for serious
-        performance. Whether it's a new install, urgent repair, or long-term
-        maintenance, we keep {title ? `${title}` : "America"} chillin’
-      </p>
-    </div>
-  </Section>
+    <h3 class="h3 *:load slide-up">
+      Universal Chillers delivers <span class="text-primary">cooling</span> and
+      <span class="text-accent">heating</span> systems with the power, precision,
+      and performance your facility needs.
+    </h3>
+    <p class="p-0 m-0 load fade-in">
+      Universal Chillers designs, installs, and maintains large-scale HVAC
+      systems for commercial and industrial facilities across {
+        title ? `${title}` : "New Jersey, Pennsylvania, and New York State"
+      }. We specialize in air-cooled and water-cooled chillers—serving
+      hospitals, data centers, factories, and critical spaces nationwide.
+    </p>
+    <p class="p-0 m-0 load fade-in">
+      From rooftop chillers to boiler rooms, cooling towers, and
+      industrial-grade boilers, our systems are engineered for serious
+      performance. Whether it's a new install, urgent repair, or long-term
+      maintenance, we keep {title ? `${title}` : "America"} chillin’
+    </p>
+  </div>
+</Section>
 
-  <!-- <Section
+<!-- <Section
     collection="services"
     query="getAll"
     component={ServiceSection}
@@ -106,77 +105,82 @@ const {
     buttonsSectionClass="hidden"
     /> -->
 
-  <!-- What We DO -->
-  <Section collection="whatWeDo" query="featured" variant="secondary" />
+<!-- What We DO -->
+<Section collection="whatWeDo" query="featured" variant="secondary" />
 
-  <!-- Services -->
-  <ChillersBoilersLayout />
+<!-- Services -->
+<ChillersBoilersLayout />
 
-  <!-- Why Choose Us -->
-  <Section
-    collection="whyChooseUs"
-    query="getAll"
-    component={ListItem}
-    variant="tertiary"
-  >
-    <div slot="imageColumn" class="h-auto w-full lg:sticky lg:top-0">
+<!-- Why Choose Us -->
+<Section
+  collection="whyChooseUs"
+  query="getAll"
+  component={ListItem}
+  variant="tertiary"
+>
+  <div slot="imageColumn" class="h-auto w-full lg:sticky lg:top-0">
+    <Image
+      src={Contractor}
+      alt={"Image"}
+      class="object-cover rounded-4xl h-full w-full load scale-up"
+    />
+    <div
+      class="flex justify-between items-center gap-4 py-5 w-full flex-col lg:flex-row text-center lg:text-left"
+    >
       <Image
-        src={Contractor}
-        alt={"Image"}
-        class="object-cover rounded-4xl h-full w-full load scale-up"
+        src={UCLogo}
+        alt="Universal Chillers Logo"
+        class="w-35 lg:w-25 h-full load scale-up invert"
       />
-      <div
-        class="flex justify-between items-center gap-4 py-5 w-full flex-col lg:flex-row text-center lg:text-left"
-      >
-        <Image
-          src={UCLogo}
-          alt="Universal Chillers Logo"
-          class="w-35 lg:w-25 h-full load scale-up invert"
-        />
-        <p class="p-0 w-full large-text">
-          Our expert team delivers dependable climate control systems tailored
-          for mission-critical environments and industrial facilities.
-        </p>
-      </div>
+      <p class="p-0 w-full large-text">
+        Our expert team delivers dependable climate control systems tailored for
+        mission-critical environments and industrial facilities.
+      </p>
     </div>
-  </Section>
+  </div>
+</Section>
 
-  <!-- Brands We Service -->
-  <Section
-    collection="brands"
-    query="getAll"
-    component={LogoLoop}
-    sectionClass="min-h-[70vh] lg:min-h-[50vh] flex items-center justify-center"
-    contentClass="mx-auto w-9/10"
-    itemsClass="flex justify-between items-center py-[var(--spacing-md)] flex-wrap gap-[var(--spacing-sm)]"
-  />
+<!-- Brands We Service -->
+<Section
+  collection="brands"
+  query="getAll"
+  component={LogoLoop}
+  sectionClass="min-h-[70vh] lg:min-h-[50vh] flex items-center justify-center"
+  contentClass="mx-auto w-9/10"
+  itemsClass="flex justify-between items-center py-[var(--spacing-md)] flex-wrap gap-[var(--spacing-sm)]"
+/>
 
-  <!-- Projects -->
-  <!-- <Section
+<!-- Projects -->
+<!-- <Section
     collection="projects"
     query="getAll"
     heading={{ text: "Our Projects", tagName: "h2" }}
   /> -->
 
-  <!-- Testimonials -->
-  <!-- <Section collection="testimonials" query="getAll" /> -->
+<!-- Testimonials -->
+<!-- <Section collection="testimonials" query="getAll" /> -->
 
-  <!-- <Section collection="faq" query="getAll" /> -->
-  <Section
-    heading={{
-      text: `Don’t Let Your Facility Overheat or Freeze Up`,
-      tagName: "h2",
-      class: "text-bg load slide-down",
-    }}
-    description={SiteData.tagline}
-    buttons={[{ text: "Get A Quote", link: "/contact", variant: "tertiary" },
-            { text: `${phone && phone.data.title ? formatPhoneNumber(phone.data.title) : "Call Us"}`, link: "/contact", variant: "phone" }
-    ]}
-    variant="cta"
-  >
-    <Image
-      src={UCLogo}
-      alt="Universal Chillers Logo"
-      class="w-auto h-35 load scale-up"
-    />
-  </Section>
+<!-- <Section collection="faq" query="getAll" /> -->
+<Section
+  heading={{
+    text: `Don’t Let Your Facility Overheat or Freeze Up`,
+    tagName: "h2",
+    class: "text-bg load slide-down",
+  }}
+  description={SiteData.tagline}
+  buttons={[
+    { text: "Get A Quote", link: "/contact", variant: "tertiary" },
+    {
+      text: `${phone && phone.data.title ? formatPhoneNumber(phone.data.title) : "Call Us"}`,
+      link: "/contact",
+      variant: "phone",
+    },
+  ]}
+  variant="cta"
+>
+  <Image
+    src={UCLogo}
+    alt="Universal Chillers Logo"
+    class="w-auto h-35 load scale-up"
+  />
+</Section>
