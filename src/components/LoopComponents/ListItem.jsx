@@ -23,7 +23,7 @@ export default function ListItem({ item, itemClass, collectionName, HasPage }) {
         <Heading tagName={"h3"} className="h3 text-secondary">
           {item.data.title}
         </Heading>
-        <p className="m-0 text-text text-sm lg:text-xl">
+        <p className="m-0 text-text text-base lg:text-xl">
           {item.data.description || item.body}
         </p>
       </div>
