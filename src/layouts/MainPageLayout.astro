@@ -14,7 +14,6 @@ import { Image } from "astro:assets";
 import ChillersBoilersLayout from "@/layouts/ChillersBoilersLayout.astro";
 import ListItem from "@/components/LoopComponents/ListItem";
 import { getCollection } from "astro:content";
-import { format } from "path";
 import { formatPhoneNumber } from "@/utils/ContentUtils";
 // Get the contact collection
 const contactCollection = await getCollection("contact");
@@ -51,7 +50,7 @@ const { collection, entry, title, description, keywords, ogType, ...rest } =
     fetchpriority="high"
   />
   <div
-    class="circle hidden lg:block bg-[rgba(var(--color-boilLight),0.55)] -bottom-50 left-30 right-0"
+    class="circle hidden lg:block lg:absolute bg-[rgba(var(--color-boilLight),0.55)] -bottom-50 left-30 right-0"
   >
   </div>
 </Section>

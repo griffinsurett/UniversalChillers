@@ -1,11 +1,42 @@
 ---
 // src/pages/404.astro
 import Button from "@/components/Button/Button.jsx";
+import Section from "@/components/Section/Section.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+import { formatPhoneNumber } from "@/utils/ContentUtils";
+// Get the contact collection
+const contactCollection = await getCollection("contact");
+const phone = contactCollection.find((contact) => contact.id === "phone");
 ---
-<BaseLayout title="Page Not Found" description="The page you requested does not exist." robots="noindex, nofollow">
-  <p class="p-[var(--spacing-md)] text-[var(--color-text)]">
-    You've found the wrong place.
-  </p>
-  <Button href="/">Go back home</Button>
+
+<BaseLayout
+  title="Page Not Found"
+  description="The page you requested does not exist."
+  robots="noindex, nofollow"
+>
+  <Section
+    variant="circle"
+    heading={{
+      text: "There's Nothing Chill Here!",
+      tagName: "h1",
+      class: "text-bg",
+    }}
+    description={{
+      text: "The page you requested does not exist.",
+      class: "text-bg",
+    }}
+    buttons={[
+      {
+        text: "Go Back Home",
+        link: "/",
+        variant: "primary",
+      },
+      {
+      text: `${phone && phone.data.title ? formatPhoneNumber(phone.data.title) : "Call Us"}`,
+      link: "/contact",
+      variant: "phone",
+    },
+    ]}
+  />
 </BaseLayout>

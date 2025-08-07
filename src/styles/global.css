@@ -154,7 +154,7 @@ p {
   }
 
   .circle {
-    @apply rounded-full lg:absolute h-[400px] w-[400px] md:h-[450px] md:w-[450px] lg:h-[650px] lg:w-[650px] flex items-center justify-center;
+    @apply rounded-full h-[400px] w-[400px] md:h-[450px] md:w-[450px] lg:h-[650px] lg:w-[650px] flex items-center justify-center;
   }
 }
   

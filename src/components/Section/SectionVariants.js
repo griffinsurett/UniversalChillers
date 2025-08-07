@@ -28,7 +28,7 @@ export const SectionVariants = {
     contentClass: "text-center space-y-[var(--spacing-md)]",
       buttonsSectionClass: "flex flex-col gap-[var(--spacing-md)] justify-center items-center mt-[var(--spacing-sm)]",
     topContentClass:
-      "z-[999999] lg:top-0 lg:left-auto lg:right-[-100px] lg:translate-x-0 lg:translate-y-0 bg-primary/70 circle",
+      "z-[999999] lg:top-0 lg:left-auto lg:right-[-100px] lg:translate-x-0 lg:translate-y-0 bg-primary/70 circle lg:absolute",
     headingAreaClass:
       "flex flex-col items-center justify-center gap-[var(--spacing-md)] lg:-mb-[var(--spacing-xl)]",
     buttonsPlacement: "section-heading-area",
@@ -62,6 +62,25 @@ export const SectionVariants = {
     contentClass: "container mx-auto text-center space-y-[var(--spacing-lg)] py-9",
     buttonsSectionClass: "hidden",
     headingAreaClass: "w-8/10 lg:w-6/10 mx-auto text-center text-bg",
+  },
+
+  circle: {
+    sectionClass:
+      "relative min-h-[100vh] overflow-hidden flex items-center justify-center bg-cover bg-fixed bg-center z-10 md:p-[var(--spacing-lg)] text-bg text-xl",
+    contentClass: "text-center space-y-[var(--spacing-md)]",
+    buttonsSectionClass: "flex flex-col gap-[var(--spacing-md)] justify-center items-center",
+descriptionPlacement: "section-heading-area",
+    buttonsPlacement:     "section-heading-area",
+        topContentClass:
+      "z-[999999] bg-accent/70 circle flex flex-col items-center justify-center",
+    headingAreaClass:
+      "flex flex-col items-center justify-center gap-[var(--spacing-md)] lg:-mb-[var(--spacing-xl)]",
+    backgroundMedia: {
+      image: {
+        src: HeroBg,
+        imageClass: "bg-cover bg-center xl:bg-fixed w-screen",
+      },
+    },
   },
 
   primary: {
