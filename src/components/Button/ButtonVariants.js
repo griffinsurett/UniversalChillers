@@ -67,7 +67,7 @@ export const ButtonVariants = {
     iconDefaults: {
       icon: PhoneIcon,
       position: "left",
-      className: "w-10 h-10", // Larger icon for mobile
+      className: "w-7 h-7 lg:w-10 lg:h-10", // Larger icon for mobile
       containerClass: "",
     },
   },
