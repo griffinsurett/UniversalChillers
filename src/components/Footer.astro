@@ -9,7 +9,7 @@ import ContactMenuItem from "@/components/Menu/ContactMenuItem.astro";
 
 const footerMenuContainer = "footer-container text-left flex flex-col"
 const menuLabelClass = "h3 pb-[var(--spacing-md)]";
-const menuItemsClass = "flex flex-col gap-[var(--spacing-sm)] h5";
+const menuItemsClass = "flex flex-col gap-[var(--spacing-sm)] text-xl uppercase";
 ---
 
 <footer class="flex flex-col w-9/10 mx-auto bg-[var(--color-bg)] text-[var(--color-text)] load slide-up">
@@ -74,7 +74,7 @@ const menuItemsClass = "flex flex-col gap-[var(--spacing-sm)] h5";
   collection="contact"
   query="getAll"
   sortOrder="desc"
-  itemsClass={menuItemsClass}
+  itemsClass={"flex flex-col gap-[var(--spacing-sm)] h6"}
   menuItem={{
     component: ContactMenuItem,
     props: {
