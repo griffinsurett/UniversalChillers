@@ -26,7 +26,7 @@ export const SectionVariants = {
     sectionClass:
       "relative min-h-[100vh] overflow-hidden flex items-center justify-center bg-cover bg-fixed bg-center z-10 md:p-[var(--spacing-lg)] text-bg text-xl",
     contentClass: "text-center space-y-[var(--spacing-md)]",
-      buttonsSectionClass: "flex flex-col gap-[var(--spacing-md)] justify-center items-center mt-[var(--spacing-sm)]",
+      buttonsSectionClass: "flex flex-col gap-2 justify-center items-center mt-[var(--spacing-sm)]",
     topContentClass:
       "z-[999999] lg:top-0 lg:left-auto lg:right-[-100px] lg:translate-x-0 lg:translate-y-0 bg-primary/70 circle lg:absolute",
     headingAreaClass:
