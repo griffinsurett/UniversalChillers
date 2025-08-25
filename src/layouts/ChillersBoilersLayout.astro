@@ -1,28 +1,30 @@
 ---
 import Section from "@/components/Section/Section.astro";
 import Button from "@/components/Button/Button";
-import { getCollection } from 'astro:content';
+import { getCollection } from "astro:content";
 import ChillersImg from "@/assets/Chiller.jpg";
-import BoilersImg   from "@/assets/Boiller.jpg";
+import BoilersImg from "@/assets/Boiller.jpg";
 import Heading from "@/components/Heading";
 
 // Fetch all service entries from the `services` content collection
-const allServices = await getCollection('services');
+const allServices = await getCollection("services");
 
 // Find the individual entries for chillers and boilers
-const chillers = allServices.find(s => s.slug === 'chillers');
-const boilers  = allServices.find(s => s.slug === 'boilers');
+const chillers = allServices.find((s) => s.slug === "chillers");
+const boilers = allServices.find((s) => s.slug === "boilers");
 
 const defaultSlug = "/contact"; // Default slug for services without a dedicated page
 
 // Default background panel classes
 const baseSecClasses =
   "load fade-in min-h-[50vh] lg:min-h-[65vh] xl:min-h-[90vh] w-full bg-cover bg-center flex justify-center";
-  const headingClass = "text-2xl lg:text-3xl xl:text-4xl font-bold load slide-down font-heading";
-  const paragraphClass = "max-w-prose text-base lg:text-lg load slide-up";
-  const serviceContainerClass = "flex flex-col items-center justify-center text-center p-8 lg:p-16 text-bg space-y-[var(--spacing-md)]";
-  const buttonsClass = "load scale-up";
-  const buttonVariant = "tertiary";
+const headingClass =
+  "text-2xl lg:text-3xl xl:text-4xl font-bold load slide-down font-heading";
+const paragraphClass = "max-w-prose text-base lg:text-lg load slide-up";
+const serviceContainerClass =
+  "flex flex-col items-center justify-center text-center p-8 lg:p-16 text-bg space-y-[var(--spacing-md)]";
+const buttonsClass = "load scale-up";
+const buttonVariant = "tertiary";
 ---
 
 <Section sectionClass="p-0 m-0" contentClass="p-0 m-0" childSlotClass="p-0 m-0">
@@ -39,12 +41,12 @@ const baseSecClasses =
         {chillers.data.description}
       </p>
       <Button
-        href={chillers.data.hasPage ? `/services/${chillers.slug}` : defaultSlug}
+        href={`/services/${chillers.slug}`}
         variant={buttonVariant}
         className={buttonsClass}
       >
-    {chillers.data.hasPage ? "Learn More" : "Contact Us"}
-    </Button>
+        Interested In {chillers.slug}
+      </Button>
     </div>
   </div>
 
@@ -61,11 +63,11 @@ const baseSecClasses =
         {boilers.data.description}
       </p>
       <Button
-        href={boilers.data.hasPage ? `/services/${boilers.slug}` : defaultSlug}
+        href={`/services/${boilers.slug}`}
         variant={buttonVariant}
         className={buttonsClass}
       >
-        {boilers.data.hasPage ? "Learn More" : "Contact Us"}
+        Interested In {boilers.slug}
       </Button>
     </div>
   </div>
