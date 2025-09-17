@@ -37,7 +37,7 @@ const { collection, entry, title, description, keywords, ogType, ...rest } =
     { text: "Get A Quote", link: "/contact", variant: "tertiary" },
     {
       text: `${phone && phone.data.title ? formatPhoneNumber(phone.data.title) : "Call Us"}`,
-      link: "/contact",
+      link: `${phone.data.linkPrefix}${phone.data.title}`,
       variant: "phone",
     },
   ]}
